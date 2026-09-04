@@ -2,41 +2,89 @@
 
 
 
-| Table | Rôle actuel | Migration |
+Cette page présente les principales tables présentes dans `MC\_data 2026.accdb`.
 
 
+
+\## Tables principales
+
+
+
+| Table | Rôle actuel | État pour la future migration |
 
 |---|---|---|
 
+| Propriétaire | Contient les dossiers et coordonnées des propriétaires | À conserver et restructurer |
 
+| Chien | Contient les informations des chiens ainsi que leur numéro de licence actuel | À conserver et restructurer |
 
-| Propriétaire | Dossiers et coordonnées des propriétaires | À conserver / restructurer |
+| Paiement | Contient les paiements effectués par les propriétaires | À conserver et restructurer |
 
-| Chien | Informations des chiens et numéro de licence actuel | À conserver / restructurer |
+| Municipalité | Contient les municipalités ainsi que leurs tarifs et règles | À conserver |
 
-| Municipalité | Municipalités, tarifs et règles de paiement | À conserver |
+| Avis | Contient les informations utilisées pour les avis | À analyser davantage |
 
-| Paiement | Historique des paiements des propriétaires | À conserver / restructurer |
+| Archives | Contient des informations financières historiques par année et municipalité | À analyser |
 
-| Avis | Modèles ou informations liées aux avis | À analyser |
-
-| Race | Liste des races | À conserver |
+| Race | Liste des races de chiens | À conserver |
 
 | Couleur | Liste des couleurs | À conserver |
 
-| Rue | Liste des rues par municipalité | À confirmer |
+| Rue | Liste de rues associées aux municipalités | À confirmer |
 
-| Paramètre | Configuration générale du logiciel | À restructurer |
+| Paramètre | Paramètres généraux de l'application | À restructurer |
 
-| Municipalité en cours | Municipalités actuellement utilisées | À analyser |
+| Municipalité en cours | Définit les municipalités actuellement actives/utilisées | À analyser |
 
-| Archives | Montants archivés par année et municipalité | À analyser |
 
-| Tampon Adresse | Table intermédiaire d'adresse | Probablement à abandonner |
 
-| Tampon année | Table intermédiaire annuelle | Probablement à abandonner |
+\## Tables temporaires
 
-| Tampon solde | Table intermédiaire de calcul des soldes | Probablement à abandonner |
 
-| MSysCompactError | Table technique Access | À abandonner |
+
+| Table | Rôle |
+
+|---|---|
+
+| Tampon Adresse | Stockage temporaire utilisé dans certaines opérations |
+
+| Tampon année | Stockage temporaire utilisé pendant les opérations annuelles |
+
+| Tampon solde | Stockage temporaire des soldes avant la remise à zéro annuelle |
+
+
+
+Ces tables semblent être des tables techniques de travail et ne devraient probablement pas être reproduites directement dans la nouvelle architecture.
+
+
+
+\## Table technique Access
+
+
+
+| Table | Rôle |
+
+|---|---|
+
+| MSysCompactError | Table technique liée à Microsoft Access |
+
+
+
+Cette table ne devra pas être migrée.
+
+
+
+\## Particularité importante
+
+
+
+Il n'existe actuellement aucune table dédiée aux licences.
+
+
+
+Le numéro de licence est directement enregistré dans la table `Chien`.
+
+
+
+Dans la future version, il faudra déterminer s'il est préférable de créer une véritable entité `Licence` afin de conserver un historique des licences et renouvellements.
 
