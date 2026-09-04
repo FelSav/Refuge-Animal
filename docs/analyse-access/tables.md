@@ -2,55 +2,41 @@
 
 
 
-\## Propriétaires
+| Table | Rôle actuel | Migration |
 
 
 
-Rôle :
-
-Contient les informations concernant les propriétaires d'animaux.
+|---|---|---|
 
 
 
-| Champ | Type | Description | À conserver |
+| Propriétaire | Dossiers et coordonnées des propriétaires | À conserver / restructurer |
 
-|---|---|---|---|
+| Chien | Informations des chiens et numéro de licence actuel | À conserver / restructurer |
 
-| ID | ? | Identifiant du propriétaire | Oui |
+| Municipalité | Municipalités, tarifs et règles de paiement | À conserver |
 
-| Nom | ? | Nom du propriétaire | Oui |
+| Paiement | Historique des paiements des propriétaires | À conserver / restructurer |
 
-| Téléphone | ? | Numéro de téléphone | À confirmer |
+| Avis | Modèles ou informations liées aux avis | À analyser |
 
+| Race | Liste des races | À conserver |
 
+| Couleur | Liste des couleurs | À conserver |
 
-\## Chiens
+| Rue | Liste des rues par municipalité | À confirmer |
 
+| Paramètre | Configuration générale du logiciel | À restructurer |
 
+| Municipalité en cours | Municipalités actuellement utilisées | À analyser |
 
-Rôle :
+| Archives | Montants archivés par année et municipalité | À analyser |
 
-Contient les informations concernant les chiens.
+| Tampon Adresse | Table intermédiaire d'adresse | Probablement à abandonner |
 
+| Tampon année | Table intermédiaire annuelle | Probablement à abandonner |
 
+| Tampon solde | Table intermédiaire de calcul des soldes | Probablement à abandonner |
 
-| Champ | Type | Description | À conserver |
-
-|---|---|---|---|
-
-
-
-\## Licences
-
-
-
-...
-
-
-
-\## Paiements
-
-
-
-...
+| MSysCompactError | Table technique Access | À abandonner |
 
