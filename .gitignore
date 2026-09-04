@@ -1,0 +1,29 @@
+# Microsoft Access
+*.accdb
+*.mdb
+*.laccdb
+*.ldb
+
+# Données locales / client
+data/
+database/
+backups/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Visual Studio / .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
