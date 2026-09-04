@@ -1,34 +1,44 @@
-\# Migration
+À conserver :
+
+\- Propriétaires
+
+\- Chiens
+
+\- Paiements
+
+\- Municipalités
+
+\- Races
+
+\- Couleurs
+
+\- Historique utile
 
 
 
-\## À conserver
+À restructurer :
+
+\- Licences
+
+\- Soldes
+
+\- Frais
+
+\- Avis
+
+\- Archives
+
+\- Paramètres
 
 
 
-À déterminer.
+Probablement à ne pas reproduire :
 
+\- Tampon Adresse
 
+\- Tampon année
 
-\## À transformer
+\- Tampon solde
 
-
-
-À déterminer.
-
-
-
-\## À abandonner
-
-
-
-À déterminer.
-
-
-
-\## Données historiques
-
-
-
-À déterminer avec le client.
+\- MSysCompactError
 

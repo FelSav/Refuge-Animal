@@ -1,22 +1,36 @@
-\# Règles métier
+\- Tarif différent selon la municipalité
+
+\- Possibilité d'un tarif différent pour le 2e chien
+
+\- Tarif fixe pour un chenil
+
+\- Frais de retard après la date limite
+
+\- Calcul du solde :
+
+&#x20; solde dû + frais - paiements
 
 
 
-\## Renouvellement d'une licence
+\- Possibilité de conserver ou non le numéro de licence d'une année à l'autre
 
 
 
-À déterminer.
+\- Fermeture annuelle :
 
+&#x20; sauvegarde
 
+&#x20; → conservation des soldes impayés
 
-Questions :
+&#x20; → remise à zéro
 
-\- Une nouvelle licence est-elle créée chaque année ?
+&#x20; → nouveaux frais annuels
 
-\- Le numéro reste-t-il identique ?
+&#x20; → archivage
 
-\- Quelle date détermine l'expiration ?
+&#x20; → suppression anciens paiements
 
-\- Le prix dépend-il de la municipalité ?
+&#x20; → report éventuel des dettes
+
+&#x20; → renouvellement de la date limite
 

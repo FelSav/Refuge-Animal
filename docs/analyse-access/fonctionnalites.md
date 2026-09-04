@@ -1,38 +1,24 @@
-\# Fonctionnalités
-
-
-
-\## Propriétaires
-
 \- Rechercher un propriétaire
 
-\- Consulter son dossier
+\- Voir son dossier
 
-\- Modifier ses informations
+\- Gérer ses chiens
 
+\- Attribuer/modifier une licence
 
+\- Ajouter des paiements
 
-\## Chiens
+\- Voir les soldes
 
-\- Ajouter un chien
+\- Gérer les avis
 
-\- Consulter un chien
+\- Voir les paiements journaliers
 
-\- ...
+\- Configurer les municipalités
 
+\- Produire des rapports
 
+\- Faire une sauvegarde/restauration
 
-\## Licences
-
-\- Créer une licence
-
-\- Renouveler une licence
-
-\- ...
-
-
-
-\## Paiements
-
-\- ...
+\- Faire la fermeture annuelle
 
