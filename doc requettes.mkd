@@ -1,0 +1,543 @@
+# API Backend — Refuge animal
+
+## 1. MuniChien
+
+### 1.1 Propriétaire
+
+
+## 1.2 Chiens
+
+### Requête
+
+```http
+GET /api/fidelite/membres/{id}
+```
+
+### Objectif
+
+Récupérer les informations d'un membre du programme de fidélité.
+
+### Données entrantes
+
+| Nom  | Type  | Obligatoire | Description           |
+| ---- | ----- | ----------- | --------------------- |
+| `id` | `int` | Oui         | Identifiant du membre |
+
+Exemple :
+
+```http
+GET /api/fidelite/membres/125
+```
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 125,
+        "nom": "Jean Dupont",
+        "courriel": "jean@example.com",
+        "points": 350,
+        "niveau": "Or"
+    }
+}
+```
+
+---
+
+## 2.2 Créer un membre
+
+### Requête
+
+```http
+POST /api/fidelite/membres
+```
+
+### Objectif
+
+Créer un nouveau membre du programme de fidélité.
+
+### Données entrantes
+
+```json
+{
+    "nom": "Jean Dupont",
+    "courriel": "jean@example.com"
+}
+```
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 125,
+        "nom": "Jean Dupont",
+        "courriel": "jean@example.com",
+        "points": 0,
+        "niveau": "Bronze"
+    }
+}
+```
+
+### Erreurs possibles
+
+| Code HTTP | Code erreur      | Description               |
+| --------- | ---------------- | ------------------------- |
+| `400`     | `INVALID_DATA`   | Données invalides         |
+| `409`     | `ALREADY_EXISTS` | Le membre existe déjà     |
+| `500`     | `DATABASE_ERROR` | Erreur de base de données |
+
+---
+
+## 2.3 Ajouter des points
+
+### Requête
+
+```http
+POST /api/fidelite/membres/{id}/points
+```
+
+### Objectif
+
+Ajouter des points au compte d'un membre.
+
+### Données entrantes
+
+```json
+{
+    "points": 50,
+    "raison": "Achat"
+}
+```
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 125,
+        "points_ajoutes": 50,
+        "nouveau_solde": 400
+    }
+}
+```
+
+---
+
+## 2.4 Retirer des points
+
+### Requête
+
+```http
+POST /api/fidelite/membres/{id}/points/retrait
+```
+
+### Objectif
+
+Utiliser les points d'un membre pour obtenir une récompense.
+
+### Données entrantes
+
+```json
+{
+    "points": 200,
+    "recompense_id": 12
+}
+```
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 125,
+        "points_utilises": 200,
+        "nouveau_solde": 200,
+        "recompense": "Rabais de 10$"
+    }
+}
+```
+
+---
+
+## 2.5 Consulter les récompenses
+
+### Requête
+
+```http
+GET /api/fidelite/recompenses
+```
+
+### Objectif
+
+Récupérer la liste des récompenses disponibles.
+
+### Données entrantes
+
+Aucune.
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "nom": "Rabais de 5$",
+            "points_requis": 100
+        },
+        {
+            "id": 2,
+            "nom": "Rabais de 10$",
+            "points_requis": 200
+        }
+    ]
+}
+```
+
+---
+
+# 3. Gestion des chiens
+
+## 3.1 Récupérer un chien
+
+### Requête
+
+```http
+GET /api/chiens/{id}
+```
+
+### Objectif
+
+Récupérer les informations d'un chien enregistré auprès du refuge.
+
+### Données entrantes
+
+| Nom  | Type  | Obligatoire | Description          |
+| ---- | ----- | ----------- | -------------------- |
+| `id` | `int` | Oui         | Identifiant du chien |
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 45,
+        "nom": "Rex",
+        "race": "Berger allemand",
+        "date_naissance": "2021-05-14",
+        "proprietaire_id": 125,
+        "licence_id": 8742
+    }
+}
+```
+
+---
+
+## 3.2 Enregistrer un chien
+
+### Requête
+
+```http
+POST /api/chiens
+```
+
+### Données entrantes
+
+```json
+{
+    "nom": "Rex",
+    "race": "Berger allemand",
+    "date_naissance": "2021-05-14",
+    "proprietaire_id": 125
+}
+```
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 45,
+        "nom": "Rex",
+        "race": "Berger allemand",
+        "date_naissance": "2021-05-14",
+        "proprietaire_id": 125
+    }
+}
+```
+
+---
+
+# 4. Gestion des licences
+
+## 4.1 Récupérer une licence
+
+### Requête
+
+```http
+GET /api/licences/{id}
+```
+
+### Objectif
+
+Récupérer les informations d'une licence canine.
+
+### Données entrantes
+
+| Nom  | Type  | Obligatoire | Description               |
+| ---- | ----- | ----------- | ------------------------- |
+| `id` | `int` | Oui         | Identifiant de la licence |
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 8742,
+        "chien_id": 45,
+        "numero": "LIC-2026-8742",
+        "date_emission": "2026-04-12",
+        "date_expiration": "2027-04-12",
+        "statut": "ACTIVE"
+    }
+}
+```
+
+---
+
+## 4.2 Créer une licence
+
+### Requête
+
+```http
+POST /api/licences
+```
+
+### Objectif
+
+Créer une nouvelle licence pour un chien.
+
+### Données entrantes
+
+```json
+{
+    "chien_id": 45,
+    "date_emission": "2026-04-12"
+}
+```
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 8742,
+        "chien_id": 45,
+        "numero": "LIC-2026-8742",
+        "date_emission": "2026-04-12",
+        "date_expiration": "2027-04-12",
+        "statut": "ACTIVE"
+    }
+}
+```
+
+---
+
+## 4.3 Renouveler une licence
+
+### Requête
+
+```http
+PUT /api/licences/{id}/renouvellement
+```
+
+### Objectif
+
+Renouveler une licence arrivée à expiration.
+
+### Données entrantes
+
+```json
+{
+    "date_renouvellement": "2027-04-10"
+}
+```
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 8742,
+        "date_emission": "2027-04-10",
+        "date_expiration": "2028-04-10",
+        "statut": "ACTIVE"
+    }
+}
+```
+
+---
+
+## 4.4 Désactiver une licence
+
+### Requête
+
+```http
+PUT /api/licences/{id}/desactivation
+```
+
+### Objectif
+
+Désactiver une licence lorsqu'elle n'est plus valide.
+
+### Données entrantes
+
+Aucune.
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 8742,
+        "statut": "INACTIVE"
+    }
+}
+```
+
+---
+
+# 5. Recherche
+
+## 5.1 Rechercher un chien
+
+### Requête
+
+```http
+GET /api/chiens/recherche?nom=Rex
+```
+
+### Objectif
+
+Rechercher un ou plusieurs chiens par leur nom.
+
+### Données entrantes
+
+| Nom               | Type     | Obligatoire | Description                 |
+| ----------------- | -------- | ----------- | --------------------------- |
+| `nom`             | `string` | Non         | Nom du chien                |
+| `licence`         | `string` | Non         | Numéro de licence           |
+| `proprietaire_id` | `int`    | Non         | Identifiant du propriétaire |
+
+### Exemple
+
+```http
+GET /api/chiens/recherche?nom=Rex&licence=LIC-2026-8742
+```
+
+### Données sortantes
+
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "id": 45,
+            "nom": "Rex",
+            "race": "Berger allemand",
+            "licence": "LIC-2026-8742",
+            "statut_licence": "ACTIVE"
+        }
+    ]
+}
+```
+
+---
+
+# 6. Codes HTTP
+
+Le backend utilise les codes HTTP standards.
+
+| Code  | Signification             |
+| ----- | ------------------------- |
+| `200` | Requête réussie           |
+| `201` | Ressource créée           |
+| `400` | Requête invalide          |
+| `401` | Authentification requise  |
+| `403` | Accès interdit            |
+| `404` | Ressource inexistante     |
+| `409` | Conflit                   |
+| `500` | Erreur interne du serveur |
+
+---
+
+# 7. Conventions
+
+## Nommage des routes
+
+Les routes utilisent :
+
+* des noms au pluriel ;
+* des minuscules ;
+* des `/` pour séparer les ressources ;
+* des identifiants entre `{}`.
+
+Exemple :
+
+```text
+/api/chiens/{id}
+/api/licences/{id}
+/api/fidelite/membres/{id}
+```
+
+## Nommage JSON
+
+Les propriétés JSON utilisent `snake_case`.
+
+Exemple :
+
+```json
+{
+    "date_expiration": "2027-04-12",
+    "proprietaire_id": 125
+}
+```
+
+## Dates
+
+Les dates utilisent le format ISO 8601 :
+
+```text
+YYYY-MM-DD
+```
+
+Exemple :
+
+```text
+2026-09-06
+```
+
+Les dates et heures utilisent :
+
+```text
+YYYY-MM-DDTHH:mm:ss
+```
+
+Exemple :
+
+```text
+2026-09-06T14:30:00
+```
