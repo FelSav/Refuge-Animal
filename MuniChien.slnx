@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="src/MuniChien.App/MuniChien.App.csproj" Id="a9869ad6-8b62-406c-b9c6-a3e11aa229c3" />
+  <Project Path="src/MuniChien.Core/MuniChien.Core.csproj" Id="a29db45e-d6ea-4eb8-a184-823459abee97" />
+  <Project Path="src/MuniChien.Data/MuniChien.Data.csproj" Id="459b7426-15f5-4a03-bc9d-003633ee7418" />
+  <Project Path="src/MuniChien.Infrastructure/MuniChien.Infrastructure.csproj" Id="916e03bb-ba40-4bf7-b9c4-be9feac030c0" />
+  <Project Path="tests/MuniChien.Tests/MuniChien.Tests.csproj" Id="b6b585e7-5e9e-4643-9651-434533f27778" />
+</Solution>

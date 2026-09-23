@@ -1,262 +1,65 @@
-# Architecture du nouveau Muni-Chien
+# Architecture — MuniChien
 
-## Objectif
+Révision : 6 septembre 2026. Source fonctionnelle : `Projet_Refuge_Animal_Document_Comprehension.docx`, version du 5 septembre 2026, notamment §§ 1, 4, 7–10 et 13. Les choix techniques issus de la conversation « Refuge Animal » sont distincts des exigences officielles. Voir [decisions.md](decisions.md).
 
-Le nouveau Muni-Chien doit remplacer progressivement l'application actuelle développée dans Microsoft Access.
+## Architecture exigée par le document
 
-L'application doit être plus moderne, plus stable et plus simple à maintenir tout en conservant les fonctions importantes de l'ancien logiciel.
-
-Le système doit fonctionner localement au Refuge Animal et être utilisable simultanément sur environ 6 à 7 ordinateurs.
-
----
-
-## Type d'application
-
-Le nouveau Muni-Chien sera une application de bureau Windows.
-
-Technologies prévues :
-
-- Langage : C#
-- Framework : .NET
-- Interface graphique : WPF
-- Accès aux données : Entity Framework Core
-- Base de données : SQL Server Express
-
----
-
-## Architecture générale
-
-Le système utilisera une architecture client-serveur sur le réseau local du Refuge Animal.
-
-Les différents ordinateurs utiliseront tous la même base de données centrale.
+Deux logiciels indépendants disposent de deux bases séparées : MuniChien et Fidélité. Le serveur du Refuge Animal héberge l’API centrale et les deux bases. Les six postes utilisent des applications clientes et ne se connectent jamais directement aux bases.
 
 ```text
-Ordinateur 1 ─┐
-Ordinateur 2 ─┤
-Ordinateur 3 ─┤
-Ordinateur 4 ─┼── Réseau local ── Serveur SQL
-Ordinateur 5 ─┤
-Ordinateur 6 ─┤
-Ordinateur 7 ─┘
+Six postes de travail
+  Application MuniChien ──┐
+  Application Fidélité ───┴── API centrale sur le serveur
+                              ├── Domaine MuniChien → Base MuniChien
+                              └── Domaine Fidélité  → Base Fidélité
 ```
 
-Chaque poste aura l'application Muni-Chien installée localement.
+L’API centralise les validations, les calculs métier, la sécurité et les accès concurrents. Chaque logiciel fonctionne sans l’autre. Aucun dossier, table partagée ou lien obligatoire entre leurs bases ne doit créer une dépendance fonctionnelle. Le découpage interne de l’API est une décision de conception, pas une exigence imposant deux services distincts.
 
-Tous les postes travailleront sur la même base de données centrale.
+Ce dossier ne conçoit pas le logiciel Fidélité au-delà de ces frontières globales. La fusion et Acomba sont des évolutions éventuelles de fin de projet, après stabilisation des deux logiciels. Les opérations essentielles de MuniChien restent réalisables manuellement.
 
----
+## Choix techniques actuels de l’équipe
 
-## Base de données
+La conversation de projet retient C#, .NET 10, WPF et SQL Server. Ces choix restent cohérents avec un client Windows et une API serveur; ils ne proviennent pas du document officiel, qui reste neutre sur les technologies (§§ 1 et 7.1). La fondation WPF est rapportée comme compilée et fonctionnelle dans la conversation; le dépôt n’a pas été vérifié dans cette révision documentaire.
 
-La base de données sera centralisée afin que tous les utilisateurs puissent consulter et modifier les mêmes informations.
+Adaptation proposée de la structure existante :
 
-SQL Server Express est actuellement le choix privilégié.
+| Projet | Responsabilité et statut |
+| --- | --- |
+| `MuniChien.App` | Client WPF existant : écrans, navigation, appels API; aucun accès SQL ni DbContext. |
+| `MuniChien.Core` | Modèle métier et règles indépendantes de l’interface. |
+| `MuniChien.Data` | Accès SQL Server côté serveur; EF Core prévu par l’équipe, à configurer. |
+| `MuniChien.Infrastructure` | Adaptateurs techniques, rapports, adresses et sauvegardes selon leur lieu d’exécution. |
+| `MuniChien.Tests` | Vérifications métier et techniques. |
+| `MuniChien.Api` | Ajout proposé : API ASP.NET Core, validations et orchestration serveur. |
+| `MuniChien.Contracts` | Ajout proposé si utile : contrats d’échange sans dépendance SQL ou WPF. |
 
-Ce choix permet notamment :
+L’ancienne liaison directe `App → Data → SQL Server` doit être remplacée par `App → API → Data → SQL Server`. Les références de projets déjà proposées dans la conversation doivent être revues en conséquence. Aucune modification du code n’est effectuée par ces fichiers.
 
-- L'utilisation simultanée par plusieurs postes
-- Une meilleure gestion des accès concurrents qu'une base Access
-- Une base relationnelle structurée
-- L'utilisation d'Entity Framework Core
-- La possibilité d'effectuer des sauvegardes
-- Une évolution future vers une version plus complète de SQL Server si nécessaire
+## Concurrence sur six postes
 
-SQLite n'est pas retenu pour la base principale puisque l'application doit être utilisée simultanément sur plusieurs ordinateurs.
+Exigences (§§ 4.3 et 7.3, MUN-014) : consultation et création simultanées de dossiers différents; identifiants générés sans doublons; deuxième modification concurrente du même dossier empêchée. Afficher le nom de l’employé détenant le verrou n’est pas nécessaire.
 
----
+Mécanisme proposé, à valider : verrou de modification par dossier géré par l’API, avec durée limitée et renouvellement, complété par un jeton de version vérifié lors de chaque écriture. Un second poste peut consulter, mais ne peut pas modifier tant que le verrou est détenu. Un poste ayant perdu son verrou ou présentant une version périmée ne peut pas enregistrer. L’API refuse l’écriture sans écrasement et demande un rechargement explicite.
 
-## Hébergement de la base de données
+Le périmètre du dossier verrouillé doit inclure les opérations liées susceptibles de modifier le même solde ou les mêmes informations. Les opérations sur des dossiers différents restent indépendantes. Les transactions serveur garantissent qu’une opération composée réussit entièrement ou ne laisse pas de résultat partiel. Une fermeture annuelle exige une coordination globale des écritures MuniChien, sans bloquer arbitrairement Fidélité.
 
-La base SQL devra être installée sur un ordinateur ou un serveur accessible en permanence sur le réseau local du Refuge Animal.
+## Accès et protection
 
-Ce poste ne devra pas dépendre de l'ouverture de l'application Muni-Chien pour que la base soit accessible.
+Les employés n’ont pas de comptes individuels au quotidien. Consultation, recherche, création, modification courante et rapports autorisés sont accessibles directement. Un bouton « Connexion administrateur » protège uniquement les opérations sensibles : fermeture annuelle, restauration, suppressions définitives autorisées, paramètres sensibles et maintenance (§ 8.1).
 
-Les postes clients se connecteront à ce serveur à travers le réseau local.
+L’API contrôle réellement ces droits; masquer un bouton ne suffit pas. Les postes ne reçoivent pas les identifiants de base de données. Protéger les renseignements personnels et les sauvegardes, limiter les accès et chiffrer les données sensibles lorsque la technologie le permet de manière fiable (§ 8.2–8.3). Le mécanisme précis d’authentification, la durée de session et le chiffrement sont à définir, sans prétendre que ce document établit une conformité juridique complète.
 
-Le choix exact de la machine qui hébergera SQL Server devra être confirmé avec le client.
+## Exploitation et sauvegardes
 
----
+- Sauvegarde automatique quotidienne sur le serveur, avec deux semaines glissantes de conservation.
+- Sauvegarde obligatoire avant fermeture annuelle et opérations sensibles concernées.
+- Restauration réservée à l’administrateur et vérifiée sur un environnement d’essai.
+- Copie sur un autre support ou appareil : recommandation future du document, pas dépendance du MVP.
+- Proposition d’exploitation : contrôler le succès des sauvegardes, signaler les échecs et ne pas lancer une fermeture si sa sauvegarde préalable a échoué.
 
-## Fonctionnement hors ligne
+Le réseau local et le serveur sont essentiels. Internet est autorisé pour la sélection d’adresses officielles; les opérations principales ne doivent pas dépendre d’un service cloud inutile. Aucun fonctionnement hors ligne avec synchronisation ultérieure n’est spécifié. En cas de perte de connexion, afficher un état clair et empêcher les enregistrements dont la réussite ne peut être confirmée.
 
-Muni-Chien ne devra pas dépendre d'Internet pour fonctionner.
+## Ordre de réalisation
 
-Une panne d'Internet ne devra pas empêcher :
-
-- La recherche d'un propriétaire
-- La consultation des chiens
-- La gestion des licences
-- L'enregistrement des paiements
-- La production des rapports
-- La consultation des données
-
-Une panne du réseau local ou du serveur empêchera cependant l'accès aux données.
-
----
-
-## Séparation de l'application et des données
-
-```text
-Application Muni-Chien
-        |
-        v
-Entity Framework Core
-        |
-        v
-SQL Server
-        |
-        v
-Base de données Muni-Chien
-```
-
-Cette séparation permettra de mettre à jour l'application sans devoir remplacer les données du client.
-
----
-
-## Structure de l'application
-
-### Présentation
-
-- Fenêtres
-- Écrans
-- Formulaires
-- Navigation
-- Éléments visuels
-
-Technologie prévue : WPF
-
-### Logique métier
-
-Cette partie contiendra notamment :
-
-- Calcul des soldes
-- Frais de retard
-- Tarifs par municipalité
-- Gestion des licences
-- Gestion des chenils
-- Fermeture annuelle
-
-### Accès aux données
-
-Technologie prévue : Entity Framework Core
-
-### Base de données
-
-Exemples de données permanentes :
-
-- Propriétaires
-- Chiens
-- Licences
-- Paiements
-- Municipalités
-- Avis
-- Races
-- Couleurs
-
----
-
-## Utilisation simultanée
-
-L'application doit supporter environ 6 à 7 utilisateurs travaillant simultanément.
-
-Le système devra éviter autant que possible :
-
-- L'écrasement accidentel de modifications
-- Les données incohérentes
-- Les doublons causés par deux opérations simultanées
-
-Une stratégie de gestion de concurrence devra être définie pendant le développement.
-
----
-
-## Sauvegardes
-
-Le système devra idéalement permettre :
-
-- Une sauvegarde manuelle
-- Des sauvegardes automatiques
-- Des noms contenant la date et l'heure
-- La vérification du succès de la sauvegarde
-- La restauration d'une sauvegarde
-
-La stratégie exacte devra être confirmée avec le client.
-
----
-
-## Sécurité
-
-Les données réelles du client ne doivent jamais être placées sur GitHub.
-
-Le dépôt GitHub doit uniquement contenir :
-
-- Le code source
-- La documentation
-- Les scripts de création de base de données
-- Des données fictives pour les tests si nécessaire
-
----
-
-## Comptes utilisateurs
-
-La nécessité d'avoir des comptes utilisateurs n'est pas encore confirmée.
-
-Une gestion d'utilisateurs pourrait permettre :
-
-- De connaître l'utilisateur ayant effectué une modification
-- De limiter l'accès aux fonctions administratives
-- De protéger la configuration
-- De protéger la restauration ou la fermeture annuelle
-
----
-
-## Déploiement
-
-Chaque ordinateur devra avoir une copie installée de l'application Muni-Chien.
-
-La base SQL sera centralisée.
-
-Une mise à jour future de l'application devra pouvoir être déployée sans modifier ou perdre les données existantes.
-
----
-
-## Architecture retenue actuellement
-
-```text
-Application :
-C# / .NET
-
-Interface :
-WPF
-
-Accès aux données :
-Entity Framework Core
-
-Base de données :
-SQL Server Express
-
-Nombre de postes :
-Environ 6 à 7
-
-Organisation :
-Application installée sur chaque poste
-+
-Base de données centralisée sur le réseau local
-
-Connexion Internet :
-Non requise pour le fonctionnement normal
-```
-
----
-
-## Points restant à confirmer avec le client
-
-- Quel ordinateur ou serveur hébergera la base de données
-- Si le serveur reste allumé en permanence
-- Si plusieurs utilisateurs modifient souvent les mêmes dossiers simultanément
-- Si des comptes utilisateurs sont nécessaires
-- Qui doit avoir accès à la configuration
-- Qui doit pouvoir effectuer une restauration
-- Qui doit pouvoir effectuer la fermeture annuelle
-- Où les sauvegardes doivent être conservées
-- La fréquence souhaitée des sauvegardes automatiques
-- Si l'application doit pouvoir être utilisée à distance dans le futur
+Valider le besoin, préparer le prototype frontend et faire valider les parcours avant connexion de toute la logique aux données. Finaliser ensuite le modèle, développer l’API et les fonctions, tester sur six postes, préparer la migration Access sur copie et obtenir la validation client. Voir [ecrans.md](ecrans.md), [database.md](database.md) et [mvp.md](mvp.md).
