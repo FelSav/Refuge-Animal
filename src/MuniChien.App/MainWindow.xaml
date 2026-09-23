@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:MuniChien.App.Views"
         xmlns:local="clr-namespace:MuniChien.App"
         mc:Ignorable="d"
         Title="MuniChien"
@@ -61,14 +62,10 @@
         </Border>
 
         <!-- Contenu principal -->
-        <Grid Grid.Column="1"
-              Background="#F5F5F5">
+        <!-- Contenu principal -->
+        <Grid Grid.Column="1">
 
-            <TextBlock Text="Accueil"
-                       FontSize="32"
-                       FontWeight="SemiBold"
-                       Foreground="#242424"
-                       Margin="40"/>
+            <ContentControl Content="{Binding CurrentViewModel}"/>
 
         </Grid>
 

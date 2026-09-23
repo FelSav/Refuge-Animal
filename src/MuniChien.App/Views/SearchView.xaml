@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="MuniChien.App.Views.SearchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+
+    <Grid Background="#F5F5F5">
+
+        <StackPanel Margin="40">
+
+            <TextBlock Text="Recherche"
+                       FontSize="32"
+                       FontWeight="SemiBold"
+                       Foreground="#242424"/>
+
+            <TextBlock Text="Rechercher un propriétaire, un chien ou une licence"
+                       Margin="0,8,0,0"
+                       FontSize="16"
+                       Foreground="#666666"/>
+
+        </StackPanel>
+
+    </Grid>
+
+</UserControl>
