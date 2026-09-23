@@ -23,12 +23,57 @@
         <Border Grid.Column="0"
                 Background="#242424">
 
-            <TextBlock Text="MuniChien"
-                       Foreground="White"
-                       FontSize="26"
-                       FontWeight="SemiBold"
-                       Margin="24"
-                       VerticalAlignment="Top"/>
+            <StackPanel>
+
+                <TextBlock Text="MuniChien"
+               Foreground="White"
+               FontSize="26"
+               FontWeight="SemiBold"
+               Margin="24,24,24,32"/>
+
+                <Button Content="Accueil"
+            Height="48"
+            Margin="12,4"
+            HorizontalContentAlignment="Left"
+            Padding="16,0"
+            FontSize="16"/>
+
+                <Button Content="Recherche"
+            Height="48"
+            Margin="12,4"
+            HorizontalContentAlignment="Left"
+            Padding="16,0"
+            FontSize="16"/>
+
+                <Button Content="Licences"
+            Height="48"
+            Margin="12,4"
+            HorizontalContentAlignment="Left"
+            Padding="16,0"
+            FontSize="16"/>
+
+                <Button Content="Paiements"
+            Height="48"
+            Margin="12,4"
+            HorizontalContentAlignment="Left"
+            Padding="16,0"
+            FontSize="16"/>
+
+                <Button Content="Rapports"
+            Height="48"
+            Margin="12,4"
+            HorizontalContentAlignment="Left"
+            Padding="16,0"
+            FontSize="16"/>
+
+                <Button Content="Administration"
+            Height="48"
+            Margin="12,4"
+            HorizontalContentAlignment="Left"
+            Padding="16,0"
+            FontSize="16"/>
+
+            </StackPanel>
 
         </Border>
 
