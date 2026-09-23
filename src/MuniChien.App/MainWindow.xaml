@@ -21,7 +21,7 @@
 
         <!-- Menu latéral -->
         <Border Grid.Column="0"
-                Background="#242424">
+                Background="{StaticResource SidebarBackgroundBrush}">
 
             <StackPanel>
 
@@ -31,47 +31,30 @@
                FontWeight="SemiBold"
                Margin="24,24,24,32"/>
 
-                <Button Content="Accueil"
-            Height="48"
-            Margin="12,4"
-            HorizontalContentAlignment="Left"
-            Padding="16,0"
-            FontSize="16"/>
+                <RadioButton Content="Accueil"
+             GroupName="MainNavigation"
+             IsChecked="True"
+             Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-                <Button Content="Recherche"
-            Height="48"
-            Margin="12,4"
-            HorizontalContentAlignment="Left"
-            Padding="16,0"
-            FontSize="16"/>
+                <RadioButton Content="Recherche"
+             GroupName="MainNavigation"
+             Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-                <Button Content="Licences"
-            Height="48"
-            Margin="12,4"
-            HorizontalContentAlignment="Left"
-            Padding="16,0"
-            FontSize="16"/>
+                <RadioButton Content="Licences"
+             GroupName="MainNavigation"
+             Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-                <Button Content="Paiements"
-            Height="48"
-            Margin="12,4"
-            HorizontalContentAlignment="Left"
-            Padding="16,0"
-            FontSize="16"/>
+                <RadioButton Content="Paiements"
+             GroupName="MainNavigation"
+             Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-                <Button Content="Rapports"
-            Height="48"
-            Margin="12,4"
-            HorizontalContentAlignment="Left"
-            Padding="16,0"
-            FontSize="16"/>
+                <RadioButton Content="Rapports"
+             GroupName="MainNavigation"
+             Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-                <Button Content="Administration"
-            Height="48"
-            Margin="12,4"
-            HorizontalContentAlignment="Left"
-            Padding="16,0"
-            FontSize="16"/>
+                <RadioButton Content="Administration"
+             GroupName="MainNavigation"
+             Style="{StaticResource SidebarNavigationItemStyle}"/>
 
             </StackPanel>
 
