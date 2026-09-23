@@ -5,8 +5,45 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MuniChien.App"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MuniChien"
+        Height="720"
+        Width="1200"
+        MinHeight="600"
+        MinWidth="1000"
+        WindowStartupLocation="CenterScreen">
+
     <Grid>
 
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Menu latéral -->
+        <Border Grid.Column="0"
+                Background="#242424">
+
+            <TextBlock Text="MuniChien"
+                       Foreground="White"
+                       FontSize="26"
+                       FontWeight="SemiBold"
+                       Margin="24"
+                       VerticalAlignment="Top"/>
+
+        </Border>
+
+        <!-- Contenu principal -->
+        <Grid Grid.Column="1"
+              Background="#F5F5F5">
+
+            <TextBlock Text="Accueil"
+                       FontSize="32"
+                       FontWeight="SemiBold"
+                       Foreground="#242424"
+                       Margin="40"/>
+
+        </Grid>
+
     </Grid>
+
 </Window>
