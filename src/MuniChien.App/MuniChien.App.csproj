@@ -14,4 +14,12 @@
     <ProjectReference Include="..\MuniChien.Infrastructure\MuniChien.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Navigation\" />
+    <Folder Include="Resources\" />
+    <Folder Include="Services\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="Views\" />
+  </ItemGroup>
+
 </Project>
