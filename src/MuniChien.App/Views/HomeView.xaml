@@ -178,11 +178,11 @@
                 <StackPanel Orientation="Horizontal">
 
                     <Button Content="Rechercher un dossier"
-                            Style="{StaticResource PrimaryActionButtonStyle}"
-                            Margin="24,0,120,0"/>
+        Style="{StaticResource PrimaryActionButtonStyle}"
+        Margin="24,0,120,0"/>
 
                     <Button Content="Rechercher un propriétaire"
-                            Style="{StaticResource SecondaryActionButtonStyle}"/>
+        Style="{StaticResource SecondaryActionButtonStyle}"/>
 
                 </StackPanel>
 

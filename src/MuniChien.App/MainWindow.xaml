@@ -24,58 +24,80 @@
         <Border Grid.Column="0"
                 Background="{StaticResource SidebarBackgroundBrush}">
 
-            <StackPanel>
+            <Grid>
 
-                <TextBlock Text="MuniChien"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+
+                <!-- Logo / nom de l'application -->
+                <TextBlock Grid.Row="0"
+               Text="MuniChien"
                Foreground="White"
                FontSize="26"
                FontWeight="SemiBold"
                Margin="24,24,24,32"/>
 
-                <RadioButton Content="Accueil"
-             GroupName="MainNavigation"
-             IsChecked="True"
-             Command="{Binding ShowHomeCommand}"
-             Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-                <RadioButton Content="Recherche"
-             GroupName="MainNavigation"
-             Command="{Binding ShowSearchCommand}"
-             Style="{StaticResource SidebarNavigationItemStyle}"/>
+                <!-- Navigation principale -->
+                <StackPanel Grid.Row="1">
 
-                <RadioButton Content="Propriétaires"
-             GroupName="MainNavigation"
-             Command="{Binding ShowOwnersCommand}"
-             Style="{StaticResource SidebarNavigationItemStyle}"/>
+                    <RadioButton Content="Accueil"
+                     GroupName="MainNavigation"
+                     IsChecked="True"
+                     Command="{Binding ShowHomeCommand}"
+                     Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-                <RadioButton Content="Chiens"
-             GroupName="MainNavigation"
-             Command="{Binding ShowDogsCommand}"
-             Style="{StaticResource SidebarNavigationItemStyle}"/>
+                    <RadioButton Content="Recherche"
+                     GroupName="MainNavigation"
+                     Command="{Binding ShowSearchCommand}"
+                     Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-                <RadioButton Content="Licences"
-             GroupName="MainNavigation"
-             Command="{Binding ShowLicensesCommand}"
-             Style="{StaticResource SidebarNavigationItemStyle}"/>
+                    <RadioButton Content="Propriétaires"
+                     GroupName="MainNavigation"
+                     Command="{Binding ShowOwnersCommand}"
+                     Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-                <RadioButton Content="Paiements"
-             GroupName="MainNavigation"
-             Command="{Binding ShowPaymentsCommand}"
-             Style="{StaticResource SidebarNavigationItemStyle}"/>
+                    <RadioButton Content="Chiens"
+                     GroupName="MainNavigation"
+                     Command="{Binding ShowDogsCommand}"
+                     Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-                <RadioButton Content="Rapports"
-             GroupName="MainNavigation"
-             Command="{Binding ShowReportsCommand}"
-             Style="{StaticResource SidebarNavigationItemStyle}"/>
+                    <RadioButton Content="Licences"
+                     GroupName="MainNavigation"
+                     Command="{Binding ShowLicensesCommand}"
+                     Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-                <RadioButton Content="Administration"
-             GroupName="MainNavigation"
-             Command="{Binding ShowAdministrationCommand}"
-             Style="{StaticResource SidebarNavigationItemStyle}"/>
-                
-                
+                    <RadioButton Content="Paiements"
+                     GroupName="MainNavigation"
+                     Command="{Binding ShowPaymentsCommand}"
+                     Style="{StaticResource SidebarNavigationItemStyle}"/>
 
-            </StackPanel>
+                    <RadioButton Content="Rapports"
+                     GroupName="MainNavigation"
+                     Command="{Binding ShowReportsCommand}"
+                     Style="{StaticResource SidebarNavigationItemStyle}"/>
+
+                </StackPanel>
+
+
+                <!-- Espace extensible -->
+                <Grid Grid.Row="2"/>
+
+
+                <!-- Administration -->
+                <RadioButton Grid.Row="3"
+                 Content="Administration"
+                 GroupName="MainNavigation"
+                 Command="{Binding ShowAdministrationCommand}"
+                 Style="{StaticResource SidebarNavigationItemStyle}"
+                 Margin="12,4,12,20"/>
+
+            </Grid>
 
         </Border>
 
@@ -105,7 +127,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0"
-                       Text="Accueil"
+                       Text="{Binding PageTitle}"
                        FontSize="22"
                        FontWeight="SemiBold"
                        Foreground="#242424"
@@ -120,13 +142,8 @@
                        VerticalAlignment="Center"/>
 
                     <Button Grid.Column="3"
-                    Content="Connexion admin"
-                    Background="{StaticResource AccentBrush}"
-                    Foreground="Black"
-                    FontWeight="SemiBold"
-                    Padding="14,6"
-                    BorderBrush="#555555"
-                    BorderThickness="1"/>
+        Content="Connexion admin"
+        Style="{StaticResource AdminLoginButtonStyle}"/>
 
                 </Grid>
 

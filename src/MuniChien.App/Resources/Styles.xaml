@@ -83,40 +83,40 @@
 
     </Style>
 
+
     <!-- Élément de navigation sélectionnable -->
     <Style x:Key="SidebarNavigationItemStyle"
-       TargetType="RadioButton">
+           TargetType="RadioButton">
 
         <Setter Property="Height"
-            Value="48"/>
+                Value="48"/>
 
         <Setter Property="Margin"
-            Value="12,4"/>
+                Value="12,4"/>
 
         <Setter Property="Padding"
-            Value="16,0"/>
+                Value="16,0"/>
 
         <Setter Property="FontSize"
-            Value="16"/>
+                Value="16"/>
 
         <Setter Property="Foreground"
-            Value="{StaticResource SidebarButtonForegroundBrush}"/>
+                Value="{StaticResource SidebarButtonForegroundBrush}"/>
 
         <Setter Property="Background"
-            Value="Transparent"/>
+                Value="Transparent"/>
 
         <Setter Property="Cursor"
-            Value="Hand"/>
+                Value="Hand"/>
 
         <Setter Property="Template">
-
             <Setter.Value>
 
                 <ControlTemplate TargetType="RadioButton">
 
                     <Border x:Name="NavigationBackground"
-                        Background="{TemplateBinding Background}"
-                        CornerRadius="6">
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6">
 
                         <Grid>
 
@@ -127,15 +127,15 @@
 
                             <!-- Barre orange de sélection -->
                             <Border x:Name="SelectionIndicator"
-                                Grid.Column="0"
-                                Background="Transparent"
-                                CornerRadius="2"
-                                Margin="0,8,0,8"/>
+                                    Grid.Column="0"
+                                    Background="Transparent"
+                                    CornerRadius="2"
+                                    Margin="0,8,0,8"/>
 
                             <ContentPresenter
-                            Grid.Column="1"
-                            Margin="{TemplateBinding Padding}"
-                            VerticalAlignment="Center"/>
+                                Grid.Column="1"
+                                Margin="{TemplateBinding Padding}"
+                                VerticalAlignment="Center"/>
 
                         </Grid>
 
@@ -145,25 +145,25 @@
 
                         <!-- Survol -->
                         <Trigger Property="IsMouseOver"
-                             Value="True">
+                                 Value="True">
 
                             <Setter TargetName="NavigationBackground"
-                                Property="Background"
-                                Value="{StaticResource SidebarButtonHoverBrush}"/>
+                                    Property="Background"
+                                    Value="{StaticResource SidebarButtonHoverBrush}"/>
 
                         </Trigger>
 
                         <!-- Élément sélectionné -->
                         <Trigger Property="IsChecked"
-                             Value="True">
+                                 Value="True">
 
                             <Setter TargetName="NavigationBackground"
-                                Property="Background"
-                                Value="#353535"/>
+                                    Property="Background"
+                                    Value="#353535"/>
 
                             <Setter TargetName="SelectionIndicator"
-                                Property="Background"
-                                Value="{StaticResource AccentBrush}"/>
+                                    Property="Background"
+                                    Value="{StaticResource AccentBrush}"/>
 
                         </Trigger>
 
@@ -172,91 +172,144 @@
                 </ControlTemplate>
 
             </Setter.Value>
-
         </Setter>
 
     </Style>
 
+
     <!-- Carte de statistique du tableau de bord -->
     <Style x:Key="DashboardCardStyle"
-       TargetType="Border">
+           TargetType="Border">
 
         <Setter Property="Background"
-            Value="White"/>
+                Value="White"/>
 
         <Setter Property="BorderBrush"
-            Value="#B9B9B9"/>
+                Value="#B9B9B9"/>
 
         <Setter Property="BorderThickness"
-            Value="1"/>
+                Value="1"/>
 
         <Setter Property="CornerRadius"
-            Value="8"/>
+                Value="8"/>
 
         <Setter Property="Padding"
-            Value="16"/>
+                Value="16"/>
 
         <Setter Property="Margin"
-            Value="8"/>
+                Value="8"/>
+
+    </Style>
+
+
+    <!-- Base commune des boutons d'action -->
+    <Style x:Key="ActionButtonBaseStyle"
+           TargetType="Button">
+
+        <Setter Property="Foreground"
+                Value="#242424"/>
+
+        <Setter Property="FontSize"
+                Value="16"/>
+
+        <Setter Property="FontWeight"
+                Value="SemiBold"/>
+
+        <Setter Property="Padding"
+                Value="24,12"/>
+
+        <Setter Property="BorderBrush"
+                Value="#242424"/>
+
+        <Setter Property="BorderThickness"
+                Value="1"/>
+
+        <Setter Property="Cursor"
+                Value="Hand"/>
+
+        <Setter Property="Template">
+            <Setter.Value>
+
+                <ControlTemplate TargetType="Button">
+
+                    <Border x:Name="ButtonBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+
+                        <ContentPresenter
+                            Margin="{TemplateBinding Padding}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+
+                        <Trigger Property="IsMouseOver"
+                                 Value="True">
+
+                            <Setter TargetName="ButtonBorder"
+                                    Property="Opacity"
+                                    Value="0.88"/>
+
+                        </Trigger>
+
+                        <Trigger Property="IsPressed"
+                                 Value="True">
+
+                            <Setter TargetName="ButtonBorder"
+                                    Property="Opacity"
+                                    Value="0.72"/>
+
+                        </Trigger>
+
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+
+            </Setter.Value>
+        </Setter>
 
     </Style>
 
 
     <!-- Bouton principal orange -->
     <Style x:Key="PrimaryActionButtonStyle"
-       TargetType="Button">
+           TargetType="Button"
+           BasedOn="{StaticResource ActionButtonBaseStyle}">
 
         <Setter Property="Background"
-            Value="{StaticResource AccentBrush}"/>
-
-        <Setter Property="Foreground"
-            Value="White"/>
-
-        <Setter Property="FontSize"
-            Value="16"/>
-
-        <Setter Property="FontWeight"
-            Value="SemiBold"/>
-
-        <Setter Property="Padding"
-            Value="24,12"/>
-
-        <Setter Property="BorderThickness"
-            Value="0"/>
-
-        <Setter Property="Cursor"
-            Value="Hand"/>
+                Value="{StaticResource AccentBrush}"/>
 
     </Style>
 
 
-    <!-- Bouton secondaire -->
+    <!-- Bouton secondaire blanc -->
     <Style x:Key="SecondaryActionButtonStyle"
-       TargetType="Button">
+           TargetType="Button"
+           BasedOn="{StaticResource ActionButtonBaseStyle}">
 
         <Setter Property="Background"
-            Value="White"/>
+                Value="White"/>
 
-        <Setter Property="Foreground"
-            Value="#242424"/>
+    </Style>
+
+
+    <!-- Bouton Connexion admin -->
+    <Style x:Key="AdminLoginButtonStyle"
+           TargetType="Button"
+           BasedOn="{StaticResource ActionButtonBaseStyle}">
+
+        <Setter Property="Background"
+                Value="{StaticResource AccentBrush}"/>
 
         <Setter Property="FontSize"
-            Value="16"/>
-
-        <Setter Property="FontWeight"
-            Value="SemiBold"/>
+                Value="13"/>
 
         <Setter Property="Padding"
-            Value="24,12"/>
-
-        <Setter Property="BorderBrush"
-            Value="#888888"/>
-
-        <Setter Property="BorderThickness"
-            Value="1"/>
-
-        <Setter Property="Cursor"
-            Value="Hand"/>
+                Value="14,7"/>
 
     </Style>
 

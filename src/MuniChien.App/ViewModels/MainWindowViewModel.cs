@@ -6,6 +6,18 @@ namespace MuniChien.App.ViewModels;
 public class MainWindowViewModel : ViewModelBase
 {
     private ViewModelBase _currentViewModel;
+    private string _pageTitle = "Accueil";
+
+    public string PageTitle
+    {
+        get => _pageTitle;
+
+        private set
+        {
+            _pageTitle = value;
+            OnPropertyChanged();
+        }
+    }
 
     public MainWindowViewModel()
     {
@@ -44,40 +56,48 @@ public class MainWindowViewModel : ViewModelBase
     private void ShowHome()
     {
         CurrentViewModel = new HomeViewModel();
+        PageTitle = "Accueil";
     }
 
     private void ShowSearch()
     {
         CurrentViewModel = new SearchViewModel();
-    }
-
-    private void ShowLicenses()
-    {
-        CurrentViewModel = new LicensesViewModel();
-    }
-
-    private void ShowPayments()
-    {
-        CurrentViewModel = new PaymentsViewModel();
-    }
-
-    private void ShowReports()
-    {
-        CurrentViewModel = new ReportsViewModel();
-    }
-
-    private void ShowAdministration()
-    {
-        CurrentViewModel = new AdministrationViewModel();
+        PageTitle = "Recherche";
     }
 
     private void ShowOwners()
     {
         CurrentViewModel = new OwnersViewModel();
+        PageTitle = "Propriétaires";
     }
 
     private void ShowDogs()
     {
         CurrentViewModel = new DogsViewModel();
+        PageTitle = "Chiens";
+    }
+
+    private void ShowLicenses()
+    {
+        CurrentViewModel = new LicensesViewModel();
+        PageTitle = "Licences";
+    }
+
+    private void ShowPayments()
+    {
+        CurrentViewModel = new PaymentsViewModel();
+        PageTitle = "Paiements";
+    }
+
+    private void ShowReports()
+    {
+        CurrentViewModel = new ReportsViewModel();
+        PageTitle = "Rapports";
+    }
+
+    private void ShowAdministration()
+    {
+        CurrentViewModel = new AdministrationViewModel();
+        PageTitle = "Administration";
     }
 }
