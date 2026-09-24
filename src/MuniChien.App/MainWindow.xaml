@@ -35,10 +35,12 @@
                 <RadioButton Content="Accueil"
              GroupName="MainNavigation"
              IsChecked="True"
+             Command="{Binding ShowHomeCommand}"
              Style="{StaticResource SidebarNavigationItemStyle}"/>
 
                 <RadioButton Content="Recherche"
              GroupName="MainNavigation"
+             Command="{Binding ShowSearchCommand}"
              Style="{StaticResource SidebarNavigationItemStyle}"/>
 
                 <RadioButton Content="Licences"
