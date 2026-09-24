@@ -22,6 +22,22 @@ xmlns:viewModels="clr-namespace:MuniChien.App.ViewModels"
                 <views:SearchView/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type viewModels:LicensesViewModel}">
+                <views:LicensesView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:PaymentsViewModel}">
+                <views:PaymentsView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:ReportsViewModel}">
+                <views:ReportsView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:AdministrationViewModel}">
+                <views:AdministrationView/>
+            </DataTemplate>
+
         </ResourceDictionary>
 
     </Application.Resources>

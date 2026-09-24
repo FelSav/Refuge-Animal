@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="MuniChien.App.Views.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="#F5F5F5">
+        <StackPanel Margin="40">
+
+            <TextBlock Text="Rapports"
+                       FontSize="32"
+                       FontWeight="SemiBold"
+                       Foreground="#242424"/>
+
+            <TextBlock Text="Rapports, statistiques et impressions"
+                       Margin="0,8,0,0"
+                       FontSize="16"
+                       Foreground="#666666"/>
+
+        </StackPanel>
+    </Grid>
+
+</UserControl>

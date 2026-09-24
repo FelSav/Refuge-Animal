@@ -45,18 +45,22 @@
 
                 <RadioButton Content="Licences"
              GroupName="MainNavigation"
+             Command="{Binding ShowLicensesCommand}"
              Style="{StaticResource SidebarNavigationItemStyle}"/>
 
                 <RadioButton Content="Paiements"
              GroupName="MainNavigation"
+             Command="{Binding ShowPaymentsCommand}"
              Style="{StaticResource SidebarNavigationItemStyle}"/>
 
                 <RadioButton Content="Rapports"
              GroupName="MainNavigation"
+             Command="{Binding ShowReportsCommand}"
              Style="{StaticResource SidebarNavigationItemStyle}"/>
 
                 <RadioButton Content="Administration"
              GroupName="MainNavigation"
+             Command="{Binding ShowAdministrationCommand}"
              Style="{StaticResource SidebarNavigationItemStyle}"/>
 
             </StackPanel>

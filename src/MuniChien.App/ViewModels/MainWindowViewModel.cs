@@ -13,6 +13,10 @@ public class MainWindowViewModel : ViewModelBase
 
         ShowHomeCommand = new RelayCommand(ShowHome);
         ShowSearchCommand = new RelayCommand(ShowSearch);
+        ShowLicensesCommand = new RelayCommand(ShowLicenses);
+        ShowPaymentsCommand = new RelayCommand(ShowPayments);
+        ShowReportsCommand = new RelayCommand(ShowReports);
+        ShowAdministrationCommand = new RelayCommand(ShowAdministration);
     }
 
     public ViewModelBase CurrentViewModel
@@ -27,8 +31,11 @@ public class MainWindowViewModel : ViewModelBase
     }
 
     public ICommand ShowHomeCommand { get; }
-
     public ICommand ShowSearchCommand { get; }
+    public ICommand ShowLicensesCommand { get; }
+    public ICommand ShowPaymentsCommand { get; }
+    public ICommand ShowReportsCommand { get; }
+    public ICommand ShowAdministrationCommand { get; }
 
     private void ShowHome()
     {
@@ -38,5 +45,25 @@ public class MainWindowViewModel : ViewModelBase
     private void ShowSearch()
     {
         CurrentViewModel = new SearchViewModel();
+    }
+
+    private void ShowLicenses()
+    {
+        CurrentViewModel = new LicensesViewModel();
+    }
+
+    private void ShowPayments()
+    {
+        CurrentViewModel = new PaymentsViewModel();
+    }
+
+    private void ShowReports()
+    {
+        CurrentViewModel = new ReportsViewModel();
+    }
+
+    private void ShowAdministration()
+    {
+        CurrentViewModel = new AdministrationViewModel();
     }
 }
