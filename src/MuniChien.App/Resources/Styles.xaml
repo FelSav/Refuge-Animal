@@ -177,4 +177,87 @@
 
     </Style>
 
+    <!-- Carte de statistique du tableau de bord -->
+    <Style x:Key="DashboardCardStyle"
+       TargetType="Border">
+
+        <Setter Property="Background"
+            Value="White"/>
+
+        <Setter Property="BorderBrush"
+            Value="#B9B9B9"/>
+
+        <Setter Property="BorderThickness"
+            Value="1"/>
+
+        <Setter Property="CornerRadius"
+            Value="8"/>
+
+        <Setter Property="Padding"
+            Value="16"/>
+
+        <Setter Property="Margin"
+            Value="8"/>
+
+    </Style>
+
+
+    <!-- Bouton principal orange -->
+    <Style x:Key="PrimaryActionButtonStyle"
+       TargetType="Button">
+
+        <Setter Property="Background"
+            Value="{StaticResource AccentBrush}"/>
+
+        <Setter Property="Foreground"
+            Value="White"/>
+
+        <Setter Property="FontSize"
+            Value="16"/>
+
+        <Setter Property="FontWeight"
+            Value="SemiBold"/>
+
+        <Setter Property="Padding"
+            Value="24,12"/>
+
+        <Setter Property="BorderThickness"
+            Value="0"/>
+
+        <Setter Property="Cursor"
+            Value="Hand"/>
+
+    </Style>
+
+
+    <!-- Bouton secondaire -->
+    <Style x:Key="SecondaryActionButtonStyle"
+       TargetType="Button">
+
+        <Setter Property="Background"
+            Value="White"/>
+
+        <Setter Property="Foreground"
+            Value="#242424"/>
+
+        <Setter Property="FontSize"
+            Value="16"/>
+
+        <Setter Property="FontWeight"
+            Value="SemiBold"/>
+
+        <Setter Property="Padding"
+            Value="24,12"/>
+
+        <Setter Property="BorderBrush"
+            Value="#888888"/>
+
+        <Setter Property="BorderThickness"
+            Value="1"/>
+
+        <Setter Property="Cursor"
+            Value="Hand"/>
+
+    </Style>
+
 </ResourceDictionary>

@@ -38,6 +38,14 @@ xmlns:viewModels="clr-namespace:MuniChien.App.ViewModels"
                 <views:AdministrationView/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type viewModels:OwnersViewModel}">
+                <views:OwnersView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewModels:DogsViewModel}">
+                <views:DogsView/>
+            </DataTemplate>
+
         </ResourceDictionary>
 
     </Application.Resources>

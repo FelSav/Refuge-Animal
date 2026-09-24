@@ -43,6 +43,16 @@
              Command="{Binding ShowSearchCommand}"
              Style="{StaticResource SidebarNavigationItemStyle}"/>
 
+                <RadioButton Content="Propriétaires"
+             GroupName="MainNavigation"
+             Command="{Binding ShowOwnersCommand}"
+             Style="{StaticResource SidebarNavigationItemStyle}"/>
+
+                <RadioButton Content="Chiens"
+             GroupName="MainNavigation"
+             Command="{Binding ShowDogsCommand}"
+             Style="{StaticResource SidebarNavigationItemStyle}"/>
+
                 <RadioButton Content="Licences"
              GroupName="MainNavigation"
              Command="{Binding ShowLicensesCommand}"
@@ -62,6 +72,8 @@
              GroupName="MainNavigation"
              Command="{Binding ShowAdministrationCommand}"
              Style="{StaticResource SidebarNavigationItemStyle}"/>
+                
+                
 
             </StackPanel>
 
@@ -71,7 +83,58 @@
         <!-- Contenu principal -->
         <Grid Grid.Column="1">
 
-            <ContentControl Content="{Binding CurrentViewModel}"/>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- En-tête global -->
+            <Border Grid.Row="0"
+            Background="White"
+            BorderBrush="#E3E3E3"
+            BorderThickness="0,0,0,1"
+            Padding="24,12">
+
+                <Grid>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                       Text="Accueil"
+                       FontSize="22"
+                       FontWeight="SemiBold"
+                       Foreground="#242424"
+                       VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="1"
+                       Text="Municipalité : Roberval"
+                       Margin="14,0,0,0"
+                       FontSize="12"
+                       FontWeight="SemiBold"
+                       Foreground="#444444"
+                       VerticalAlignment="Center"/>
+
+                    <Button Grid.Column="3"
+                    Content="Connexion admin"
+                    Background="{StaticResource AccentBrush}"
+                    Foreground="Black"
+                    FontWeight="SemiBold"
+                    Padding="14,6"
+                    BorderBrush="#555555"
+                    BorderThickness="1"/>
+
+                </Grid>
+
+            </Border>
+
+            <!-- Page actuelle -->
+            <ContentControl Grid.Row="1"
+                    Content="{Binding CurrentViewModel}"/>
 
         </Grid>
 

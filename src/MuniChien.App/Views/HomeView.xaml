@@ -1,25 +1,194 @@
 ﻿<UserControl x:Class="MuniChien.App.Views.HomeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid Background="#F5F5F5">
+    <Grid Background="#F6F7F9">
 
-        <StackPanel Margin="40">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <TextBlock Text="Accueil"
-                       FontSize="32"
-                       FontWeight="SemiBold"
-                       Foreground="#242424"/>
 
-            <TextBlock Text="Bienvenue dans MuniChien"
-                       Margin="0,8,0,0"
-                       FontSize="16"
-                       Foreground="#666666"/>
+        <!-- Barre supérieure -->
+        
 
-        </StackPanel>
+
+        <!-- Contenu -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto">
+
+            <StackPanel Margin="56,38">
+
+                <TextBlock Text="Bienvenue dans MuniChien"
+                           FontSize="26"
+                           FontWeight="SemiBold"
+                           Foreground="#242B38"/>
+
+                <TextBlock Text="Gestion des propriétaires, chiens, licences et paiements"
+                           Margin="0,8,0,28"
+                           FontSize="14"
+                           Foreground="#242424"/>
+
+
+                <!-- Statistiques -->
+                <UniformGrid Columns="4"
+                             Rows="2"
+                             Margin="0,0,0,48">
+
+
+                    <Border Style="{StaticResource DashboardCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Chiens actifs"
+                                       HorizontalAlignment="Center"
+                                       FontSize="12"
+                                       Foreground="#657086"/>
+
+                            <TextBlock Text="1248"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0"
+                                       FontSize="24"
+                                       FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+
+
+                    <Border Style="{StaticResource DashboardCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Licences à renouveler"
+                                       HorizontalAlignment="Center"
+                                       FontSize="12"
+                                       Foreground="#657086"/>
+
+                            <TextBlock Text="37"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0"
+                                       FontSize="24"
+                                       FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+
+
+                    <Border Style="{StaticResource DashboardCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Soldes impayés"
+                                       HorizontalAlignment="Center"
+                                       FontSize="12"
+                                       Foreground="#657086"/>
+
+                            <TextBlock Text="18"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0"
+                                       FontSize="24"
+                                       FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+
+
+                    <Border Style="{StaticResource DashboardCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Paiements aujourd'hui"
+                                       HorizontalAlignment="Center"
+                                       FontSize="12"
+                                       Foreground="#657086"/>
+
+                            <TextBlock Text="12"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0"
+                                       FontSize="24"
+                                       FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+
+
+                    <Border Style="{StaticResource DashboardCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Chiens sans licence"
+                                       HorizontalAlignment="Center"
+                                       FontSize="12"
+                                       Foreground="#657086"/>
+
+                            <TextBlock Text="64"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0"
+                                       FontSize="24"
+                                       FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+
+
+                    <Border Style="{StaticResource DashboardCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Chiens inactifs"
+                                       HorizontalAlignment="Center"
+                                       FontSize="12"
+                                       Foreground="#657086"/>
+
+                            <TextBlock Text="95"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0"
+                                       FontSize="24"
+                                       FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+
+
+                    <Border Style="{StaticResource DashboardCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Avis à envoyer"
+                                       HorizontalAlignment="Center"
+                                       FontSize="12"
+                                       Foreground="#657086"/>
+
+                            <TextBlock Text="25"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0"
+                                       FontSize="24"
+                                       FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+
+
+                    <Border Style="{StaticResource DashboardCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Paiements ce mois-ci"
+                                       HorizontalAlignment="Center"
+                                       FontSize="12"
+                                       Foreground="#657086"/>
+
+                            <TextBlock Text="798"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0"
+                                       FontSize="24"
+                                       FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+
+                </UniformGrid>
+
+
+                <!-- Actions rapides -->
+                <TextBlock Text="Actions rapides"
+                           FontSize="22"
+                           FontWeight="SemiBold"
+                           Foreground="#242B38"
+                           Margin="0,0,0,28"/>
+
+
+                <StackPanel Orientation="Horizontal">
+
+                    <Button Content="Rechercher un dossier"
+                            Style="{StaticResource PrimaryActionButtonStyle}"
+                            Margin="24,0,120,0"/>
+
+                    <Button Content="Rechercher un propriétaire"
+                            Style="{StaticResource SecondaryActionButtonStyle}"/>
+
+                </StackPanel>
+
+            </StackPanel>
+
+        </ScrollViewer>
 
     </Grid>
 
