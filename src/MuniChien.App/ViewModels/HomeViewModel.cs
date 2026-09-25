@@ -1,5 +1,6 @@
-﻿using MuniChien.App.Services;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using MuniChien.App.Services;
+
 namespace MuniChien.App.ViewModels;
 
 public class HomeViewModel : ViewModelBase
@@ -8,24 +9,58 @@ public class HomeViewModel : ViewModelBase
 
     public HomeViewModel()
     {
+        AvailableMetrics =
+        [
+            new("activeDogs", "Chiens actifs"),
+            new("licensesToRenew", "Licences à renouveler"),
+            new("unpaidBalances", "Soldes impayés"),
+            new("paymentsToday", "Paiements aujourd'hui"),
+            new("dogsWithoutLicense", "Chiens sans licence"),
+            new("inactiveDogs", "Chiens inactifs"),
+            new("noticesToSend", "Avis à envoyer"),
+            new("paymentsThisMonth", "Paiements ce mois-ci"),
+
+            // Statistiques disponibles plus tard
+            new("activeOwners", "Propriétaires actifs"),
+            new("inactiveOwners", "Propriétaires inactifs"),
+            new("expiredLicenses", "Licences expirées"),
+            new("monthlyRevenue", "Revenus du mois")
+        ];
+
         DashboardCards =
         [
-            new("activeDogs", "Chiens actifs", "1248"),
-            new("licensesToRenew", "Licences à renouveler", "37"),
-            new("unpaidBalances", "Soldes impayés", "18"),
-            new("paymentsToday", "Paiements aujourd'hui", "12"),
-            new("dogsWithoutLicense", "Chiens sans licence", "64"),
-            new("inactiveDogs", "Chiens inactifs", "95"),
-            new("noticesToSend", "Avis à envoyer", "25"),
-            new("paymentsThisMonth", "Paiements ce mois-ci", "798")
+            CreateCard("activeDogs", "1248"),
+            CreateCard("licensesToRenew", "37"),
+            CreateCard("unpaidBalances", "18"),
+            CreateCard("paymentsToday", "12"),
+            CreateCard("dogsWithoutLicense", "64"),
+            CreateCard("inactiveDogs", "95"),
+            CreateCard("noticesToSend", "25"),
+            CreateCard("paymentsThisMonth", "798")
         ];
+
         ApplySavedOrder();
     }
+
+    public ObservableCollection<DashboardCardViewModel> DashboardCards { get; }
+
+    public IReadOnlyList<DashboardMetricDefinition> AvailableMetrics { get; }
 
     public void SaveDashboardOrder()
     {
         _layoutService.SaveOrder(
             DashboardCards.Select(card => card.Key));
+    }
+
+    private DashboardCardViewModel CreateCard(string key, string value)
+    {
+        DashboardMetricDefinition metric =
+            AvailableMetrics.First(metric => metric.Key == key);
+
+        return new DashboardCardViewModel(
+            metric.Key,
+            metric.Title,
+            value);
     }
 
     private void ApplySavedOrder()
@@ -44,7 +79,9 @@ public class HomeViewModel : ViewModelBase
 
         foreach (string key in savedOrder)
         {
-            if (cardsByKey.TryGetValue(key, out DashboardCardViewModel? card))
+            if (cardsByKey.TryGetValue(
+                    key,
+                    out DashboardCardViewModel? card))
             {
                 orderedCards.Add(card);
             }
@@ -65,6 +102,4 @@ public class HomeViewModel : ViewModelBase
             DashboardCards.Add(card);
         }
     }
-
-    public ObservableCollection<DashboardCardViewModel> DashboardCards { get; }
 }
