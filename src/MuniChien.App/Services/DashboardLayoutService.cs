@@ -7,6 +7,7 @@ namespace MuniChien.App.Services;
 public class DashboardLayoutService
 {
     private readonly string _filePath;
+    private readonly string _customMetricsFilePath;
 
     public DashboardLayoutService()
     {
@@ -20,6 +21,10 @@ public class DashboardLayoutService
         _filePath = Path.Combine(
             appDataPath,
             "dashboard-layout.json");
+
+        _customMetricsFilePath = Path.Combine(
+            appDataPath,
+            "dashboard-custom-metrics.json");
     }
 
     public IReadOnlyList<DashboardCardLayoutItem> LoadLayout()
@@ -103,5 +108,55 @@ public class DashboardLayoutService
             });
 
         File.WriteAllText(_filePath, json);
+    }
+
+    public IReadOnlyList<DashboardCardLayoutItem> LoadCustomMetrics()
+    {
+        if (!File.Exists(_customMetricsFilePath))
+        {
+            return [];
+        }
+
+        try
+        {
+            string json =
+                File.ReadAllText(_customMetricsFilePath);
+
+            return JsonSerializer
+                       .Deserialize<List<DashboardCardLayoutItem>>(json)
+                   ?? [];
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    public void SaveCustomMetrics(
+        IEnumerable<DashboardMetricDefinition> metrics)
+    {
+        List<DashboardCardLayoutItem> customMetrics =
+            metrics
+                .Where(metric => metric.IsManual)
+                .Select(metric =>
+                    new DashboardCardLayoutItem
+                    {
+                        Key = metric.Key,
+                        Source = DashboardCardSource.Manual,
+                        Title = metric.Title,
+                        Value = metric.ManualValue
+                    })
+                .ToList();
+
+        string json = JsonSerializer.Serialize(
+            customMetrics,
+            new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+        File.WriteAllText(
+            _customMetricsFilePath,
+            json);
     }
 }

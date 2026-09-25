@@ -102,66 +102,151 @@
 
         <!-- Panneau de personnalisation -->
         <Grid Background="#99000000"
-              Visibility="{Binding IsCustomizationOpen,
-                                   Converter={StaticResource BooleanToVisibilityConverter}}">
+      Visibility="{Binding IsCustomizationOpen,
+                           Converter={StaticResource BooleanToVisibilityConverter}}">
 
-            <Border Width="520"
-                    Background="White"
-                    CornerRadius="10"
-                    Padding="28"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
+            <Border Width="560"
+            MaxHeight="650"
+            Background="White"
+            CornerRadius="10"
+            Padding="28"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
 
-                <StackPanel>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-                    <Grid Margin="0,0,0,24">
+                    <StackPanel>
 
-                        <TextBlock Text="Personnaliser le tableau de bord"
-                                   FontSize="22"
-                                   FontWeight="SemiBold"
-                                   Foreground="#242424"/>
+                        <!-- Titre -->
+                        <Grid Margin="0,0,0,24">
 
-                        <Button Content="✕"
-                                HorizontalAlignment="Right"
-                                Command="{Binding CloseCustomizationCommand}"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                FontSize="18"
-                                Cursor="Hand"/>
+                            <TextBlock Text="Personnaliser le tableau de bord"
+                               FontSize="22"
+                               FontWeight="SemiBold"
+                               Foreground="#242424"/>
 
-                    </Grid>
-
-                    <TextBlock Text="Choisissez les statistiques à afficher dans votre tableau de bord."
-                               Foreground="#666666"
-                               Margin="0,0,0,20"/>
-
-                    <ItemsControl ItemsSource="{Binding AvailableMetrics}">
-
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-
-                                <Border BorderBrush="#DDDDDD"
-                                        BorderThickness="0,0,0,1"
-                                        Padding="8,10">
-
-                                    <TextBlock Text="{Binding Title}"
-                                               FontSize="14"
-                                               Foreground="#242424"/>
-
-                                </Border>
-
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-
-                    </ItemsControl>
-
-                    <Button Content="Fermer"
-                            Command="{Binding CloseCustomizationCommand}"
-                            Style="{StaticResource PrimaryActionButtonStyle}"
+                            <Button Content="✕"
                             HorizontalAlignment="Right"
-                            Margin="0,24,0,0"/>
+                            Command="{Binding CloseCustomizationCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            FontSize="18"
+                            Cursor="Hand"/>
 
-                </StackPanel>
+                        </Grid>
+
+
+                        <!-- Carte à remplacer -->
+                        <TextBlock Text="Carte à remplacer"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="#242424"
+                           Margin="0,0,0,6"/>
+
+                        <ComboBox ItemsSource="{Binding DashboardCards}"
+                          SelectedItem="{Binding SelectedCard}"
+                          DisplayMemberPath="Title"
+                          Height="38"
+                          Padding="10,4"
+                          Margin="0,0,0,26"/>
+
+
+                        <!-- Statistique automatique -->
+                        <TextBlock Text="Statistique automatique"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="#242424"
+                           Margin="0,0,0,4"/>
+
+                        <TextBlock Text="Choisissez une statistique calculée automatiquement par MuniChien."
+                           FontSize="13"
+                           Foreground="#666666"
+                           Margin="0,0,0,12"/>
+
+                        <ComboBox ItemsSource="{Binding AvailableMetrics}"
+                          SelectedItem="{Binding SelectedMetric}"
+                          DisplayMemberPath="Title"
+                          Height="38"
+                          Padding="10,4"
+                          Margin="0,0,0,12"/>
+
+                        <Button Content="Utiliser cette statistique"
+                        Command="{Binding ReplaceWithMetricCommand}"
+                        Style="{StaticResource PrimaryActionButtonStyle}"
+                        HorizontalAlignment="Left"/>
+
+
+                        <!-- Séparateur -->
+                        <Border Height="1"
+                        Background="#DDDDDD"
+                        Margin="0,28"/>
+
+
+                        <!-- Valeur manuelle -->
+                        <TextBlock Text="Créer une statistique personnalisée"
+                            FontSize="18"
+                            FontWeight="SemiBold"
+                            Foreground="#242424"
+                            Margin="0,0,0,4"/>
+
+                        <TextBlock Text="Ajoutez une donnée manuelle aux statistiques disponibles. Vous pourrez ensuite l'utiliser dans l'un des huit emplacements."
+                            FontSize="13"
+                            Foreground="#666666"
+                            TextWrapping="Wrap"
+                            Margin="0,0,0,16"/>
+
+
+                        <TextBlock Text="Nom de la statistique"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Foreground="#242424"
+                           Margin="0,0,0,6"/>
+
+                        <TextBox Text="{Binding ManualCardTitle,
+                                        UpdateSourceTrigger=PropertyChanged}"
+                         Height="38"
+                         Padding="10,7"
+                         FontSize="14"
+                         Margin="0,0,0,14"/>
+
+
+                        <TextBlock Text="Valeur"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Foreground="#242424"
+                           Margin="0,0,0,6"/>
+
+                        <TextBox Text="{Binding ManualCardValue,
+                                        UpdateSourceTrigger=PropertyChanged}"
+                         Height="38"
+                         Padding="10,7"
+                         FontSize="14"
+                         Margin="0,0,0,12"/>
+
+                        <Button Content="Ajouter aux choix"
+                            Command="{Binding CreateManualMetricCommand}"
+                            Style="{StaticResource SecondaryActionButtonStyle}"
+                            HorizontalAlignment="Left"/>
+
+
+                        <!-- Message -->
+                        <TextBlock Text="{Binding CustomizationMessage}"
+                           Foreground="#E87524"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap"
+                           Margin="0,20,0,0"/>
+
+
+                        <!-- Fermer -->
+                        <Button Content="Fermer"
+                        Command="{Binding CloseCustomizationCommand}"
+                        Style="{StaticResource SecondaryActionButtonStyle}"
+                        HorizontalAlignment="Right"
+                        Margin="0,28,0,0"/>
+
+                    </StackPanel>
+
+                </ScrollViewer>
 
             </Border>
 
