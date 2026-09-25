@@ -111,5 +111,6 @@ public partial class HomeView : UserControl
         }
 
         viewModel.DashboardCards.Move(oldIndex, newIndex);
+        viewModel.SaveDashboardOrder();
     }
 }
