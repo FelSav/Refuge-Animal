@@ -52,8 +52,9 @@
                      CARTES DE STATISTIQUES
                      ================================================== -->
 
-                <ItemsControl ItemsSource="{Binding DashboardCards}"
-                              Margin="0,0,0,48">
+                <ItemsControl x:Name="DashboardItemsControl"
+                    ItemsSource="{Binding DashboardCards}"
+                    Margin="0,0,0,48">
 
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using MuniChien.App.ViewModels;
+using System.Windows.Media.Animation;
 
 namespace MuniChien.App.Views;
 
@@ -158,8 +159,8 @@ public partial class HomeView : UserControl
     // ==================================================
 
     private void DashboardCard_DragEnter(
-        object sender,
-        DragEventArgs e)
+    object sender,
+    DragEventArgs e)
     {
         if (_draggedCard is null)
         {
@@ -183,12 +184,10 @@ public partial class HomeView : UserControl
         }
 
         int oldIndex =
-            viewModel.DashboardCards.IndexOf(
-                _draggedCard);
+            viewModel.DashboardCards.IndexOf(_draggedCard);
 
         int newIndex =
-            viewModel.DashboardCards.IndexOf(
-                targetCard);
+            viewModel.DashboardCards.IndexOf(targetCard);
 
         if (oldIndex < 0 ||
             newIndex < 0 ||
@@ -197,16 +196,23 @@ public partial class HomeView : UserControl
             return;
         }
 
-        // C'est cette ligne qui fait "pousser"
-        // les autres cartes pendant le déplacement.
+        // On mémorise la position visuelle actuelle
+        // de toutes les cartes AVANT le déplacement.
+        Dictionary<DashboardCardViewModel, Point> oldPositions =
+            CaptureDashboardCardPositions();
+
+        // Changement réel de l'ordre.
         viewModel.DashboardCards.Move(
             oldIndex,
             newIndex);
 
+        // Anime les autres cartes vers leur nouvelle position.
+        AnimateDashboardReorder(oldPositions);
+
         _layoutChangedDuringDrag = true;
 
-        e.Effects =
-            DragDropEffects.Move;
+        e.Effects = DragDropEffects.Move;
+        e.Handled = true;
     }
 
 
@@ -282,6 +288,177 @@ public partial class HomeView : UserControl
     // ADORNER
     // Copie visuelle de la carte qui suit la souris
     // ==================================================
+
+    private Dictionary<DashboardCardViewModel, Point>
+    CaptureDashboardCardPositions()
+    {
+        Dictionary<DashboardCardViewModel, Point> positions = [];
+
+        if (DataContext is not HomeViewModel viewModel)
+        {
+            return positions;
+        }
+
+        foreach (DashboardCardViewModel card in viewModel.DashboardCards)
+        {
+            FrameworkElement? container =
+                DashboardItemsControl
+                    .ItemContainerGenerator
+                    .ContainerFromItem(card)
+                as FrameworkElement;
+
+            if (container is null)
+            {
+                continue;
+            }
+
+            try
+            {
+                Point position =
+                    container
+                        .TransformToAncestor(RootGrid)
+                        .Transform(new Point(0, 0));
+
+                positions[card] = position;
+            }
+            catch (InvalidOperationException)
+            {
+                // Le conteneur peut momentanément être
+                // détaché pendant une mise à jour du layout.
+            }
+        }
+
+        return positions;
+    }
+
+    private void AnimateDashboardReorder(
+    Dictionary<DashboardCardViewModel, Point> oldPositions)
+    {
+        if (DataContext is not HomeViewModel viewModel)
+        {
+            return;
+        }
+
+        // On enlève les anciennes animations afin de repartir
+        // de positions de layout propres.
+        foreach (DashboardCardViewModel card in viewModel.DashboardCards)
+        {
+            FrameworkElement? container =
+                DashboardItemsControl
+                    .ItemContainerGenerator
+                    .ContainerFromItem(card)
+                as FrameworkElement;
+
+            if (container is null)
+            {
+                continue;
+            }
+
+            container.RenderTransform =
+                Transform.Identity;
+        }
+
+        // Force WPF à calculer immédiatement
+        // les nouvelles positions du UniformGrid.
+        DashboardItemsControl.UpdateLayout();
+
+        Duration duration =
+            new(TimeSpan.FromMilliseconds(160));
+
+        CubicEase easing =
+            new()
+            {
+                EasingMode = EasingMode.EaseOut
+            };
+
+        foreach (DashboardCardViewModel card in viewModel.DashboardCards)
+        {
+            // La carte tenue par la souris possède déjà
+            // son propre aperçu flottant.
+            if (card == _draggedCard)
+            {
+                continue;
+            }
+
+            if (!oldPositions.TryGetValue(
+                    card,
+                    out Point oldPosition))
+            {
+                continue;
+            }
+
+            FrameworkElement? container =
+                DashboardItemsControl
+                    .ItemContainerGenerator
+                    .ContainerFromItem(card)
+                as FrameworkElement;
+
+            if (container is null)
+            {
+                continue;
+            }
+
+            Point newPosition;
+
+            try
+            {
+                newPosition =
+                    container
+                        .TransformToAncestor(RootGrid)
+                        .Transform(new Point(0, 0));
+            }
+            catch (InvalidOperationException)
+            {
+                continue;
+            }
+
+            double offsetX =
+                oldPosition.X - newPosition.X;
+
+            double offsetY =
+                oldPosition.Y - newPosition.Y;
+
+            if (Math.Abs(offsetX) < 0.5 &&
+                Math.Abs(offsetY) < 0.5)
+            {
+                continue;
+            }
+
+            TranslateTransform transform =
+                new();
+
+            container.RenderTransform =
+                transform;
+
+            DoubleAnimation xAnimation =
+                new()
+                {
+                    From = offsetX,
+                    To = 0,
+                    Duration = duration,
+                    EasingFunction = easing,
+                    FillBehavior = FillBehavior.Stop
+                };
+
+            DoubleAnimation yAnimation =
+                new()
+                {
+                    From = offsetY,
+                    To = 0,
+                    Duration = duration,
+                    EasingFunction = easing,
+                    FillBehavior = FillBehavior.Stop
+                };
+
+            transform.BeginAnimation(
+                TranslateTransform.XProperty,
+                xAnimation);
+
+            transform.BeginAnimation(
+                TranslateTransform.YProperty,
+                yAnimation);
+        }
+    }
 
     private sealed class DragPreviewAdorner : Adorner
     {
