@@ -7,7 +7,12 @@
     </UserControl.Resources>
 
 
-    <Grid Background="#F6F7F9">
+    <Grid x:Name="RootGrid"
+          Background="#F6F7F9"
+          AllowDrop="True"
+          DragOver="DashboardRoot_DragOver"
+          Drop="DashboardRoot_Drop">
+
 
         <!-- ==================================================
              CONTENU PRINCIPAL
@@ -17,6 +22,8 @@
 
             <StackPanel Margin="56,38">
 
+
+                <!-- En-tête -->
                 <TextBlock Text="Bienvenue dans MuniChien"
                            FontSize="26"
                            FontWeight="SemiBold"
@@ -64,8 +71,7 @@
                                     AllowDrop="True"
                                     PreviewMouseLeftButtonDown="DashboardCard_PreviewMouseLeftButtonDown"
                                     PreviewMouseMove="DashboardCard_PreviewMouseMove"
-                                    DragOver="DashboardCard_DragOver"
-                                    Drop="DashboardCard_Drop">
+                                    DragEnter="DashboardCard_DragEnter">
 
                                 <StackPanel>
 

@@ -179,25 +179,54 @@
 
     <!-- Carte de statistique du tableau de bord -->
     <Style x:Key="DashboardCardStyle"
-           TargetType="Border">
+       TargetType="Border">
 
         <Setter Property="Background"
-                Value="White"/>
+            Value="White"/>
 
         <Setter Property="BorderBrush"
-                Value="#B9B9B9"/>
+            Value="#B9B9B9"/>
 
         <Setter Property="BorderThickness"
-                Value="1"/>
+            Value="1"/>
 
         <Setter Property="CornerRadius"
-                Value="8"/>
+            Value="8"/>
 
         <Setter Property="Padding"
-                Value="16"/>
+            Value="16"/>
 
         <Setter Property="Margin"
-                Value="8"/>
+            Value="8"/>
+
+        <Setter Property="RenderTransformOrigin"
+            Value="0.5,0.5"/>
+
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <ScaleTransform ScaleX="1"
+                            ScaleY="1"/>
+            </Setter.Value>
+        </Setter>
+
+        <Style.Triggers>
+
+            <Trigger Property="IsMouseOver"
+                 Value="True">
+
+                <Setter Property="BorderBrush"
+                    Value="{StaticResource AccentBrush}"/>
+
+                <Setter Property="RenderTransform">
+                    <Setter.Value>
+                        <ScaleTransform ScaleX="1.02"
+                                    ScaleY="1.02"/>
+                    </Setter.Value>
+                </Setter>
+
+            </Trigger>
+
+        </Style.Triggers>
 
     </Style>
 
