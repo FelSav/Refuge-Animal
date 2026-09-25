@@ -30,141 +30,45 @@
                            FontSize="14"
                            Foreground="#242424"/>
 
-
+                
                 <!-- Statistiques -->
-                <UniformGrid Columns="4"
-                             Rows="2"
-                             Margin="0,0,0,48">
+                <ItemsControl ItemsSource="{Binding DashboardCards}"
+              Margin="0,0,0,48">
 
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
 
-                    <Border Style="{StaticResource DashboardCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="Chiens actifs"
-                                       HorizontalAlignment="Center"
-                                       FontSize="12"
-                                       Foreground="#657086"/>
+                            <UniformGrid Columns="4"/>
 
-                            <TextBlock Text="1248"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,0"
-                                       FontSize="24"
-                                       FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
 
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
 
-                    <Border Style="{StaticResource DashboardCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="Licences à renouveler"
-                                       HorizontalAlignment="Center"
-                                       FontSize="12"
-                                       Foreground="#657086"/>
+                            <Border Style="{StaticResource DashboardCardStyle}">
 
-                            <TextBlock Text="37"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,0"
-                                       FontSize="24"
-                                       FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
+                                <StackPanel>
 
+                                    <TextBlock Text="{Binding Title}"
+                               HorizontalAlignment="Center"
+                               FontSize="12"
+                               Foreground="#657086"/>
 
-                    <Border Style="{StaticResource DashboardCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="Soldes impayés"
-                                       HorizontalAlignment="Center"
-                                       FontSize="12"
-                                       Foreground="#657086"/>
+                                    <TextBlock Text="{Binding Value}"
+                               HorizontalAlignment="Center"
+                               Margin="0,6,0,0"
+                               FontSize="24"
+                               FontWeight="SemiBold"/>
 
-                            <TextBlock Text="18"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,0"
-                                       FontSize="24"
-                                       FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
+                                </StackPanel>
 
+                            </Border>
 
-                    <Border Style="{StaticResource DashboardCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="Paiements aujourd'hui"
-                                       HorizontalAlignment="Center"
-                                       FontSize="12"
-                                       Foreground="#657086"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
 
-                            <TextBlock Text="12"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,0"
-                                       FontSize="24"
-                                       FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
-
-
-                    <Border Style="{StaticResource DashboardCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="Chiens sans licence"
-                                       HorizontalAlignment="Center"
-                                       FontSize="12"
-                                       Foreground="#657086"/>
-
-                            <TextBlock Text="64"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,0"
-                                       FontSize="24"
-                                       FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
-
-
-                    <Border Style="{StaticResource DashboardCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="Chiens inactifs"
-                                       HorizontalAlignment="Center"
-                                       FontSize="12"
-                                       Foreground="#657086"/>
-
-                            <TextBlock Text="95"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,0"
-                                       FontSize="24"
-                                       FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
-
-
-                    <Border Style="{StaticResource DashboardCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="Avis à envoyer"
-                                       HorizontalAlignment="Center"
-                                       FontSize="12"
-                                       Foreground="#657086"/>
-
-                            <TextBlock Text="25"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,0"
-                                       FontSize="24"
-                                       FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
-
-
-                    <Border Style="{StaticResource DashboardCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="Paiements ce mois-ci"
-                                       HorizontalAlignment="Center"
-                                       FontSize="12"
-                                       Foreground="#657086"/>
-
-                            <TextBlock Text="798"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,0"
-                                       FontSize="24"
-                                       FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
-
-                </UniformGrid>
+                </ItemsControl>
 
 
                 <!-- Actions rapides -->
