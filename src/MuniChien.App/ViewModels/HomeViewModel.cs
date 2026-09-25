@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using MuniChien.App.Services;
+using System.Windows.Input;
+using MuniChien.App.Navigation;
 
 namespace MuniChien.App.ViewModels;
 
@@ -9,6 +11,12 @@ public class HomeViewModel : ViewModelBase
 
     public HomeViewModel()
     {
+        OpenCustomizationCommand =
+            new RelayCommand(() => IsCustomizationOpen = true);
+
+        CloseCustomizationCommand =
+            new RelayCommand(() => IsCustomizationOpen = false);
+
         AvailableMetrics =
         [
             new("activeDogs", "Chiens actifs"),
@@ -38,18 +46,17 @@ public class HomeViewModel : ViewModelBase
             CreateCard("noticesToSend", "25"),
             CreateCard("paymentsThisMonth", "798")
         ];
+        ApplySavedLayout();
 
-        ApplySavedOrder();
     }
 
     public ObservableCollection<DashboardCardViewModel> DashboardCards { get; }
 
     public IReadOnlyList<DashboardMetricDefinition> AvailableMetrics { get; }
 
-    public void SaveDashboardOrder()
+    public void SaveDashboardLayout()
     {
-        _layoutService.SaveOrder(
-            DashboardCards.Select(card => card.Key));
+        _layoutService.SaveLayout(DashboardCards);
     }
 
     private DashboardCardViewModel CreateCard(string key, string value)
@@ -63,43 +70,92 @@ public class HomeViewModel : ViewModelBase
             value);
     }
 
-    private void ApplySavedOrder()
+    private void ApplySavedLayout()
     {
-        IReadOnlyList<string> savedOrder = _layoutService.LoadOrder();
+        IReadOnlyList<DashboardCardLayoutItem> savedLayout =
+            _layoutService.LoadLayout();
 
-        if (savedOrder.Count == 0)
+        if (savedLayout.Count == 0)
         {
             return;
         }
 
-        Dictionary<string, DashboardCardViewModel> cardsByKey =
+        Dictionary<string, DashboardCardViewModel> metricCards =
             DashboardCards.ToDictionary(card => card.Key);
 
-        List<DashboardCardViewModel> orderedCards = [];
+        List<DashboardCardViewModel> configuredCards = [];
 
-        foreach (string key in savedOrder)
+        foreach (DashboardCardLayoutItem item in savedLayout)
         {
-            if (cardsByKey.TryGetValue(
-                    key,
-                    out DashboardCardViewModel? card))
+            if (item.Source == DashboardCardSource.Manual)
             {
-                orderedCards.Add(card);
+                configuredCards.Add(
+                    new DashboardCardViewModel(
+                        item.Key,
+                        item.Title ?? "Valeur personnalisée",
+                        item.Value ?? string.Empty,
+                        DashboardCardSource.Manual));
+
+                continue;
+            }
+
+            if (metricCards.TryGetValue(
+                    item.Key,
+                    out DashboardCardViewModel? metricCard))
+            {
+                configuredCards.Add(metricCard);
             }
         }
 
+        // Pour l'instant on garde également les statistiques
+        // par défaut qui ne seraient pas encore dans le fichier.
         foreach (DashboardCardViewModel card in DashboardCards)
         {
-            if (!orderedCards.Contains(card))
+            if (!configuredCards.Contains(card))
             {
-                orderedCards.Add(card);
+                configuredCards.Add(card);
             }
         }
 
         DashboardCards.Clear();
 
-        foreach (DashboardCardViewModel card in orderedCards)
+        foreach (DashboardCardViewModel card in configuredCards)
         {
             DashboardCards.Add(card);
         }
     }
+
+    public void AddManualCard(string title, string value)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return;
+        }
+
+        string key = $"manual-{Guid.NewGuid()}";
+
+        DashboardCards.Add(
+            new DashboardCardViewModel(
+                key,
+                title.Trim(),
+                value.Trim(),
+                DashboardCardSource.Manual));
+
+        SaveDashboardLayout();
+    }
+
+    private bool _isCustomizationOpen;
+
+    public bool IsCustomizationOpen
+    {
+        get => _isCustomizationOpen;
+        set
+        {
+            _isCustomizationOpen = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public ICommand OpenCustomizationCommand { get; }
+    public ICommand CloseCustomizationCommand { get; }
 }
