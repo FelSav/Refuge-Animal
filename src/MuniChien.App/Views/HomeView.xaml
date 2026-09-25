@@ -10,10 +10,6 @@
         </Grid.RowDefinitions>
 
 
-        <!-- Barre supérieure -->
-        
-
-
         <!-- Contenu -->
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto">
@@ -46,7 +42,12 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
 
-                            <Border Style="{StaticResource DashboardCardStyle}">
+                            <Border Style="{StaticResource DashboardCardStyle}"
+        AllowDrop="True"
+        PreviewMouseLeftButtonDown="DashboardCard_PreviewMouseLeftButtonDown"
+        PreviewMouseMove="DashboardCard_PreviewMouseMove"
+        DragOver="DashboardCard_DragOver"
+        Drop="DashboardCard_Drop">  
 
                                 <StackPanel>
 
