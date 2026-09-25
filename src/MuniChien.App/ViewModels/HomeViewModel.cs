@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using MuniChien.App.Navigation;
 using MuniChien.App.Services;
@@ -24,10 +26,17 @@ public class HomeViewModel : ViewModelBase
     private readonly DashboardLayoutService _layoutService = new();
 
     private bool _isCustomizationOpen;
+
     private DashboardCardViewModel? _selectedCard;
     private DashboardMetricDefinition? _selectedMetric;
+
     private string _manualCardTitle = string.Empty;
     private string _manualCardValue = string.Empty;
+
+    private DashboardMetricDefinition? _selectedCustomMetric;
+    private string _editCustomMetricTitle = string.Empty;
+    private string _editCustomMetricValue = string.Empty;
+
     private string _customizationMessage = string.Empty;
 
 
@@ -39,7 +48,6 @@ public class HomeViewModel : ViewModelBase
     {
         AvailableMetrics = CreateAvailableMetrics();
 
-        // Charge les statistiques personnalisées créées auparavant.
         LoadCustomMetrics();
 
         DashboardCards = CreateDefaultDashboard();
@@ -56,6 +64,12 @@ public class HomeViewModel : ViewModelBase
         CreateManualMetricCommand =
             new RelayCommand(CreateManualMetric);
 
+        UpdateManualMetricCommand =
+            new RelayCommand(UpdateManualMetric);
+
+        DeleteManualMetricCommand =
+            new RelayCommand(DeleteManualMetric);
+
         ApplySavedLayout();
     }
 
@@ -70,7 +84,33 @@ public class HomeViewModel : ViewModelBase
 
 
     // ==================================================
-    // ÉTAT DU PANNEAU DE PERSONNALISATION
+    // LISTES FILTRÉES POUR L'INTERFACE
+    // ==================================================
+
+    public IEnumerable<DashboardMetricDefinition> AvailableReplacementMetrics
+    {
+        get
+        {
+            string? selectedKey = SelectedCard?.Key;
+
+            HashSet<string> unavailableKeys =
+                DashboardCards
+                    .Where(card => card.Key != selectedKey)
+                    .Select(card => card.Key)
+                    .ToHashSet();
+
+            return AvailableMetrics
+                .Where(metric =>
+                    !unavailableKeys.Contains(metric.Key));
+        }
+    }
+
+    public IEnumerable<DashboardMetricDefinition> CustomMetrics =>
+        AvailableMetrics.Where(metric => metric.IsManual);
+
+
+    // ==================================================
+    // ÉTAT DU PANNEAU
     // ==================================================
 
     public bool IsCustomizationOpen
@@ -89,6 +129,11 @@ public class HomeViewModel : ViewModelBase
         }
     }
 
+
+    // ==================================================
+    // CARTE / STATISTIQUE SÉLECTIONNÉE
+    // ==================================================
+
     public DashboardCardViewModel? SelectedCard
     {
         get => _selectedCard;
@@ -101,7 +146,16 @@ public class HomeViewModel : ViewModelBase
             }
 
             _selectedCard = value;
+
             OnPropertyChanged();
+            OnPropertyChanged(nameof(AvailableReplacementMetrics));
+
+            if (_selectedCard is not null)
+            {
+                SelectedMetric =
+                    AvailableMetrics.FirstOrDefault(metric =>
+                        metric.Key == _selectedCard.Key);
+            }
         }
     }
 
@@ -120,6 +174,11 @@ public class HomeViewModel : ViewModelBase
             OnPropertyChanged();
         }
     }
+
+
+    // ==================================================
+    // CRÉATION D'UNE STATISTIQUE PERSONNALISÉE
+    // ==================================================
 
     public string ManualCardTitle
     {
@@ -153,6 +212,70 @@ public class HomeViewModel : ViewModelBase
         }
     }
 
+
+    // ==================================================
+    // MODIFICATION D'UNE STATISTIQUE PERSONNALISÉE
+    // ==================================================
+
+    public DashboardMetricDefinition? SelectedCustomMetric
+    {
+        get => _selectedCustomMetric;
+
+        set
+        {
+            if (_selectedCustomMetric == value)
+            {
+                return;
+            }
+
+            _selectedCustomMetric = value;
+            OnPropertyChanged();
+
+            EditCustomMetricTitle =
+                value?.Title ?? string.Empty;
+
+            EditCustomMetricValue =
+                value?.ManualValue ?? string.Empty;
+        }
+    }
+
+    public string EditCustomMetricTitle
+    {
+        get => _editCustomMetricTitle;
+
+        set
+        {
+            if (_editCustomMetricTitle == value)
+            {
+                return;
+            }
+
+            _editCustomMetricTitle = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string EditCustomMetricValue
+    {
+        get => _editCustomMetricValue;
+
+        set
+        {
+            if (_editCustomMetricValue == value)
+            {
+                return;
+            }
+
+            _editCustomMetricValue = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    // ==================================================
+    // MESSAGE UTILISATEUR
+    // ==================================================
+
     public string CustomizationMessage
     {
         get => _customizationMessage;
@@ -182,6 +305,10 @@ public class HomeViewModel : ViewModelBase
 
     public ICommand CreateManualMetricCommand { get; }
 
+    public ICommand UpdateManualMetricCommand { get; }
+
+    public ICommand DeleteManualMetricCommand { get; }
+
 
     // ==================================================
     // OUVERTURE / FERMETURE DU PANNEAU
@@ -191,7 +318,8 @@ public class HomeViewModel : ViewModelBase
     {
         CustomizationMessage = string.Empty;
 
-        if (SelectedCard is null && DashboardCards.Count > 0)
+        if (SelectedCard is null &&
+            DashboardCards.Count > 0)
         {
             SelectedCard = DashboardCards[0];
         }
@@ -224,7 +352,6 @@ public class HomeViewModel : ViewModelBase
             new("noticesToSend", "Avis à envoyer"),
             new("paymentsThisMonth", "Paiements ce mois-ci"),
 
-            // Statistiques supplémentaires disponibles plus tard via l'API.
             new("activeOwners", "Propriétaires actifs"),
             new("inactiveOwners", "Propriétaires inactifs"),
             new("expiredLicenses", "Licences expirées"),
@@ -239,12 +366,8 @@ public class HomeViewModel : ViewModelBase
 
         foreach (DashboardCardLayoutItem item in savedMetrics)
         {
-            if (item.Source != DashboardCardSource.Manual)
-            {
-                continue;
-            }
-
-            if (string.IsNullOrWhiteSpace(item.Title))
+            if (item.Source != DashboardCardSource.Manual ||
+                string.IsNullOrWhiteSpace(item.Title))
             {
                 continue;
             }
@@ -269,7 +392,7 @@ public class HomeViewModel : ViewModelBase
 
 
     // ==================================================
-    // CRÉATION DU TABLEAU DE BORD
+    // DASHBOARD PAR DÉFAUT
     // ==================================================
 
     private ObservableCollection<DashboardCardViewModel>
@@ -330,7 +453,7 @@ public class HomeViewModel : ViewModelBase
 
 
     // ==================================================
-    // CRÉATION D'UNE STATISTIQUE MANUELLE
+    // CRÉER UNE STATISTIQUE PERSONNALISÉE
     // ==================================================
 
     private void CreateManualMetric()
@@ -378,28 +501,220 @@ public class HomeViewModel : ViewModelBase
                 DashboardCardSource.Manual,
                 value);
 
-        // Important :
-        // on l'ajoute seulement aux choix disponibles.
-        // On ne modifie pas encore le tableau de bord.
         AvailableMetrics.Add(customMetric);
 
-        _layoutService.SaveCustomMetrics(
-            AvailableMetrics);
+        SaveCustomMetrics();
 
-        // On la sélectionne automatiquement dans le ComboBox
-        // pour faciliter son utilisation juste après sa création.
         SelectedMetric = customMetric;
+        SelectedCustomMetric = customMetric;
 
         ManualCardTitle = string.Empty;
         ManualCardValue = string.Empty;
 
+        RefreshMetricLists();
+
         CustomizationMessage =
-            "La statistique personnalisée a été ajoutée aux choix.";
+            "La statistique personnalisée a été ajoutée.";
     }
 
 
     // ==================================================
-    // REMPLACEMENT D'UNE CARTE
+    // MODIFIER UNE STATISTIQUE PERSONNALISÉE
+    // ==================================================
+
+    private void UpdateManualMetric()
+    {
+        CustomizationMessage = string.Empty;
+
+        if (SelectedCustomMetric is null)
+        {
+            CustomizationMessage =
+                "Sélectionnez une statistique personnalisée.";
+
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(EditCustomMetricTitle))
+        {
+            CustomizationMessage =
+                "Entrez un nom.";
+
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(EditCustomMetricValue))
+        {
+            CustomizationMessage =
+                "Entrez une valeur.";
+
+            return;
+        }
+
+        string title = EditCustomMetricTitle.Trim();
+        string value = EditCustomMetricValue.Trim();
+
+        bool duplicateTitle =
+            AvailableMetrics.Any(metric =>
+                metric.Key != SelectedCustomMetric.Key &&
+                string.Equals(
+                    metric.Title,
+                    title,
+                    StringComparison.OrdinalIgnoreCase));
+
+        if (duplicateTitle)
+        {
+            CustomizationMessage =
+                "Une statistique portant ce nom existe déjà.";
+
+            return;
+        }
+
+        int metricIndex =
+            AvailableMetrics.IndexOf(
+                SelectedCustomMetric);
+
+        if (metricIndex < 0)
+        {
+            return;
+        }
+
+        DashboardMetricDefinition updatedMetric =
+            new(
+                SelectedCustomMetric.Key,
+                title,
+                DashboardCardSource.Manual,
+                value);
+
+        AvailableMetrics[metricIndex] =
+            updatedMetric;
+
+        DashboardCardViewModel? displayedCard =
+            DashboardCards.FirstOrDefault(card =>
+                card.Key == updatedMetric.Key);
+
+        if (displayedCard is not null)
+        {
+            displayedCard.Title = title;
+            displayedCard.Value = value;
+
+            SaveDashboardLayout();
+        }
+
+        if (SelectedMetric?.Key ==
+            updatedMetric.Key)
+        {
+            SelectedMetric = updatedMetric;
+        }
+
+        SelectedCustomMetric = updatedMetric;
+
+        SaveCustomMetrics();
+        RefreshMetricLists();
+
+        CustomizationMessage =
+            "La statistique personnalisée a été modifiée.";
+    }
+
+
+    // ==================================================
+    // SUPPRIMER UNE STATISTIQUE PERSONNALISÉE
+    // ==================================================
+
+    private void DeleteManualMetric()
+    {
+        CustomizationMessage = string.Empty;
+
+        if (SelectedCustomMetric is null)
+        {
+            CustomizationMessage =
+                "Sélectionnez une statistique personnalisée.";
+
+            return;
+        }
+
+        DashboardMetricDefinition metricToDelete =
+            SelectedCustomMetric;
+
+        DashboardCardViewModel? displayedCard =
+            DashboardCards.FirstOrDefault(card =>
+                card.Key == metricToDelete.Key);
+
+        DashboardCardViewModel? replacementCard = null;
+
+        if (displayedCard is not null)
+        {
+            DashboardMetricDefinition? replacementMetric =
+                FindUnusedAutomaticMetric(
+                    metricToDelete.Key);
+
+            if (replacementMetric is null)
+            {
+                CustomizationMessage =
+                    "Impossible de supprimer cette statistique pour le moment.";
+
+                return;
+            }
+
+            int index =
+                DashboardCards.IndexOf(displayedCard);
+
+            replacementCard =
+                CreateCardFromMetricDefinition(
+                    replacementMetric);
+
+            DashboardCards[index] =
+                replacementCard;
+
+            if (SelectedCard?.Key ==
+                metricToDelete.Key)
+            {
+                SelectedCard =
+                    replacementCard;
+            }
+        }
+
+        AvailableMetrics.Remove(metricToDelete);
+
+        if (SelectedMetric?.Key ==
+            metricToDelete.Key)
+        {
+            SelectedMetric =
+                replacementCard is null
+                    ? null
+                    : AvailableMetrics.FirstOrDefault(metric =>
+                        metric.Key == replacementCard.Key);
+        }
+
+        SelectedCustomMetric = null;
+
+        SaveCustomMetrics();
+        SaveDashboardLayout();
+
+        RefreshMetricLists();
+
+        CustomizationMessage =
+            "La statistique personnalisée a été supprimée.";
+    }
+
+    private DashboardMetricDefinition? FindUnusedAutomaticMetric(
+        string ignoredKey)
+    {
+        HashSet<string> displayedKeys =
+            DashboardCards
+                .Where(card =>
+                    card.Key != ignoredKey)
+                .Select(card => card.Key)
+                .ToHashSet();
+
+        return AvailableMetrics
+            .FirstOrDefault(metric =>
+                !metric.IsManual &&
+                !displayedKeys.Contains(metric.Key));
+    }
+
+
+    // ==================================================
+    // REMPLACER UNE CARTE
     // ==================================================
 
     private void ReplaceSelectedCardWithMetric()
@@ -435,7 +750,8 @@ public class HomeViewModel : ViewModelBase
             return;
         }
 
-        int index = DashboardCards.IndexOf(SelectedCard);
+        int index =
+            DashboardCards.IndexOf(SelectedCard);
 
         if (index < 0)
         {
@@ -446,11 +762,14 @@ public class HomeViewModel : ViewModelBase
             CreateCardFromMetricDefinition(
                 SelectedMetric);
 
-        DashboardCards[index] = newCard;
+        DashboardCards[index] =
+            newCard;
 
         SelectedCard = newCard;
 
         SaveDashboardLayout();
+
+        RefreshMetricLists();
 
         CustomizationMessage =
             "La statistique a été remplacée.";
@@ -458,12 +777,33 @@ public class HomeViewModel : ViewModelBase
 
 
     // ==================================================
-    // SAUVEGARDE DU TABLEAU DE BORD
+    // RAFRAÎCHIR LES LISTES CALCULÉES
     // ==================================================
+
+    private void RefreshMetricLists()
+    {
+        OnPropertyChanged(
+            nameof(AvailableReplacementMetrics));
+
+        OnPropertyChanged(
+            nameof(CustomMetrics));
+    }
+
+
+    // ==================================================
+    // SAUVEGARDES
+    // ==================================================
+
+    private void SaveCustomMetrics()
+    {
+        _layoutService.SaveCustomMetrics(
+            AvailableMetrics);
+    }
 
     public void SaveDashboardLayout()
     {
-        _layoutService.SaveLayout(DashboardCards);
+        _layoutService.SaveLayout(
+            DashboardCards);
     }
 
     private void ApplySavedLayout()
@@ -482,15 +822,18 @@ public class HomeViewModel : ViewModelBase
 
         foreach (DashboardCardLayoutItem item in savedLayout)
         {
-            if (restoredCards.Count >= DashboardCardCount)
+            if (restoredCards.Count >=
+                DashboardCardCount)
             {
                 break;
             }
 
-            if (item.Source == DashboardCardSource.Manual)
+            if (item.Source ==
+                DashboardCardSource.Manual)
             {
                 customMetricsRecovered |=
-                    EnsureManualMetricExistsInCatalog(item);
+                    EnsureManualMetricExistsInCatalog(
+                        item);
             }
 
             DashboardCardViewModel? card =
@@ -511,28 +854,30 @@ public class HomeViewModel : ViewModelBase
             }
         }
 
-        FillMissingDefaultCards(restoredCards);
+        FillMissingDefaultCards(
+            restoredCards);
 
         DashboardCards.Clear();
 
-        foreach (DashboardCardViewModel card in restoredCards)
+        foreach (DashboardCardViewModel card
+                 in restoredCards)
         {
             DashboardCards.Add(card);
         }
 
-        // Permet de récupérer automatiquement les anciennes
-        // statistiques manuelles créées avant le nouveau catalogue.
         if (customMetricsRecovered)
         {
-            _layoutService.SaveCustomMetrics(
-                AvailableMetrics);
+            SaveCustomMetrics();
         }
+
+        RefreshMetricLists();
     }
 
     private DashboardCardViewModel? CreateCardFromSavedLayout(
         DashboardCardLayoutItem item)
     {
-        if (item.Source == DashboardCardSource.Manual)
+        if (item.Source ==
+            DashboardCardSource.Manual)
         {
             return new DashboardCardViewModel(
                 item.Key,
@@ -541,18 +886,21 @@ public class HomeViewModel : ViewModelBase
                 DashboardCardSource.Manual);
         }
 
-        return CreateMetricCard(item.Key);
+        return CreateMetricCard(
+            item.Key);
     }
 
     private bool EnsureManualMetricExistsInCatalog(
         DashboardCardLayoutItem item)
     {
-        if (item.Source != DashboardCardSource.Manual)
+        if (item.Source !=
+            DashboardCardSource.Manual)
         {
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(item.Title))
+        if (string.IsNullOrWhiteSpace(
+                item.Title))
         {
             return false;
         }
@@ -587,7 +935,8 @@ public class HomeViewModel : ViewModelBase
             }
 
             bool alreadyDisplayed =
-                cards.Any(card => card.Key == key);
+                cards.Any(card =>
+                    card.Key == key);
 
             if (alreadyDisplayed)
             {
@@ -607,7 +956,7 @@ public class HomeViewModel : ViewModelBase
 
     // ==================================================
     // VALEURS TEMPORAIRES
-    // PLUS TARD : REMPLACÉES PAR LES DONNÉES DE L'API
+    // PLUS TARD : API DE MAËL
     // ==================================================
 
     private string GetMetricValue(string key)
