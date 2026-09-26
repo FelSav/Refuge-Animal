@@ -1,25 +1,734 @@
 ﻿<UserControl x:Class="MuniChien.App.Views.SearchView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid Background="#F5F5F5">
+    <UserControl.Resources>
 
-        <StackPanel Margin="40">
+        <!-- ==================================================
+             SECTION
+             ================================================== -->
 
-            <TextBlock Text="Recherche"
-                       FontSize="32"
-                       FontWeight="SemiBold"
-                       Foreground="#242424"/>
+        <Style x:Key="SoftSectionBorderStyle"
+               TargetType="Border">
 
-            <TextBlock Text="Rechercher un propriétaire, un chien ou une licence"
-                       Margin="0,8,0,0"
-                       FontSize="16"
-                       Foreground="#666666"/>
+            <Setter Property="Background"
+                    Value="White"/>
 
-        </StackPanel>
+            <Setter Property="BorderBrush"
+                    Value="#E4E7EC"/>
+
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+
+            <Setter Property="CornerRadius"
+                    Value="18"/>
+
+            <Setter Property="Padding"
+                    Value="26"/>
+
+        </Style>
+
+
+        <!-- ==================================================
+             LABEL
+             ================================================== -->
+
+        <Style x:Key="SearchLabelStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="FontSize"
+                    Value="13"/>
+
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+
+            <Setter Property="Foreground"
+                    Value="#242424"/>
+
+            <Setter Property="Margin"
+                    Value="0,0,0,6"/>
+
+        </Style>
+
+
+        <!-- ==================================================
+             TEXTBOX ARRONDI
+             ================================================== -->
+
+        <Style x:Key="RoundedTextBoxStyle"
+               TargetType="TextBox">
+
+            <Setter Property="Background"
+                    Value="White"/>
+
+            <Setter Property="BorderBrush"
+                    Value="#D0D5DD"/>
+
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+
+            <Setter Property="Foreground"
+                    Value="#242424"/>
+
+            <Setter Property="FontSize"
+                    Value="14"/>
+
+            <Setter Property="Height"
+                    Value="42"/>
+
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
+
+            <Setter Property="Template">
+
+                <Setter.Value>
+
+                    <ControlTemplate TargetType="TextBox">
+
+                        <Border x:Name="InputBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="12,7"/>
+
+                        </Border>
+
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+
+                                <Setter TargetName="InputBorder"
+                                        Property="BorderBrush"
+                                        Value="#B8C0CC"/>
+
+                            </Trigger>
+
+
+                            <Trigger Property="IsKeyboardFocused"
+                                     Value="True">
+
+                                <Setter TargetName="InputBorder"
+                                        Property="BorderBrush"
+                                        Value="#E87524"/>
+
+                                <Setter TargetName="InputBorder"
+                                        Property="BorderThickness"
+                                        Value="1.5"/>
+
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+
+                </Setter.Value>
+
+            </Setter>
+
+        </Style>
+
+
+        <!-- ==================================================
+             BOUTONS DE RECHERCHE
+             ================================================== -->
+
+        <Style x:Key="SearchPrimaryButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource PrimaryActionButtonStyle}">
+
+            <Setter Property="Padding"
+                    Value="24,11"/>
+
+            <Setter Property="MinWidth"
+                    Value="145"/>
+
+        </Style>
+
+
+        <Style x:Key="SearchSecondaryButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource SecondaryActionButtonStyle}">
+
+            <Setter Property="Padding"
+                    Value="24,11"/>
+
+            <Setter Property="MinWidth"
+                    Value="155"/>
+
+        </Style>
+
+
+        <!-- ==================================================
+             DATAGRID
+             ================================================== -->
+
+        <Style x:Key="ResultsDataGridStyle"
+               TargetType="DataGrid">
+
+            <Setter Property="AutoGenerateColumns"
+                    Value="False"/>
+
+            <Setter Property="CanUserAddRows"
+                    Value="False"/>
+
+            <Setter Property="CanUserDeleteRows"
+                    Value="False"/>
+
+            <Setter Property="CanUserResizeRows"
+                    Value="False"/>
+
+            <Setter Property="CanUserReorderColumns"
+                    Value="False"/>
+
+            <Setter Property="IsReadOnly"
+                    Value="True"/>
+
+            <Setter Property="HeadersVisibility"
+                    Value="Column"/>
+
+            <Setter Property="GridLinesVisibility"
+                    Value="None"/>
+
+            <Setter Property="BorderThickness"
+                    Value="0"/>
+
+            <Setter Property="Background"
+                    Value="White"/>
+
+            <Setter Property="RowBackground"
+                    Value="White"/>
+
+            <Setter Property="AlternatingRowBackground"
+                    Value="#FCFCFD"/>
+
+            <Setter Property="RowHeight"
+                    Value="46"/>
+
+            <Setter Property="ColumnHeaderHeight"
+                    Value="44"/>
+
+            <Setter Property="SelectionMode"
+                    Value="Single"/>
+
+            <Setter Property="SelectionUnit"
+                    Value="FullRow"/>
+
+            <Setter Property="HorizontalScrollBarVisibility"
+                    Value="Auto"/>
+
+            <Setter Property="VerticalScrollBarVisibility"
+                    Value="Auto"/>
+
+        </Style>
+
+
+        <!-- Entête du tableau -->
+        <Style x:Key="ResultsColumnHeaderStyle"
+               TargetType="DataGridColumnHeader">
+
+            <Setter Property="Background"
+                    Value="#F8FAFC"/>
+
+            <Setter Property="Foreground"
+                    Value="#344054"/>
+
+            <Setter Property="FontSize"
+                    Value="13"/>
+
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+
+            <Setter Property="Padding"
+                    Value="12,0"/>
+
+            <Setter Property="BorderBrush"
+                    Value="#EAECF0"/>
+
+            <Setter Property="BorderThickness"
+                    Value="0,0,0,1"/>
+
+        </Style>
+
+
+        <!-- Ligne du tableau -->
+        <Style x:Key="ResultsRowStyle"
+               TargetType="DataGridRow">
+
+            <Setter Property="Background"
+                    Value="White"/>
+
+            <Setter Property="BorderBrush"
+                    Value="#EEF1F4"/>
+
+            <Setter Property="BorderThickness"
+                    Value="0,0,0,1"/>
+
+
+            <Style.Triggers>
+
+                <Trigger Property="IsMouseOver"
+                         Value="True">
+
+                    <Setter Property="Background"
+                            Value="#F8F9FB"/>
+
+                </Trigger>
+
+
+                <Trigger Property="IsSelected"
+                         Value="True">
+
+                    <Setter Property="Background"
+                            Value="#FFF2E9"/>
+
+                </Trigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <!-- Cellule du tableau -->
+        <Style x:Key="ResultsCellStyle"
+               TargetType="DataGridCell">
+
+            <Setter Property="BorderThickness"
+                    Value="0"/>
+
+            <Setter Property="Background"
+                    Value="Transparent"/>
+
+            <Setter Property="FocusVisualStyle"
+                    Value="{x:Null}"/>
+
+        </Style>
+
+
+        <!-- Texte dans les cellules -->
+        <Style x:Key="ResultsTextStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="VerticalAlignment"
+                    Value="Center"/>
+
+            <Setter Property="Foreground"
+                    Value="#344054"/>
+
+            <Setter Property="Margin"
+                    Value="12,0"/>
+
+            <Setter Property="TextTrimming"
+                    Value="CharacterEllipsis"/>
+
+        </Style>
+
+    </UserControl.Resources>
+
+
+    <!-- ==================================================
+         PAGE
+         ================================================== -->
+
+    <Grid Background="#F6F7F9">
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+
+            <StackPanel Margin="52,38,52,42">
+
+
+                <!-- ==================================================
+                     TITRE
+                     ================================================== -->
+
+                <TextBlock Text="Recherche"
+                           FontSize="26"
+                           FontWeight="SemiBold"
+                           Foreground="#242B38"/>
+
+                <TextBlock Text="Recherchez un dossier à l'aide du propriétaire, du chien ou des informations de licence."
+                           Margin="0,8,0,28"
+                           FontSize="14"
+                           Foreground="#667085"/>
+
+
+                <!-- ==================================================
+                     CRITÈRES DE RECHERCHE
+                     ================================================== -->
+
+                <Border Style="{StaticResource SoftSectionBorderStyle}">
+
+                    <StackPanel>
+
+
+                        <TextBlock Text="Critères de recherche"
+                                   FontSize="19"
+                                   FontWeight="SemiBold"
+                                   Foreground="#242B38"
+                                   Margin="0,0,0,22"/>
+
+
+                        <!-- ==================================================
+                             GRILLE DES CHAMPS
+                             ================================================== -->
+
+                        <Grid>
+
+                            <!--
+                                Tous les champs standards ont la même largeur.
+                                Les colonnes de 20 servent uniquement d'espacement.
+                            -->
+
+                            <Grid.ColumnDefinitions>
+
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+
+                                <ColumnDefinition Width="*"/>
+
+                            </Grid.ColumnDefinitions>
+
+
+                            <Grid.RowDefinitions>
+
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="18"/>
+
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="18"/>
+
+                                <RowDefinition Height="Auto"/>
+
+                            </Grid.RowDefinitions>
+
+
+                            <!-- ==================================================
+                                 LIGNE 1
+                                 ================================================== -->
+
+                            <!-- Propriétaire -->
+                            <StackPanel Grid.Row="0"
+                                        Grid.Column="0">
+
+                                <TextBlock Text="Propriétaire"
+                                           Style="{StaticResource SearchLabelStyle}"/>
+
+                                <TextBox Text="{Binding OwnerName,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RoundedTextBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- Nom du chien -->
+                            <StackPanel Grid.Row="0"
+                                        Grid.Column="2">
+
+                                <TextBlock Text="Nom du chien"
+                                           Style="{StaticResource SearchLabelStyle}"/>
+
+                                <TextBox Text="{Binding DogName,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RoundedTextBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- Téléphone -->
+                            <StackPanel Grid.Row="0"
+                                        Grid.Column="4">
+
+                                <TextBlock Text="Téléphone"
+                                           Style="{StaticResource SearchLabelStyle}"/>
+
+                                <TextBox Text="{Binding Phone,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RoundedTextBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- Licence -->
+                            <StackPanel Grid.Row="0"
+                                        Grid.Column="6">
+
+                                <TextBlock Text="Licence"
+                                           Style="{StaticResource SearchLabelStyle}"/>
+
+                                <TextBox Text="{Binding LicenseNumber,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RoundedTextBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- ==================================================
+                                 LIGNE 2
+                                 ================================================== -->
+
+                            <!-- Numéro de dossier -->
+                            <StackPanel Grid.Row="2"
+                                        Grid.Column="0">
+
+                                <TextBlock Text="Numéro de dossier"
+                                           Style="{StaticResource SearchLabelStyle}"/>
+
+                                <TextBox Text="{Binding FileNumber,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RoundedTextBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- Race -->
+                            <StackPanel Grid.Row="2"
+                                        Grid.Column="2">
+
+                                <TextBlock Text="Race"
+                                           Style="{StaticResource SearchLabelStyle}"/>
+
+                                <ComboBox ItemsSource="{Binding BreedOptions}"
+                                          Text="{Binding Breed,
+                                                         UpdateSourceTrigger=PropertyChanged}"
+                                          IsEditable="True"
+                                          Style="{StaticResource RoundedComboBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- Couleur -->
+                            <StackPanel Grid.Row="2"
+                                        Grid.Column="4">
+
+                                <TextBlock Text="Couleur"
+                                           Style="{StaticResource SearchLabelStyle}"/>
+
+                                <ComboBox ItemsSource="{Binding ColorOptions}"
+                                          Text="{Binding Color,
+                                                         UpdateSourceTrigger=PropertyChanged}"
+                                          IsEditable="True"
+                                          Style="{StaticResource RoundedComboBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- Statut -->
+                            <StackPanel Grid.Row="2"
+                                        Grid.Column="6">
+
+                                <TextBlock Text="Statut"
+                                           Style="{StaticResource SearchLabelStyle}"/>
+
+                                <ComboBox ItemsSource="{Binding StatusOptions}"
+                                          SelectedItem="{Binding Status}"
+                                          Style="{StaticResource RoundedComboBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- ==================================================
+                                 LIGNE 3
+                                 ================================================== -->
+
+                            <!-- Âge -->
+                            <StackPanel Grid.Row="4"
+                                        Grid.Column="0">
+
+                                <TextBlock Text="Âge"
+                                           Style="{StaticResource SearchLabelStyle}"/>
+
+                                <TextBox Text="{Binding Age,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RoundedTextBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- Poids -->
+                            <StackPanel Grid.Row="4"
+                                        Grid.Column="2">
+
+                                <TextBlock Text="Poids"
+                                           Style="{StaticResource SearchLabelStyle}"/>
+
+                                <TextBox Text="{Binding Weight,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RoundedTextBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!--
+                                Adresse :
+                                volontairement deux fois plus large.
+                            -->
+
+                            <StackPanel Grid.Row="4"
+                                        Grid.Column="4"
+                                        Grid.ColumnSpan="3">
+
+                                <TextBlock Text="Adresse"
+                                           Style="{StaticResource SearchLabelStyle}"/>
+
+                                <TextBox Text="{Binding Address,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RoundedTextBoxStyle}"/>
+
+                            </StackPanel>
+
+                        </Grid>
+
+
+                        <!-- ==================================================
+                             ACTIONS
+                             ================================================== -->
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,24,0,0">
+
+                            <Button Content="Effacer les filtres"
+                                    Command="{Binding ClearFiltersCommand}"
+                                    Style="{StaticResource SearchSecondaryButtonStyle}"
+                                    Margin="0,0,12,0"/>
+
+                            <Button Content="Rechercher"
+                                    Command="{Binding SearchCommand}"
+                                    Style="{StaticResource SearchPrimaryButtonStyle}"/>
+
+                        </StackPanel>
+
+                    </StackPanel>
+
+                </Border>
+
+
+                <!-- ==================================================
+                     RÉSULTATS
+                     ================================================== -->
+
+                <StackPanel Margin="0,32,0,0">
+
+
+                    <!-- Titre résultats -->
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,0,0,14">
+
+                        <TextBlock Text="Résultats"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Foreground="#242B38"/>
+
+                        <TextBlock Text="{Binding ResultCount,
+                                                Mode=OneWay,
+                                                StringFormat='{}{0} résultats trouvés'}"
+                                   Margin="16,5,0,0"
+                                   FontSize="14"
+                                   Foreground="#667085"/>
+
+                    </StackPanel>
+
+
+                    <!-- Tableau -->
+                    <Border Background="White"
+                            BorderBrush="#E4E7EC"
+                            BorderThickness="1"
+                            CornerRadius="14"
+                            Padding="1"
+                            ClipToBounds="True">
+
+                        <DataGrid ItemsSource="{Binding Results}"
+                                  Style="{StaticResource ResultsDataGridStyle}"
+                                  ColumnHeaderStyle="{StaticResource ResultsColumnHeaderStyle}"
+                                  RowStyle="{StaticResource ResultsRowStyle}"
+                                  CellStyle="{StaticResource ResultsCellStyle}"
+                                  MaxHeight="340">
+
+                            <DataGrid.Columns>
+
+
+                                <DataGridTextColumn Header="Chien"
+                                                    Binding="{Binding DogName}"
+                                                    Width="1.1*"
+                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+
+
+                                <DataGridTextColumn Header="Propriétaire"
+                                                    Binding="{Binding OwnerName}"
+                                                    Width="1.5*"
+                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+
+
+                                <DataGridTextColumn Header="Race"
+                                                    Binding="{Binding Breed}"
+                                                    Width="1.2*"
+                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+
+
+                                <DataGridTextColumn Header="Âge"
+                                                    Binding="{Binding Age}"
+                                                    Width="0.8*"
+                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+
+
+                                <DataGridTextColumn Header="Poids"
+                                                    Binding="{Binding Weight}"
+                                                    Width="0.9*"
+                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+
+
+                                <DataGridTextColumn Header="Couleur"
+                                                    Binding="{Binding Color}"
+                                                    Width="1*"
+                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+
+
+                                <DataGridTextColumn Header="Sexe"
+                                                    Binding="{Binding Sex}"
+                                                    Width="0.7*"
+                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+
+
+                                <DataGridTextColumn Header="Statut"
+                                                    Binding="{Binding Status}"
+                                                    Width="0.8*"
+                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+
+
+                                <DataGridTextColumn Header="Stérilisé"
+                                                    Binding="{Binding Sterilized}"
+                                                    Width="0.9*"
+                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+
+
+                                <DataGridTextColumn Header="Licence"
+                                                    Binding="{Binding LicenseNumber}"
+                                                    Width="0.9*"
+                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+
+
+                            </DataGrid.Columns>
+
+                        </DataGrid>
+
+                    </Border>
+
+                </StackPanel>
+
+            </StackPanel>
+
+        </ScrollViewer>
 
     </Grid>
 

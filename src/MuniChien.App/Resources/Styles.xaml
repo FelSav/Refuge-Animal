@@ -342,4 +342,208 @@
 
     </Style>
 
+    <!-- ==================================================
+     COMBOBOX ARRONDI
+     ================================================== -->
+
+    <Style x:Key="RoundedComboBoxStyle"
+       TargetType="ComboBox">
+
+        <Setter Property="Height"
+            Value="42"/>
+
+        <Setter Property="FontSize"
+            Value="14"/>
+
+        <Setter Property="Foreground"
+            Value="#242424"/>
+
+        <Setter Property="Background"
+            Value="White"/>
+
+        <Setter Property="BorderBrush"
+            Value="#D0D5DD"/>
+
+        <Setter Property="BorderThickness"
+            Value="1"/>
+
+        <Setter Property="Template">
+
+            <Setter.Value>
+
+                <ControlTemplate TargetType="ComboBox">
+
+                    <Grid>
+
+                        <!-- Champ principal -->
+                        <Border x:Name="OuterBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="10">
+
+                            <Grid>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+
+
+                                <!-- Zone cliquable -->
+                                <ToggleButton x:Name="DropDownToggle"
+                                          Grid.ColumnSpan="2"
+                                          Focusable="False"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          IsChecked="{Binding IsDropDownOpen,
+                                                              RelativeSource={RelativeSource TemplatedParent},
+                                                              Mode=TwoWay}">
+
+                                    <ToggleButton.Template>
+
+                                        <ControlTemplate TargetType="ToggleButton">
+
+                                            <Grid Background="Transparent">
+
+                                                <!-- Flèche -->
+                                                <Path HorizontalAlignment="Right"
+                                                  VerticalAlignment="Center"
+                                                  Margin="0,0,14,0"
+                                                  Fill="#667085"
+                                                  Data="M 0 0 L 5 5 L 10 0 Z"/>
+
+                                            </Grid>
+
+                                        </ControlTemplate>
+
+                                    </ToggleButton.Template>
+
+                                </ToggleButton>
+
+
+                                <!-- Valeur sélectionnée -->
+                                <ContentPresenter x:Name="SelectedContent"
+                                              Grid.Column="0"
+                                              Margin="12,0,4,0"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
+
+
+                                <!-- Version éditable pour Race / Couleur -->
+                                <TextBox x:Name="PART_EditableTextBox"
+                                     Grid.Column="0"
+                                     Margin="6,2,2,2"
+                                     Padding="6,0"
+                                     VerticalContentAlignment="Center"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     FontSize="{TemplateBinding FontSize}"
+                                     Foreground="{TemplateBinding Foreground}"
+                                     Text="{Binding Text,
+                                                    RelativeSource={RelativeSource TemplatedParent},
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Visibility="Collapsed"/>
+
+                            </Grid>
+
+                        </Border>
+
+
+                        <!-- Liste déroulante -->
+                        <Popup x:Name="PART_Popup"
+                           Placement="Bottom"
+                           IsOpen="{TemplateBinding IsDropDownOpen}"
+                           AllowsTransparency="True"
+                           Focusable="False"
+                           PopupAnimation="Fade">
+
+                            <Border Background="White"
+                                BorderBrush="#D0D5DD"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Margin="0,4,0,0"
+                                Padding="4">
+
+                                <ScrollViewer MaxHeight="260"
+                                          VerticalScrollBarVisibility="Auto">
+
+                                    <ItemsPresenter/>
+
+                                </ScrollViewer>
+
+                            </Border>
+
+                        </Popup>
+
+                    </Grid>
+
+
+                    <ControlTemplate.Triggers>
+
+                        <!-- ComboBox éditable -->
+                        <Trigger Property="IsEditable"
+                             Value="True">
+
+                            <Setter TargetName="SelectedContent"
+                                Property="Visibility"
+                                Value="Collapsed"/>
+
+                            <Setter TargetName="PART_EditableTextBox"
+                                Property="Visibility"
+                                Value="Visible"/>
+
+                        </Trigger>
+
+
+                        <!-- Survol -->
+                        <Trigger Property="IsMouseOver"
+                             Value="True">
+
+                            <Setter TargetName="OuterBorder"
+                                Property="BorderBrush"
+                                Value="#B8C0CC"/>
+
+                        </Trigger>
+
+
+                        <!-- Focus -->
+                        <Trigger Property="IsKeyboardFocusWithin"
+                             Value="True">
+
+                            <Setter TargetName="OuterBorder"
+                                Property="BorderBrush"
+                                Value="#E87524"/>
+
+                            <Setter TargetName="OuterBorder"
+                                Property="BorderThickness"
+                                Value="1.5"/>
+
+                        </Trigger>
+
+
+                        <!-- Désactivé -->
+                        <Trigger Property="IsEnabled"
+                             Value="False">
+
+                            <Setter TargetName="OuterBorder"
+                                Property="Opacity"
+                                Value="0.55"/>
+
+                        </Trigger>
+
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+
+            </Setter.Value>
+
+        </Setter>
+
+    </Style>
+
 </ResourceDictionary>
