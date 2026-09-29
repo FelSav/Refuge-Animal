@@ -5,8 +5,61 @@ namespace MuniChien.App.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
+    // ==================================================
+    // ÉTAT
+    // ==================================================
+
     private ViewModelBase _currentViewModel;
     private string _pageTitle = "Accueil";
+
+    private bool _isHomeSelected = true;
+    private bool _isSearchSelected;
+    private bool _isOwnersSelected;
+    private bool _isDogsSelected;
+    private bool _isLicensesSelected;
+    private bool _isPaymentsSelected;
+    private bool _isReportsSelected;
+    private bool _isAdministrationSelected;
+
+
+    // ==================================================
+    // CONSTRUCTEUR
+    // ==================================================
+
+    public MainWindowViewModel()
+    {
+        _currentViewModel =
+            new HomeViewModel();
+
+        ShowHomeCommand =
+            new RelayCommand(ShowHome);
+
+        ShowSearchCommand =
+            new RelayCommand(ShowSearch);
+
+        ShowOwnersCommand =
+            new RelayCommand(ShowOwners);
+
+        ShowDogsCommand =
+            new RelayCommand(ShowDogs);
+
+        ShowLicensesCommand =
+            new RelayCommand(ShowLicenses);
+
+        ShowPaymentsCommand =
+            new RelayCommand(ShowPayments);
+
+        ShowReportsCommand =
+            new RelayCommand(ShowReports);
+
+        ShowAdministrationCommand =
+            new RelayCommand(ShowAdministration);
+    }
+
+
+    // ==================================================
+    // PAGE ACTUELLE
+    // ==================================================
 
     public string PageTitle
     {
@@ -14,90 +67,324 @@ public class MainWindowViewModel : ViewModelBase
 
         private set
         {
+            if (_pageTitle == value)
+            {
+                return;
+            }
+
             _pageTitle = value;
             OnPropertyChanged();
         }
     }
 
-    public MainWindowViewModel()
-    {
-        _currentViewModel = new HomeViewModel();
-
-        ShowHomeCommand = new RelayCommand(ShowHome);
-        ShowSearchCommand = new RelayCommand(ShowSearch);
-        ShowLicensesCommand = new RelayCommand(ShowLicenses);
-        ShowPaymentsCommand = new RelayCommand(ShowPayments);
-        ShowReportsCommand = new RelayCommand(ShowReports);
-        ShowAdministrationCommand = new RelayCommand(ShowAdministration);
-        ShowOwnersCommand = new RelayCommand(ShowOwners);
-        ShowDogsCommand = new RelayCommand(ShowDogs);
-    }
 
     public ViewModelBase CurrentViewModel
     {
         get => _currentViewModel;
 
-        set
+        private set
         {
+            if (_currentViewModel == value)
+            {
+                return;
+            }
+
             _currentViewModel = value;
             OnPropertyChanged();
         }
     }
 
+
+    // ==================================================
+    // SÉLECTION SIDEBAR
+    // ==================================================
+
+    public bool IsHomeSelected
+    {
+        get => _isHomeSelected;
+
+        private set
+        {
+            if (_isHomeSelected == value)
+            {
+                return;
+            }
+
+            _isHomeSelected = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    public bool IsSearchSelected
+    {
+        get => _isSearchSelected;
+
+        private set
+        {
+            if (_isSearchSelected == value)
+            {
+                return;
+            }
+
+            _isSearchSelected = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    public bool IsOwnersSelected
+    {
+        get => _isOwnersSelected;
+
+        private set
+        {
+            if (_isOwnersSelected == value)
+            {
+                return;
+            }
+
+            _isOwnersSelected = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    public bool IsDogsSelected
+    {
+        get => _isDogsSelected;
+
+        private set
+        {
+            if (_isDogsSelected == value)
+            {
+                return;
+            }
+
+            _isDogsSelected = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    public bool IsLicensesSelected
+    {
+        get => _isLicensesSelected;
+
+        private set
+        {
+            if (_isLicensesSelected == value)
+            {
+                return;
+            }
+
+            _isLicensesSelected = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    public bool IsPaymentsSelected
+    {
+        get => _isPaymentsSelected;
+
+        private set
+        {
+            if (_isPaymentsSelected == value)
+            {
+                return;
+            }
+
+            _isPaymentsSelected = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    public bool IsReportsSelected
+    {
+        get => _isReportsSelected;
+
+        private set
+        {
+            if (_isReportsSelected == value)
+            {
+                return;
+            }
+
+            _isReportsSelected = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    public bool IsAdministrationSelected
+    {
+        get => _isAdministrationSelected;
+
+        private set
+        {
+            if (_isAdministrationSelected == value)
+            {
+                return;
+            }
+
+            _isAdministrationSelected = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    // ==================================================
+    // COMMANDES
+    // ==================================================
+
     public ICommand ShowHomeCommand { get; }
+
     public ICommand ShowSearchCommand { get; }
-    public ICommand ShowLicensesCommand { get; }
-    public ICommand ShowPaymentsCommand { get; }
-    public ICommand ShowReportsCommand { get; }
-    public ICommand ShowAdministrationCommand { get; }
+
     public ICommand ShowOwnersCommand { get; }
+
     public ICommand ShowDogsCommand { get; }
+
+    public ICommand ShowLicensesCommand { get; }
+
+    public ICommand ShowPaymentsCommand { get; }
+
+    public ICommand ShowReportsCommand { get; }
+
+    public ICommand ShowAdministrationCommand { get; }
+
+
+    // ==================================================
+    // NAVIGATION PRINCIPALE
+    // ==================================================
 
     private void ShowHome()
     {
-        CurrentViewModel = new HomeViewModel();
-        PageTitle = "Accueil";
+        NavigateTo(
+            new HomeViewModel(),
+            "Accueil");
     }
+
 
     private void ShowSearch()
     {
-        CurrentViewModel = new SearchViewModel();
-        PageTitle = "Recherche";
+        NavigateTo(
+            new SearchViewModel(),
+            "Recherche");
     }
+
 
     private void ShowOwners()
     {
-        CurrentViewModel = new OwnersViewModel();
-        PageTitle = "Propriétaires";
+        NavigateTo(
+            new OwnersViewModel(OpenDog),
+            "Propriétaires");
     }
+
 
     private void ShowDogs()
     {
-        CurrentViewModel = new DogsViewModel();
-        PageTitle = "Chiens";
+        NavigateTo(
+            new DogsViewModel(),
+            "Chiens");
     }
+
 
     private void ShowLicenses()
     {
-        CurrentViewModel = new LicensesViewModel();
-        PageTitle = "Licences";
+        NavigateTo(
+            new LicensesViewModel(),
+            "Licences");
     }
+
 
     private void ShowPayments()
     {
-        CurrentViewModel = new PaymentsViewModel();
-        PageTitle = "Paiements";
+        NavigateTo(
+            new PaymentsViewModel(),
+            "Paiements");
     }
+
 
     private void ShowReports()
     {
-        CurrentViewModel = new ReportsViewModel();
-        PageTitle = "Rapports";
+        NavigateTo(
+            new ReportsViewModel(),
+            "Rapports");
     }
+
 
     private void ShowAdministration()
     {
-        CurrentViewModel = new AdministrationViewModel();
-        PageTitle = "Administration";
+        NavigateTo(
+            new AdministrationViewModel(),
+            "Administration");
+    }
+
+
+    // ==================================================
+    // OUVRIR UN CHIEN PRÉCIS
+    // ==================================================
+
+    private void OpenDog(
+        OwnerDogViewModel dog)
+    {
+        NavigateTo(
+            new DogsViewModel(dog),
+            "Chiens");
+    }
+
+
+    // ==================================================
+    // NAVIGATION CENTRALISÉE
+    // ==================================================
+
+    private void NavigateTo(
+        ViewModelBase viewModel,
+        string page)
+    {
+        CurrentViewModel =
+            viewModel;
+
+        PageTitle =
+            page;
+
+        SelectNavigation(
+            page);
+    }
+
+
+    // ==================================================
+    // SYNCHRONISATION SIDEBAR
+    // ==================================================
+
+    private void SelectNavigation(
+        string page)
+    {
+        IsHomeSelected =
+            page == "Accueil";
+
+        IsSearchSelected =
+            page == "Recherche";
+
+        IsOwnersSelected =
+            page == "Propriétaires";
+
+        IsDogsSelected =
+            page == "Chiens";
+
+        IsLicensesSelected =
+            page == "Licences";
+
+        IsPaymentsSelected =
+            page == "Paiements";
+
+        IsReportsSelected =
+            page == "Rapports";
+
+        IsAdministrationSelected =
+            page == "Administration";
     }
 }

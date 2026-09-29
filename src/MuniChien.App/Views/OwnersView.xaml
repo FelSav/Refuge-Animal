@@ -402,6 +402,9 @@
             <Setter Property="BorderThickness"
                     Value="0,0,0,1"/>
 
+            <Setter Property="Cursor"
+                    Value="Hand"/>
+
             <Style.Triggers>
 
                 <Trigger Property="IsMouseOver"
@@ -873,11 +876,13 @@
                         ClipToBounds="True">
 
                     <DataGrid ItemsSource="{Binding Dogs}"
+                              SelectedItem="{Binding SelectedDog,
+                                 Mode=TwoWay}"
                               Style="{StaticResource OwnerDogsDataGridStyle}"
-                              ColumnHeaderStyle="{StaticResource OwnerDogsHeaderStyle}"
-                              RowStyle="{StaticResource OwnerDogsRowStyle}"
-                              CellStyle="{StaticResource OwnerDogsCellStyle}"
-                              MaxHeight="300">
+                                ColumnHeaderStyle="{StaticResource OwnerDogsHeaderStyle}"
+                            RowStyle="{StaticResource OwnerDogsRowStyle}"
+                            CellStyle="{StaticResource OwnerDogsCellStyle}"
+                            MaxHeight="300">
 
                         <DataGrid.Columns>
 

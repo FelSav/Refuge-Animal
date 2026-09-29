@@ -25,6 +25,10 @@ public class OwnersViewModel : ViewModelBase
 
     private bool _isEditing;
 
+    private readonly Action<OwnerDogViewModel>? _openDogAction;
+
+    private OwnerDogViewModel? _selectedDog;
+
 
     // ==================================================
     // SAUVEGARDE TEMPORAIRE POUR ANNULER
@@ -46,8 +50,10 @@ public class OwnersViewModel : ViewModelBase
     // CONSTRUCTEUR
     // ==================================================
 
-    public OwnersViewModel()
+    public OwnersViewModel(
+    Action<OwnerDogViewModel>? openDogAction = null)
     {
+        _openDogAction = openDogAction;
         StatusOptions =
         [
             "Actif",
@@ -292,6 +298,33 @@ public class OwnersViewModel : ViewModelBase
     // ==================================================
 
     public ObservableCollection<OwnerDogViewModel> Dogs { get; } = [];
+
+    // ==================================================
+    // CHIEN SÉLECTIONNÉ
+    // ==================================================
+
+    public OwnerDogViewModel? SelectedDog
+    {
+        get => _selectedDog;
+
+        set
+        {
+            if (_selectedDog == value)
+            {
+                return;
+            }
+
+            _selectedDog = value;
+
+            OnPropertyChanged();
+
+            if (_selectedDog is not null)
+            {
+                _openDogAction?.Invoke(
+                    _selectedDog);
+            }
+        }
+    }
 
 
     // ==================================================
