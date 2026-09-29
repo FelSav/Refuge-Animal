@@ -6,6 +6,10 @@ namespace MuniChien.App.ViewModels;
 
 public class OwnersViewModel : ViewModelBase
 {
+    // ==================================================
+    // VALEURS ACTUELLES
+    // ==================================================
+
     private string _firstName = "Jean";
     private string _lastName = "Tremblay";
     private string _status = "Actif";
@@ -14,15 +18,54 @@ public class OwnersViewModel : ViewModelBase
     private string _cellPhone = "(418) 321-7654";
     private string _email = "exemple@email.com";
 
-    private string _address = "123, boulevard Exemple, Roberval, QC, G8H 2M9";
+    private string _address =
+        "123, boulevard Exemple, Roberval, QC, G8H 2M9";
 
     private string _comments = string.Empty;
 
+    private bool _isEditing;
+
+
+    // ==================================================
+    // SAUVEGARDE TEMPORAIRE POUR ANNULER
+    // ==================================================
+
+    private string _originalFirstName = string.Empty;
+    private string _originalLastName = string.Empty;
+    private string _originalStatus = string.Empty;
+
+    private string _originalPhone = string.Empty;
+    private string _originalCellPhone = string.Empty;
+    private string _originalEmail = string.Empty;
+
+    private string _originalAddress = string.Empty;
+    private string _originalComments = string.Empty;
+
+
+    // ==================================================
+    // CONSTRUCTEUR
+    // ==================================================
 
     public OwnersViewModel()
     {
-        ModifyCommand = new RelayCommand(ModifyOwner);
-        AddDogCommand = new RelayCommand(AddDog);
+        StatusOptions =
+        [
+            "Actif",
+            "Inactif"
+        ];
+
+        ModifyCommand =
+            new RelayCommand(StartEditing);
+
+        SaveCommand =
+            new RelayCommand(SaveChanges);
+
+        CancelCommand =
+            new RelayCommand(CancelChanges);
+
+        AddDogCommand =
+            new RelayCommand(AddDog);
+
 
         Dogs.Add(new OwnerDogViewModel
         {
@@ -38,6 +81,7 @@ public class OwnersViewModel : ViewModelBase
             Sterilized = "Oui",
             LicenseNumber = "10452"
         });
+
 
         Dogs.Add(new OwnerDogViewModel
         {
@@ -61,6 +105,34 @@ public class OwnersViewModel : ViewModelBase
     // ==================================================
 
     public string FileNumber { get; } = "12345";
+
+
+    // ==================================================
+    // LISTES
+    // ==================================================
+
+    public IReadOnlyList<string> StatusOptions { get; }
+
+
+    // ==================================================
+    // MODE ÉDITION
+    // ==================================================
+
+    public bool IsEditing
+    {
+        get => _isEditing;
+
+        private set
+        {
+            if (_isEditing == value)
+            {
+                return;
+            }
+
+            _isEditing = value;
+            OnPropertyChanged();
+        }
+    }
 
 
     // ==================================================
@@ -228,17 +300,105 @@ public class OwnersViewModel : ViewModelBase
 
     public ICommand ModifyCommand { get; }
 
+    public ICommand SaveCommand { get; }
+
+    public ICommand CancelCommand { get; }
+
     public ICommand AddDogCommand { get; }
 
 
-    private void ModifyOwner()
+    // ==================================================
+    // MODIFICATION
+    // ==================================================
+
+    private void StartEditing()
     {
-        // À brancher plus tard sur le mode modification.
+        SaveOriginalValues();
+
+        IsEditing = true;
     }
 
 
+    private void SaveChanges()
+    {
+        IsEditing = false;
+
+        UpdateDogOwnerNames();
+
+        // Plus tard :
+        // appel API pour enregistrer le propriétaire.
+    }
+
+
+    private void CancelChanges()
+    {
+        FirstName = _originalFirstName;
+        LastName = _originalLastName;
+        Status = _originalStatus;
+
+        Phone = _originalPhone;
+        CellPhone = _originalCellPhone;
+        Email = _originalEmail;
+
+        Address = _originalAddress;
+        Comments = _originalComments;
+
+        IsEditing = false;
+    }
+
+
+    private void SaveOriginalValues()
+    {
+        _originalFirstName = FirstName;
+        _originalLastName = LastName;
+        _originalStatus = Status;
+
+        _originalPhone = Phone;
+        _originalCellPhone = CellPhone;
+        _originalEmail = Email;
+
+        _originalAddress = Address;
+        _originalComments = Comments;
+    }
+
+
+    // ==================================================
+    // MISE À JOUR DU NOM DANS LE TABLEAU
+    // ==================================================
+
+    private void UpdateDogOwnerNames()
+    {
+        string ownerName =
+            $"{FirstName} {LastName}".Trim();
+
+        for (int i = 0; i < Dogs.Count; i++)
+        {
+            OwnerDogViewModel oldDog = Dogs[i];
+
+            Dogs[i] = new OwnerDogViewModel
+            {
+                DogId = oldDog.DogId,
+                DogName = oldDog.DogName,
+                OwnerName = ownerName,
+                Breed = oldDog.Breed,
+                Age = oldDog.Age,
+                Weight = oldDog.Weight,
+                Color = oldDog.Color,
+                Sex = oldDog.Sex,
+                Status = oldDog.Status,
+                Sterilized = oldDog.Sterilized,
+                LicenseNumber = oldDog.LicenseNumber
+            };
+        }
+    }
+
+
+    // ==================================================
+    // AJOUTER UN CHIEN
+    // ==================================================
+
     private void AddDog()
     {
-        // À brancher plus tard sur la création / association d'un chien.
+        // Prochaine étape.
     }
 }

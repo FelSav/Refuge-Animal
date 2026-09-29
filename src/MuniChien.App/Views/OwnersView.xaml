@@ -30,7 +30,7 @@
 
 
         <!-- ==================================================
-             TITRES DE SECTION
+             TITRES
              ================================================== -->
 
         <Style x:Key="OwnerSectionTitleStyle"
@@ -49,7 +49,7 @@
 
 
         <!-- ==================================================
-             LABEL
+             LABELS
              ================================================== -->
 
         <Style x:Key="OwnerLabelStyle"
@@ -71,7 +71,7 @@
 
 
         <!-- ==================================================
-             VALEUR
+             TEXTE EN LECTURE SEULE
              ================================================== -->
 
         <Style x:Key="OwnerValueStyle"
@@ -92,10 +92,6 @@
         </Style>
 
 
-        <!-- ==================================================
-             CHAMP D'AFFICHAGE
-             ================================================== -->
-
         <Style x:Key="OwnerValueBoxStyle"
                TargetType="Border">
 
@@ -113,6 +109,201 @@
 
             <Setter Property="Padding"
                     Value="12,8"/>
+
+        </Style>
+
+
+        <!-- ==================================================
+             TEXTBOX ÉDITION
+             ================================================== -->
+
+        <Style x:Key="OwnerEditTextBoxStyle"
+               TargetType="TextBox">
+
+            <Setter Property="Height"
+                    Value="38"/>
+
+            <Setter Property="Background"
+                    Value="White"/>
+
+            <Setter Property="BorderBrush"
+                    Value="#D0D5DD"/>
+
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+
+            <Setter Property="Foreground"
+                    Value="#242424"/>
+
+            <Setter Property="FontSize"
+                    Value="14"/>
+
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
+
+            <Setter Property="Padding"
+                    Value="10,0"/>
+
+            <Setter Property="Template">
+
+                <Setter.Value>
+
+                    <ControlTemplate TargetType="TextBox">
+
+                        <Border x:Name="InputBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"/>
+
+                        </Border>
+
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsKeyboardFocused"
+                                     Value="True">
+
+                                <Setter TargetName="InputBorder"
+                                        Property="BorderBrush"
+                                        Value="#E87524"/>
+
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+
+                </Setter.Value>
+
+            </Setter>
+
+        </Style>
+
+
+        <!-- ==================================================
+             AFFICHAGE / ÉDITION
+             ================================================== -->
+
+        <Style x:Key="OwnerReadOnlyContainerStyle"
+               TargetType="Border"
+               BasedOn="{StaticResource OwnerValueBoxStyle}">
+
+            <Setter Property="Visibility"
+                    Value="Visible"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                    <Setter Property="Visibility"
+                            Value="Collapsed"/>
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <Style x:Key="OwnerEditFieldStyle"
+               TargetType="TextBox"
+               BasedOn="{StaticResource OwnerEditTextBoxStyle}">
+
+            <Setter Property="Visibility"
+                    Value="Collapsed"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                    <Setter Property="Visibility"
+                            Value="Visible"/>
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <Style x:Key="OwnerEditComboBoxStyle"
+               TargetType="ComboBox"
+               BasedOn="{StaticResource RoundedComboBoxStyle}">
+
+            <Setter Property="Visibility"
+                    Value="Collapsed"/>
+
+            <Setter Property="Height"
+                    Value="38"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                    <Setter Property="Visibility"
+                            Value="Visible"/>
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <!-- ==================================================
+             BOUTON MODIFIER
+             ================================================== -->
+
+        <Style x:Key="OwnerModifyButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource SecondaryActionButtonStyle}">
+
+            <Setter Property="Visibility"
+                    Value="Visible"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                    <Setter Property="Visibility"
+                            Value="Collapsed"/>
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <!-- ==================================================
+             BOUTONS ÉDITION
+             ================================================== -->
+
+        <Style x:Key="OwnerEditButtonPanelStyle"
+               TargetType="StackPanel">
+
+            <Setter Property="Visibility"
+                    Value="Collapsed"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                    <Setter Property="Visibility"
+                            Value="Visible"/>
+
+                </DataTrigger>
+
+            </Style.Triggers>
 
         </Style>
 
@@ -283,18 +474,21 @@
 
 
                 <!-- ==================================================
-                     TITRE
+                     ENTÊTE
                      ================================================== -->
 
                 <Grid Margin="0,0,0,26">
 
                     <Grid.ColumnDefinitions>
+
                         <ColumnDefinition Width="*"/>
+
                         <ColumnDefinition Width="Auto"/>
+
                     </Grid.ColumnDefinitions>
 
 
-                    <StackPanel Grid.Column="0">
+                    <StackPanel>
 
                         <TextBlock Text="Dossier propriétaire"
                                    FontSize="26"
@@ -307,18 +501,38 @@
 
                             <Run Text="Dossier #"/>
 
-                            <Run Text="{Binding FileNumber, Mode=OneWay}"/>
+                            <Run Text="{Binding FileNumber,
+                                              Mode=OneWay}"/>
 
                         </TextBlock>
 
                     </StackPanel>
 
 
+                    <!-- Modifier -->
                     <Button Grid.Column="1"
                             Content="Modifier"
                             Command="{Binding ModifyCommand}"
-                            Style="{StaticResource SecondaryActionButtonStyle}"
+                            Style="{StaticResource OwnerModifyButtonStyle}"
                             VerticalAlignment="Top"/>
+
+
+                    <!-- Annuler + enregistrer -->
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Top"
+                                Style="{StaticResource OwnerEditButtonPanelStyle}">
+
+                        <Button Content="Annuler"
+                                Command="{Binding CancelCommand}"
+                                Style="{StaticResource SecondaryActionButtonStyle}"
+                                Margin="0,0,12,0"/>
+
+                        <Button Content="Enregistrer"
+                                Command="{Binding SaveCommand}"
+                                Style="{StaticResource PrimaryActionButtonStyle}"/>
+
+                    </StackPanel>
 
                 </Grid>
 
@@ -341,7 +555,7 @@
 
 
                     <!-- ==================================================
-                         INFORMATIONS PROPRIÉTAIRE
+                         INFORMATIONS
                          ================================================== -->
 
                     <Border Grid.Column="0"
@@ -358,21 +572,33 @@
                             <Grid Margin="0,0,0,10">
 
                                 <Grid.ColumnDefinitions>
+
                                     <ColumnDefinition Width="110"/>
+
                                     <ColumnDefinition Width="*"/>
+
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="Prénom"
+
+                                <TextBlock Text="Prénom"
                                            Style="{StaticResource OwnerLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource OwnerValueBoxStyle}">
 
-                                    <TextBlock Text="{Binding FirstName}"
-                                               Style="{StaticResource OwnerValueStyle}"/>
+                                <Grid Grid.Column="1">
 
-                                </Border>
+                                    <Border Style="{StaticResource OwnerReadOnlyContainerStyle}">
+
+                                        <TextBlock Text="{Binding FirstName}"
+                                                   Style="{StaticResource OwnerValueStyle}"/>
+
+                                    </Border>
+
+
+                                    <TextBox Text="{Binding FirstName,
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OwnerEditFieldStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
@@ -381,21 +607,33 @@
                             <Grid Margin="0,0,0,10">
 
                                 <Grid.ColumnDefinitions>
+
                                     <ColumnDefinition Width="110"/>
+
                                     <ColumnDefinition Width="*"/>
+
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="Nom"
+
+                                <TextBlock Text="Nom"
                                            Style="{StaticResource OwnerLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource OwnerValueBoxStyle}">
 
-                                    <TextBlock Text="{Binding LastName}"
-                                               Style="{StaticResource OwnerValueStyle}"/>
+                                <Grid Grid.Column="1">
 
-                                </Border>
+                                    <Border Style="{StaticResource OwnerReadOnlyContainerStyle}">
+
+                                        <TextBlock Text="{Binding LastName}"
+                                                   Style="{StaticResource OwnerValueStyle}"/>
+
+                                    </Border>
+
+
+                                    <TextBox Text="{Binding LastName,
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OwnerEditFieldStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
@@ -404,21 +642,33 @@
                             <Grid>
 
                                 <Grid.ColumnDefinitions>
+
                                     <ColumnDefinition Width="110"/>
+
                                     <ColumnDefinition Width="*"/>
+
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="Statut"
+
+                                <TextBlock Text="Statut"
                                            Style="{StaticResource OwnerLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource OwnerValueBoxStyle}">
 
-                                    <TextBlock Text="{Binding Status}"
-                                               Style="{StaticResource OwnerValueStyle}"/>
+                                <Grid Grid.Column="1">
 
-                                </Border>
+                                    <Border Style="{StaticResource OwnerReadOnlyContainerStyle}">
+
+                                        <TextBlock Text="{Binding Status}"
+                                                   Style="{StaticResource OwnerValueStyle}"/>
+
+                                    </Border>
+
+
+                                    <ComboBox ItemsSource="{Binding StatusOptions}"
+                                              SelectedItem="{Binding Status}"
+                                              Style="{StaticResource OwnerEditComboBoxStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
@@ -445,21 +695,33 @@
                             <Grid Margin="0,0,0,10">
 
                                 <Grid.ColumnDefinitions>
+
                                     <ColumnDefinition Width="110"/>
+
                                     <ColumnDefinition Width="*"/>
+
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="Téléphone"
+
+                                <TextBlock Text="Téléphone"
                                            Style="{StaticResource OwnerLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource OwnerValueBoxStyle}">
 
-                                    <TextBlock Text="{Binding Phone}"
-                                               Style="{StaticResource OwnerValueStyle}"/>
+                                <Grid Grid.Column="1">
 
-                                </Border>
+                                    <Border Style="{StaticResource OwnerReadOnlyContainerStyle}">
+
+                                        <TextBlock Text="{Binding Phone}"
+                                                   Style="{StaticResource OwnerValueStyle}"/>
+
+                                    </Border>
+
+
+                                    <TextBox Text="{Binding Phone,
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OwnerEditFieldStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
@@ -468,21 +730,33 @@
                             <Grid Margin="0,0,0,10">
 
                                 <Grid.ColumnDefinitions>
+
                                     <ColumnDefinition Width="110"/>
+
                                     <ColumnDefinition Width="*"/>
+
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="Cellulaire"
+
+                                <TextBlock Text="Cellulaire"
                                            Style="{StaticResource OwnerLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource OwnerValueBoxStyle}">
 
-                                    <TextBlock Text="{Binding CellPhone}"
-                                               Style="{StaticResource OwnerValueStyle}"/>
+                                <Grid Grid.Column="1">
 
-                                </Border>
+                                    <Border Style="{StaticResource OwnerReadOnlyContainerStyle}">
+
+                                        <TextBlock Text="{Binding CellPhone}"
+                                                   Style="{StaticResource OwnerValueStyle}"/>
+
+                                    </Border>
+
+
+                                    <TextBox Text="{Binding CellPhone,
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OwnerEditFieldStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
@@ -491,21 +765,33 @@
                             <Grid>
 
                                 <Grid.ColumnDefinitions>
+
                                     <ColumnDefinition Width="110"/>
+
                                     <ColumnDefinition Width="*"/>
+
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="Courriel"
+
+                                <TextBlock Text="Courriel"
                                            Style="{StaticResource OwnerLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource OwnerValueBoxStyle}">
 
-                                    <TextBlock Text="{Binding Email}"
-                                               Style="{StaticResource OwnerValueStyle}"/>
+                                <Grid Grid.Column="1">
 
-                                </Border>
+                                    <Border Style="{StaticResource OwnerReadOnlyContainerStyle}">
+
+                                        <TextBlock Text="{Binding Email}"
+                                                   Style="{StaticResource OwnerValueStyle}"/>
+
+                                    </Border>
+
+
+                                    <TextBox Text="{Binding Email,
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OwnerEditFieldStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
@@ -529,9 +815,18 @@
                                    Style="{StaticResource OwnerSectionTitleStyle}"
                                    Margin="0,0,0,12"/>
 
-                        <TextBlock Text="{Binding Address}"
-                                   FontSize="14"
-                                   Foreground="#242424"/>
+
+                        <Border Style="{StaticResource OwnerReadOnlyContainerStyle}">
+
+                            <TextBlock Text="{Binding Address}"
+                                       Style="{StaticResource OwnerValueStyle}"/>
+
+                        </Border>
+
+
+                        <TextBox Text="{Binding Address,
+                                              UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource OwnerEditFieldStyle}"/>
 
                     </StackPanel>
 
@@ -545,14 +840,17 @@
                 <Grid Margin="0,32,0,14">
 
                     <Grid.ColumnDefinitions>
+
                         <ColumnDefinition Width="Auto"/>
+
                         <ColumnDefinition Width="Auto"/>
+
                         <ColumnDefinition Width="*"/>
+
                     </Grid.ColumnDefinitions>
 
 
-                    <TextBlock Grid.Column="0"
-                               Text="Chiens associés"
+                    <TextBlock Text="Chiens associés"
                                Style="{StaticResource OwnerSectionTitleStyle}"
                                VerticalAlignment="Center"/>
 
@@ -652,32 +950,101 @@
 
 
                 <!-- ==================================================
-                     COMMENTAIRES
-                     ================================================== -->
+     COMMENTAIRES
+     ================================================== -->
 
                 <TextBlock Text="Commentaires"
-                           Style="{StaticResource OwnerSectionTitleStyle}"
-                           Margin="0,30,0,12"/>
+           Style="{StaticResource OwnerSectionTitleStyle}"
+           Margin="0,30,0,12"/>
 
 
-                <Border Background="White"
-                        BorderBrush="#D0D5DD"
-                        BorderThickness="1"
-                        CornerRadius="12"
-                        MinHeight="130">
+                <Grid>
 
-                    <TextBox Text="{Binding Comments,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                             Background="Transparent"
-                             BorderThickness="0"
-                             Padding="14"
-                             FontSize="14"
-                             Foreground="#242424"
-                             AcceptsReturn="True"
-                             TextWrapping="Wrap"
-                             VerticalScrollBarVisibility="Auto"/>
+                    <!-- Lecture seule -->
+                    <Border Background="White"
+            BorderBrush="#D0D5DD"
+            BorderThickness="1"
+            CornerRadius="12"
+            MinHeight="130">
 
-                </Border>
+                        <Border.Style>
+
+                            <Style TargetType="Border">
+
+                                <Setter Property="Visibility"
+                        Value="Visible"/>
+
+                                <Style.Triggers>
+
+                                    <DataTrigger Binding="{Binding IsEditing}"
+                                 Value="True">
+
+                                        <Setter Property="Visibility"
+                                Value="Collapsed"/>
+
+                                    </DataTrigger>
+
+                                </Style.Triggers>
+
+                            </Style>
+
+                        </Border.Style>
+
+
+                        <TextBlock Text="{Binding Comments}"
+                   Padding="14"
+                   FontSize="14"
+                   Foreground="#242424"
+                   TextWrapping="Wrap"/>
+
+                    </Border>
+
+
+                    <!-- Édition -->
+                    <Border Background="White"
+            BorderBrush="#E87524"
+            BorderThickness="1"
+            CornerRadius="12"
+            MinHeight="130">
+
+                        <Border.Style>
+
+                            <Style TargetType="Border">
+
+                                <Setter Property="Visibility"
+                        Value="Collapsed"/>
+
+                                <Style.Triggers>
+
+                                    <DataTrigger Binding="{Binding IsEditing}"
+                                 Value="True">
+
+                                        <Setter Property="Visibility"
+                                Value="Visible"/>
+
+                                    </DataTrigger>
+
+                                </Style.Triggers>
+
+                            </Style>
+
+                        </Border.Style>
+
+
+                        <TextBox Text="{Binding Comments,
+                               UpdateSourceTrigger=PropertyChanged}"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 Padding="14"
+                 FontSize="14"
+                 Foreground="#242424"
+                 AcceptsReturn="True"
+                 TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto"/>
+
+                    </Border>
+
+                </Grid>
 
             </StackPanel>
 
