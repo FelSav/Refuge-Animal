@@ -10,9 +10,9 @@ public class OwnerDogViewModel
 
     public string Breed { get; init; } = string.Empty;
 
-    public string Age { get; init; } = string.Empty;
+    public int AgeMonths { get; init; }
 
-    public string Weight { get; init; } = string.Empty;
+    public double WeightKg { get; init; }
 
     public string Color { get; init; } = string.Empty;
 
@@ -23,4 +23,34 @@ public class OwnerDogViewModel
     public string Sterilized { get; init; } = string.Empty;
 
     public string LicenseNumber { get; init; } = string.Empty;
+
+
+    public string AgeDisplay
+    {
+        get
+        {
+            if (AgeMonths < 12)
+            {
+                return $"{AgeMonths} mois";
+            }
+
+            int years = AgeMonths / 12;
+            int months = AgeMonths % 12;
+
+            if (months == 0)
+            {
+                return years == 1
+                    ? "1 an"
+                    : $"{years} ans";
+            }
+
+            return years == 1
+                ? $"1 an {months} mois"
+                : $"{years} ans {months} mois";
+        }
+    }
+
+
+    public string WeightDisplay =>
+        $"{WeightKg:0.##} kg";
 }
