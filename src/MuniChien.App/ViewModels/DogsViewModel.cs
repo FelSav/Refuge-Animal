@@ -1,4 +1,5 @@
 ﻿using MuniChien.App.Navigation;
+using MuniChien.App.Services;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows.Input;
@@ -59,6 +60,18 @@ public class DogsViewModel : ViewModelBase
 
     private string _deactivationReason =
         string.Empty;
+
+
+    // ==================================================
+    // LICENCE ACTUELLE
+    // ==================================================
+
+    private string _licenseStatus =
+        "—";
+
+    private DateTime? _licenseIssueDate;
+
+    private DateTime? _licenseExpirationDate;
 
 
     // ==================================================
@@ -200,25 +213,7 @@ public class DogsViewModel : ViewModelBase
 
         LoadDog();
 
-
-        if (HasSelectedDog)
-        {
-            LicenseHistory.Add(
-                new DogLicenseHistoryViewModel
-                {
-                    LicenseNumber =
-                        LicenseNumber,
-
-                    IssueDate =
-                        "2026-01-15",
-
-                    ExpirationDate =
-                        "2027-01-15",
-
-                    Status =
-                        "Valide"
-                });
-        }
+        LoadLicense();
     }
 
 
@@ -290,7 +285,7 @@ public class DogsViewModel : ViewModelBase
 
 
     // ==================================================
-    // IDENTITÉ
+    // IDENTITÉ DU CHIEN
     // ==================================================
 
     public int DogId =>
@@ -369,7 +364,9 @@ public class DogsViewModel : ViewModelBase
                 value;
 
             OnPropertyChanged();
-            OnPropertyChanged(nameof(SexDisplay));
+
+            OnPropertyChanged(
+                nameof(SexDisplay));
         }
     }
 
@@ -535,7 +532,7 @@ public class DogsViewModel : ViewModelBase
 
 
     // ==================================================
-    // STATUT
+    // STATUT DU CHIEN
     // ==================================================
 
     public string Status
@@ -638,25 +635,25 @@ public class DogsViewModel : ViewModelBase
 
 
     public string LicenseStatus =>
-        HasSelectedDog
-            ? "Valide"
-            : "—";
+        _licenseStatus;
 
 
     public string LicenseIssueDate =>
-        HasSelectedDog
-            ? "2026-01-15"
+        _licenseIssueDate.HasValue
+            ? _licenseIssueDate.Value.ToString(
+                "yyyy-MM-dd")
             : "—";
 
 
     public string LicenseExpirationDate =>
-        HasSelectedDog
-            ? "2027-01-15"
+        _licenseExpirationDate.HasValue
+            ? _licenseExpirationDate.Value.ToString(
+                "yyyy-MM-dd")
             : "—";
 
 
     // ==================================================
-    // HISTORIQUE DES LICENCES
+    // HISTORIQUE
     // ==================================================
 
     public ObservableCollection<DogLicenseHistoryViewModel>
@@ -681,7 +678,7 @@ public class DogsViewModel : ViewModelBase
 
 
     // ==================================================
-    // CHARGEMENT
+    // CHARGEMENT DU CHIEN
     // ==================================================
 
     private void LoadDog()
@@ -754,6 +751,63 @@ public class DogsViewModel : ViewModelBase
 
 
     // ==================================================
+    // CHARGEMENT DE LA LICENCE
+    // ==================================================
+
+    private void LoadLicense()
+    {
+        if (!HasSelectedDog ||
+            LicenseNumber == "—")
+        {
+            _licenseStatus =
+                "—";
+
+            _licenseIssueDate =
+                null;
+
+            _licenseExpirationDate =
+                null;
+
+            return;
+        }
+
+
+        // Données temporaires en attendant l'API.
+        _licenseStatus =
+            "Valide";
+
+        _licenseIssueDate =
+            new DateTime(
+                2026,
+                1,
+                15);
+
+        _licenseExpirationDate =
+            new DateTime(
+                2027,
+                1,
+                15);
+
+
+        LicenseHistory.Add(
+            new DogLicenseHistoryViewModel
+            {
+                LicenseNumber =
+                    LicenseNumber,
+
+                IssueDate =
+                    LicenseIssueDate,
+
+                ExpirationDate =
+                    LicenseExpirationDate,
+
+                Status =
+                    LicenseStatus
+            });
+    }
+
+
+    // ==================================================
     // MODIFIER
     // ==================================================
 
@@ -795,9 +849,7 @@ public class DogsViewModel : ViewModelBase
             string.Empty;
 
 
-        // ----------------------------------------------
         // NOM
-        // ----------------------------------------------
 
         if (string.IsNullOrWhiteSpace(
                 DogName))
@@ -813,9 +865,7 @@ public class DogsViewModel : ViewModelBase
             DogName.Trim();
 
 
-        // ----------------------------------------------
         // RACE
-        // ----------------------------------------------
 
         if (!TryGetCanonicalValue(
                 Breed,
@@ -833,9 +883,7 @@ public class DogsViewModel : ViewModelBase
             canonicalBreed;
 
 
-        // ----------------------------------------------
         // COULEUR
-        // ----------------------------------------------
 
         if (!TryGetCanonicalValue(
                 Color,
@@ -853,9 +901,7 @@ public class DogsViewModel : ViewModelBase
             canonicalColor;
 
 
-        // ----------------------------------------------
         // ÂGE
-        // ----------------------------------------------
 
         if (!int.TryParse(
                 AgeValueInput.Trim(),
@@ -875,9 +921,7 @@ public class DogsViewModel : ViewModelBase
                 : ageValue;
 
 
-        // ----------------------------------------------
         // POIDS
-        // ----------------------------------------------
 
         if (!TryParseWeight(
                 WeightInput,
@@ -895,9 +939,7 @@ public class DogsViewModel : ViewModelBase
             parsedWeight;
 
 
-        // ----------------------------------------------
         // STATUT INACTIF
-        // ----------------------------------------------
 
         if (Status == "Inactif")
         {
@@ -951,17 +993,9 @@ public class DogsViewModel : ViewModelBase
         }
 
 
-        // ----------------------------------------------
-        // COMMENTAIRES
-        // ----------------------------------------------
-
         Comments =
             Comments.Trim();
 
-
-        // ----------------------------------------------
-        // ACTUALISER L'AFFICHAGE
-        // ----------------------------------------------
 
         OnPropertyChanged(
             nameof(AgeDisplay));
@@ -986,7 +1020,7 @@ public class DogsViewModel : ViewModelBase
 
 
         // Plus tard :
-        // appel API pour sauvegarder réellement le chien.
+        // appel API.
     }
 
 
@@ -1089,6 +1123,207 @@ public class DogsViewModel : ViewModelBase
 
         _originalDeactivationReason =
             DeactivationReason;
+    }
+
+
+    // ==================================================
+    // RENOUVELLEMENT DE LICENCE
+    // ==================================================
+
+    private void RenewLicense()
+    {
+        if (!HasSelectedDog)
+        {
+            return;
+        }
+
+
+        ValidationMessage =
+            string.Empty;
+
+
+        if (LicenseNumber == "—")
+        {
+            ValidationMessage =
+                "Ce chien ne possède aucune licence à renouveler.";
+
+            return;
+        }
+
+
+        if (!_licenseExpirationDate.HasValue)
+        {
+            ValidationMessage =
+                "Les informations de la licence actuelle sont incomplètes.";
+
+            return;
+        }
+
+
+        DateTime renewalDate =
+            DateTime.Today;
+
+
+        // Évite un double renouvellement accidentel
+        // pendant la même journée.
+
+        if (_licenseIssueDate.HasValue &&
+            _licenseIssueDate.Value.Date ==
+            renewalDate.Date)
+        {
+            ValidationMessage =
+                "Cette licence a déjà été renouvelée aujourd'hui.";
+
+            return;
+        }
+
+
+        DateTime newExpirationDate =
+            CalculateLicenseExpiration(
+                renewalDate);
+
+
+        bool confirmed =
+            LicenseRenewalDialogService.Show(
+                DogName,
+                OwnerName,
+                LicenseNumber,
+                _licenseExpirationDate.Value,
+                renewalDate,
+                newExpirationDate);
+
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+
+        ArchiveCurrentLicensePeriod();
+
+
+        _licenseIssueDate =
+            renewalDate;
+
+        _licenseExpirationDate =
+            newExpirationDate;
+
+        _licenseStatus =
+            "Valide";
+
+
+        OnPropertyChanged(
+            nameof(LicenseIssueDate));
+
+        OnPropertyChanged(
+            nameof(LicenseExpirationDate));
+
+        OnPropertyChanged(
+            nameof(LicenseStatus));
+
+
+        LicenseHistory.Add(
+            new DogLicenseHistoryViewModel
+            {
+                LicenseNumber =
+                    LicenseNumber,
+
+                IssueDate =
+                    LicenseIssueDate,
+
+                ExpirationDate =
+                    LicenseExpirationDate,
+
+                Status =
+                    "Valide"
+            });
+
+
+        // Plus tard :
+        // POST / licences / renew
+        // et création du paiement associé via l'API.
+    }
+
+
+    // ==================================================
+    // ARCHIVER LA PÉRIODE ACTUELLE
+    // ==================================================
+
+    private void ArchiveCurrentLicensePeriod()
+    {
+        for (int i =
+                 LicenseHistory.Count - 1;
+             i >= 0;
+             i--)
+        {
+            DogLicenseHistoryViewModel entry =
+                LicenseHistory[i];
+
+
+            if (entry.LicenseNumber ==
+                    LicenseNumber &&
+                entry.Status ==
+                    "Valide")
+            {
+                LicenseHistory[i] =
+                    new DogLicenseHistoryViewModel
+                    {
+                        LicenseNumber =
+                            entry.LicenseNumber,
+
+                        IssueDate =
+                            entry.IssueDate,
+
+                        ExpirationDate =
+                            entry.ExpirationDate,
+
+                        Status =
+                            "Renouvelée"
+                    };
+
+                return;
+            }
+        }
+
+
+        if (_licenseIssueDate.HasValue &&
+            _licenseExpirationDate.HasValue)
+        {
+            LicenseHistory.Add(
+                new DogLicenseHistoryViewModel
+                {
+                    LicenseNumber =
+                        LicenseNumber,
+
+                    IssueDate =
+                        _licenseIssueDate.Value
+                            .ToString(
+                                "yyyy-MM-dd"),
+
+                    ExpirationDate =
+                        _licenseExpirationDate.Value
+                            .ToString(
+                                "yyyy-MM-dd"),
+
+                    Status =
+                        "Renouvelée"
+                });
+        }
+    }
+
+
+    // ==================================================
+    // RÈGLE MÉTIER :
+    // UNE LICENCE EST VALIDE 1 AN À PARTIR
+    // DE LA DATE DU RENOUVELLEMENT.
+    // ==================================================
+
+    private static DateTime CalculateLicenseExpiration(
+        DateTime renewalDate)
+    {
+        return renewalDate
+            .Date
+            .AddYears(1);
     }
 
 
@@ -1248,22 +1483,5 @@ public class DogsViewModel : ViewModelBase
 
         _openOwnerAction?.Invoke(
             OwnerId);
-    }
-
-
-    // ==================================================
-    // LICENCE
-    // ==================================================
-
-    private void RenewLicense()
-    {
-        if (!HasSelectedDog)
-        {
-            return;
-        }
-
-
-        // Prochaine étape :
-        // processus de renouvellement de licence.
     }
 }
