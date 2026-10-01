@@ -7,9 +7,21 @@ namespace MuniChien.App.Views;
 
 public partial class AddDogDialog : Window
 {
+    // ==================================================
+    // CONTEXTE
+    // ==================================================
+
     private readonly int _dogId;
+    private readonly int _ownerId;
     private readonly string _ownerName;
 
+
+    // ==================================================
+    // CHOIX TEMPORAIRES
+    //
+    // Plus tard :
+    // chargés depuis l'API.
+    // ==================================================
 
     private readonly List<string> _breedOptions =
     [
@@ -38,16 +50,30 @@ public partial class AddDogDialog : Window
     ];
 
 
+    // ==================================================
+    // CONSTRUCTEUR
+    // ==================================================
+
     public AddDogDialog(
         string ownerName,
-        int dogId)
+        int dogId,
+        int ownerId = 1)
     {
         InitializeComponent();
 
-        _ownerName = ownerName;
-        _dogId = dogId;
+        _ownerName =
+            ownerName;
 
-        OwnerNameText.Text = ownerName;
+        _dogId =
+            dogId;
+
+        _ownerId =
+            ownerId;
+
+
+        OwnerNameText.Text =
+            ownerName;
+
 
         BreedComboBox.ItemsSource =
             _breedOptions;
@@ -57,20 +83,28 @@ public partial class AddDogDialog : Window
     }
 
 
+    // ==================================================
+    // CHIEN CRÉÉ
+    // ==================================================
+
     public OwnerDogViewModel? CreatedDog { get; private set; }
 
 
     // ==================================================
-    // AJOUT
+    // AJOUTER
     // ==================================================
 
     private void Save_Click(
         object sender,
         RoutedEventArgs e)
     {
-        // Nom obligatoire
+        // ==================================================
+        // NOM
+        // ==================================================
+
         string dogName =
             DogNameTextBox.Text.Trim();
+
 
         if (string.IsNullOrWhiteSpace(dogName))
         {
@@ -82,7 +116,10 @@ public partial class AddDogDialog : Window
         }
 
 
-        // Race contrôlée
+        // ==================================================
+        // RACE
+        // ==================================================
+
         if (!TryGetCanonicalValue(
                 BreedComboBox.Text,
                 _breedOptions,
@@ -100,7 +137,10 @@ public partial class AddDogDialog : Window
         }
 
 
-        // Couleur contrôlée
+        // ==================================================
+        // COULEUR
+        // ==================================================
+
         if (!TryGetCanonicalValue(
                 ColorComboBox.Text,
                 _colorOptions,
@@ -118,7 +158,10 @@ public partial class AddDogDialog : Window
         }
 
 
-        // Âge
+        // ==================================================
+        // ÂGE
+        // ==================================================
+
         if (!int.TryParse(
                 AgeValueTextBox.Text.Trim(),
                 out int ageValue) ||
@@ -136,13 +179,17 @@ public partial class AddDogDialog : Window
             GetComboBoxValue(
                 AgeUnitComboBox);
 
+
         int ageMonths =
             ageUnit == "ans"
                 ? ageValue * 12
                 : ageValue;
 
 
-        // Poids
+        // ==================================================
+        // POIDS
+        // ==================================================
+
         if (!TryParseWeight(
                 WeightTextBox.Text,
                 out double weightKg) ||
@@ -156,41 +203,56 @@ public partial class AddDogDialog : Window
         }
 
 
-        // Création
-        CreatedDog = new OwnerDogViewModel
-        {
-            DogId = _dogId,
+        // ==================================================
+        // CRÉATION
+        // ==================================================
 
-            DogName = dogName,
+        CreatedDog =
+            new OwnerDogViewModel
+            {
+                DogId =
+                    _dogId,
 
-            OwnerName = _ownerName,
+                OwnerId =
+                    _ownerId,
 
-            Breed = breed,
+                DogName =
+                    dogName,
 
-            AgeMonths = ageMonths,
+                OwnerName =
+                    _ownerName,
 
-            WeightKg = weightKg,
+                Breed =
+                    breed,
 
-            Color = color,
+                AgeMonths =
+                    ageMonths,
 
-            Sex =
-                GetComboBoxValue(
-                    SexComboBox),
+                WeightKg =
+                    weightKg,
 
-            Status =
-                GetComboBoxValue(
-                    StatusComboBox),
+                Color =
+                    color,
 
-            Sterilized =
-                GetComboBoxValue(
-                    SterilizedComboBox),
+                Sex =
+                    GetComboBoxValue(
+                        SexComboBox),
 
-            LicenseNumber =
-                LicenseTextBox.Text.Trim()
-        };
+                Status =
+                    GetComboBoxValue(
+                        StatusComboBox),
+
+                Sterilized =
+                    GetComboBoxValue(
+                        SterilizedComboBox),
+
+                LicenseNumber =
+                    LicenseTextBox.Text.Trim()
+            };
 
 
-        DialogResult = true;
+        DialogResult =
+            true;
 
         Close();
     }
@@ -204,14 +266,15 @@ public partial class AddDogDialog : Window
         object sender,
         RoutedEventArgs e)
     {
-        DialogResult = false;
+        DialogResult =
+            false;
 
         Close();
     }
 
 
     // ==================================================
-    // NORMALISATION DES CHOIX
+    // NORMALISATION
     // ==================================================
 
     private static bool TryGetCanonicalValue(
@@ -281,6 +344,7 @@ public partial class AddDogDialog : Window
             return selectedItem.Content?.ToString()
                 ?? string.Empty;
         }
+
 
         return comboBox.Text.Trim();
     }

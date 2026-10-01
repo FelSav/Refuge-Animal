@@ -10,15 +10,29 @@ public class MainWindowViewModel : ViewModelBase
     // ==================================================
 
     private ViewModelBase _currentViewModel;
-    private string _pageTitle = "Accueil";
+
+    private string _pageTitle =
+        "Accueil";
+
+
+    // ==================================================
+    // SIDEBAR
+    // ==================================================
 
     private bool _isHomeSelected = true;
+
     private bool _isSearchSelected;
+
     private bool _isOwnersSelected;
+
     private bool _isDogsSelected;
+
     private bool _isLicensesSelected;
+
     private bool _isPaymentsSelected;
+
     private bool _isReportsSelected;
+
     private bool _isAdministrationSelected;
 
 
@@ -30,6 +44,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         _currentViewModel =
             new HomeViewModel();
+
 
         ShowHomeCommand =
             new RelayCommand(ShowHome);
@@ -73,6 +88,7 @@ public class MainWindowViewModel : ViewModelBase
             }
 
             _pageTitle = value;
+
             OnPropertyChanged();
         }
     }
@@ -90,13 +106,14 @@ public class MainWindowViewModel : ViewModelBase
             }
 
             _currentViewModel = value;
+
             OnPropertyChanged();
         }
     }
 
 
     // ==================================================
-    // SÉLECTION SIDEBAR
+    // SIDEBAR
     // ==================================================
 
     public bool IsHomeSelected
@@ -111,6 +128,7 @@ public class MainWindowViewModel : ViewModelBase
             }
 
             _isHomeSelected = value;
+
             OnPropertyChanged();
         }
     }
@@ -128,6 +146,7 @@ public class MainWindowViewModel : ViewModelBase
             }
 
             _isSearchSelected = value;
+
             OnPropertyChanged();
         }
     }
@@ -145,6 +164,7 @@ public class MainWindowViewModel : ViewModelBase
             }
 
             _isOwnersSelected = value;
+
             OnPropertyChanged();
         }
     }
@@ -162,6 +182,7 @@ public class MainWindowViewModel : ViewModelBase
             }
 
             _isDogsSelected = value;
+
             OnPropertyChanged();
         }
     }
@@ -179,6 +200,7 @@ public class MainWindowViewModel : ViewModelBase
             }
 
             _isLicensesSelected = value;
+
             OnPropertyChanged();
         }
     }
@@ -196,6 +218,7 @@ public class MainWindowViewModel : ViewModelBase
             }
 
             _isPaymentsSelected = value;
+
             OnPropertyChanged();
         }
     }
@@ -213,6 +236,7 @@ public class MainWindowViewModel : ViewModelBase
             }
 
             _isReportsSelected = value;
+
             OnPropertyChanged();
         }
     }
@@ -230,6 +254,7 @@ public class MainWindowViewModel : ViewModelBase
             }
 
             _isAdministrationSelected = value;
+
             OnPropertyChanged();
         }
     }
@@ -257,7 +282,7 @@ public class MainWindowViewModel : ViewModelBase
 
 
     // ==================================================
-    // NAVIGATION PRINCIPALE
+    // MENU PRINCIPAL
     // ==================================================
 
     private void ShowHome()
@@ -279,7 +304,8 @@ public class MainWindowViewModel : ViewModelBase
     private void ShowOwners()
     {
         NavigateTo(
-            new OwnersViewModel(OpenDog),
+            new OwnersViewModel(
+                OpenDog),
             "Propriétaires");
     }
 
@@ -287,7 +313,9 @@ public class MainWindowViewModel : ViewModelBase
     private void ShowDogs()
     {
         NavigateTo(
-            new DogsViewModel(),
+            new DogsViewModel(
+                null,
+                OpenOwner),
             "Chiens");
     }
 
@@ -325,15 +353,32 @@ public class MainWindowViewModel : ViewModelBase
 
 
     // ==================================================
-    // OUVRIR UN CHIEN PRÉCIS
+    // PROPRIÉTAIRE -> CHIEN
     // ==================================================
 
     private void OpenDog(
         OwnerDogViewModel dog)
     {
         NavigateTo(
-            new DogsViewModel(dog),
+            new DogsViewModel(
+                dog,
+                OpenOwner),
             "Chiens");
+    }
+
+
+    // ==================================================
+    // CHIEN -> PROPRIÉTAIRE
+    // ==================================================
+
+    private void OpenOwner(
+        int ownerId)
+    {
+        NavigateTo(
+            new OwnersViewModel(
+                OpenDog,
+                ownerId),
+            "Propriétaires");
     }
 
 

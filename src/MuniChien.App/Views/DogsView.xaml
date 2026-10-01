@@ -30,7 +30,7 @@
 
 
         <!-- ==================================================
-             TITRE
+             TITRES
              ================================================== -->
 
         <Style x:Key="DogSectionTitleStyle"
@@ -49,7 +49,7 @@
 
 
         <!-- ==================================================
-             LABEL
+             LABELS
              ================================================== -->
 
         <Style x:Key="DogLabelStyle"
@@ -71,7 +71,7 @@
 
 
         <!-- ==================================================
-             VALEUR
+             VALEURS
              ================================================== -->
 
         <Style x:Key="DogValueStyle"
@@ -85,6 +85,9 @@
 
             <Setter Property="VerticalAlignment"
                     Value="Center"/>
+
+            <Setter Property="TextTrimming"
+                    Value="CharacterEllipsis"/>
 
         </Style>
 
@@ -109,6 +112,115 @@
 
         </Style>
 
+
+        <!-- ==================================================
+             HISTORIQUE DES LICENCES
+             ================================================== -->
+
+        <Style x:Key="LicenseHistoryDataGridStyle"
+               TargetType="DataGrid">
+
+            <Setter Property="AutoGenerateColumns"
+                    Value="False"/>
+
+            <Setter Property="CanUserAddRows"
+                    Value="False"/>
+
+            <Setter Property="CanUserDeleteRows"
+                    Value="False"/>
+
+            <Setter Property="CanUserResizeRows"
+                    Value="False"/>
+
+            <Setter Property="CanUserReorderColumns"
+                    Value="False"/>
+
+            <Setter Property="IsReadOnly"
+                    Value="True"/>
+
+            <Setter Property="HeadersVisibility"
+                    Value="Column"/>
+
+            <Setter Property="GridLinesVisibility"
+                    Value="None"/>
+
+            <Setter Property="BorderThickness"
+                    Value="0"/>
+
+            <Setter Property="Background"
+                    Value="White"/>
+
+            <Setter Property="RowBackground"
+                    Value="White"/>
+
+            <Setter Property="AlternatingRowBackground"
+                    Value="#FCFCFD"/>
+
+            <Setter Property="RowHeight"
+                    Value="44"/>
+
+            <Setter Property="ColumnHeaderHeight"
+                    Value="42"/>
+
+        </Style>
+
+
+        <Style x:Key="LicenseHistoryHeaderStyle"
+               TargetType="DataGridColumnHeader">
+
+            <Setter Property="Background"
+                    Value="#F8FAFC"/>
+
+            <Setter Property="Foreground"
+                    Value="#344054"/>
+
+            <Setter Property="FontSize"
+                    Value="13"/>
+
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+
+            <Setter Property="Padding"
+                    Value="12,0"/>
+
+            <Setter Property="BorderBrush"
+                    Value="#EAECF0"/>
+
+            <Setter Property="BorderThickness"
+                    Value="0,0,0,1"/>
+
+        </Style>
+
+
+        <Style x:Key="LicenseHistoryCellStyle"
+               TargetType="DataGridCell">
+
+            <Setter Property="BorderThickness"
+                    Value="0"/>
+
+            <Setter Property="Background"
+                    Value="Transparent"/>
+
+            <Setter Property="FocusVisualStyle"
+                    Value="{x:Null}"/>
+
+        </Style>
+
+
+        <Style x:Key="LicenseHistoryTextStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="VerticalAlignment"
+                    Value="Center"/>
+
+            <Setter Property="Margin"
+                    Value="12,0"/>
+
+            <Setter Property="Foreground"
+                    Value="#344054"/>
+
+        </Style>
+
     </UserControl.Resources>
 
 
@@ -125,23 +237,25 @@
 
 
                 <!-- ==================================================
-                     TITRE
+                     ENTÊTE
                      ================================================== -->
 
-                <TextBlock Text="{Binding DogName}"
+                <TextBlock Text="{Binding DogName,
+                                          StringFormat=Fiche de chien — {0}}"
                            FontSize="26"
                            FontWeight="SemiBold"
                            Foreground="#242B38"/>
 
 
-                <TextBlock Text="Dossier chien"
+                <TextBlock Text="Consultez les informations du chien, de son propriétaire et de sa licence."
+                           Margin="0,7,0,28"
                            FontSize="14"
-                           Foreground="#667085"
-                           Margin="0,6,0,28"/>
+                           Foreground="#667085"/>
 
 
                 <!-- ==================================================
-                     INFORMATIONS PRINCIPALES
+                     LIGNE 1
+                     INFORMATIONS + PROPRIÉTAIRE
                      ================================================== -->
 
                 <Grid>
@@ -157,7 +271,9 @@
                     </Grid.ColumnDefinitions>
 
 
-                    <!-- CHIEN -->
+                    <!-- ==================================================
+                         INFORMATIONS DU CHIEN
+                         ================================================== -->
 
                     <Border Grid.Column="0"
                             Style="{StaticResource DogCardStyle}">
@@ -174,17 +290,12 @@
                             <Grid Margin="0,0,0,10">
 
                                 <Grid.ColumnDefinitions>
-
                                     <ColumnDefinition Width="120"/>
-
                                     <ColumnDefinition Width="*"/>
-
                                 </Grid.ColumnDefinitions>
-
 
                                 <TextBlock Text="Nom"
                                            Style="{StaticResource DogLabelStyle}"/>
-
 
                                 <Border Grid.Column="1"
                                         Style="{StaticResource DogValueBoxStyle}">
@@ -202,17 +313,12 @@
                             <Grid Margin="0,0,0,10">
 
                                 <Grid.ColumnDefinitions>
-
                                     <ColumnDefinition Width="120"/>
-
                                     <ColumnDefinition Width="*"/>
-
                                 </Grid.ColumnDefinitions>
-
 
                                 <TextBlock Text="Race"
                                            Style="{StaticResource DogLabelStyle}"/>
-
 
                                 <Border Grid.Column="1"
                                         Style="{StaticResource DogValueBoxStyle}">
@@ -230,17 +336,12 @@
                             <Grid Margin="0,0,0,10">
 
                                 <Grid.ColumnDefinitions>
-
                                     <ColumnDefinition Width="120"/>
-
                                     <ColumnDefinition Width="*"/>
-
                                 </Grid.ColumnDefinitions>
-
 
                                 <TextBlock Text="Couleur"
                                            Style="{StaticResource DogLabelStyle}"/>
-
 
                                 <Border Grid.Column="1"
                                         Style="{StaticResource DogValueBoxStyle}">
@@ -255,20 +356,15 @@
 
                             <!-- Sexe -->
 
-                            <Grid>
+                            <Grid Margin="0,0,0,10">
 
                                 <Grid.ColumnDefinitions>
-
                                     <ColumnDefinition Width="120"/>
-
                                     <ColumnDefinition Width="*"/>
-
                                 </Grid.ColumnDefinitions>
-
 
                                 <TextBlock Text="Sexe"
                                            Style="{StaticResource DogLabelStyle}"/>
-
 
                                 <Border Grid.Column="1"
                                         Style="{StaticResource DogValueBoxStyle}">
@@ -280,19 +376,258 @@
 
                             </Grid>
 
+
+                            <!-- Stérilisé -->
+
+                            <Grid Margin="0,0,0,10">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Stérilisé"
+                                           Style="{StaticResource DogLabelStyle}"/>
+
+                                <Border Grid.Column="1"
+                                        Style="{StaticResource DogValueBoxStyle}">
+
+                                    <TextBlock Text="{Binding Sterilized}"
+                                               Style="{StaticResource DogValueStyle}"/>
+
+                                </Border>
+
+                            </Grid>
+
+
+                            <!-- Naissance -->
+
+                            <Grid>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Naissance"
+                                           Style="{StaticResource DogLabelStyle}"/>
+
+                                <Border Grid.Column="1"
+                                        Style="{StaticResource DogValueBoxStyle}">
+
+                                    <TextBlock Text="{Binding BirthDate}"
+                                               Style="{StaticResource DogValueStyle}"/>
+
+                                </Border>
+
+                            </Grid>
+
                         </StackPanel>
 
                     </Border>
 
 
-                    <!-- DÉTAILS -->
+                    <!-- ==================================================
+                         PROPRIÉTAIRE
+                         ================================================== -->
 
                     <Border Grid.Column="2"
                             Style="{StaticResource DogCardStyle}">
 
                         <StackPanel>
 
-                            <TextBlock Text="Détails"
+                            <TextBlock Text="Propriétaire"
+                                       Style="{StaticResource DogSectionTitleStyle}"
+                                       Margin="0,0,0,18"/>
+
+
+                            <!-- Dossier -->
+
+                            <Grid Margin="0,0,0,10">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Dossier"
+                                           Style="{StaticResource DogLabelStyle}"/>
+
+                                <Border Grid.Column="1"
+                                        Style="{StaticResource DogValueBoxStyle}">
+
+                                    <TextBlock Text="{Binding OwnerFileNumber}"
+                                               Style="{StaticResource DogValueStyle}"/>
+
+                                </Border>
+
+                            </Grid>
+
+
+                            <!-- Nom -->
+
+                            <Grid Margin="0,0,0,10">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Nom"
+                                           Style="{StaticResource DogLabelStyle}"/>
+
+                                <Border Grid.Column="1"
+                                        Style="{StaticResource DogValueBoxStyle}">
+
+                                    <TextBlock Text="{Binding OwnerName}"
+                                               Style="{StaticResource DogValueStyle}"/>
+
+                                </Border>
+
+                            </Grid>
+
+
+                            <!-- Adresse -->
+
+                            <TextBlock Text="Adresse"
+                                       Style="{StaticResource DogLabelStyle}"
+                                       Margin="0,4,0,6"/>
+
+                            <Border Style="{StaticResource DogValueBoxStyle}">
+
+                                <TextBlock Text="{Binding OwnerAddress}"
+                                           Style="{StaticResource DogValueStyle}"
+                                           TextWrapping="Wrap"/>
+
+                            </Border>
+
+
+                            <!-- Voir propriétaire -->
+
+                            <Button Content="Voir le propriétaire"
+                                    Command="{Binding OpenOwnerCommand}"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    HorizontalAlignment="Left"
+                                    Padding="16,8"
+                                    FontSize="13"
+                                    Margin="0,18,0,0"/>
+
+                        </StackPanel>
+
+                    </Border>
+
+                </Grid>
+
+
+                <!-- ==================================================
+                     LIGNE 2
+                     STATUT + INFOS SUPPLÉMENTAIRES
+                     ================================================== -->
+
+                <Grid Margin="0,24,0,0">
+
+                    <Grid.ColumnDefinitions>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="24"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                    </Grid.ColumnDefinitions>
+
+
+                    <!-- ==================================================
+                         STATUT
+                         ================================================== -->
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource DogCardStyle}">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Statut"
+                                       Style="{StaticResource DogSectionTitleStyle}"
+                                       Margin="0,0,0,18"/>
+
+
+                            <Grid Margin="0,0,0,10">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Statut actuel"
+                                           Style="{StaticResource DogLabelStyle}"/>
+
+                                <Border Grid.Column="1"
+                                        Style="{StaticResource DogValueBoxStyle}">
+
+                                    <TextBlock Text="{Binding Status}"
+                                               Style="{StaticResource DogValueStyle}"/>
+
+                                </Border>
+
+                            </Grid>
+
+
+                            <Grid Margin="0,0,0,10">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Date d'inactivation"
+                                           Style="{StaticResource DogLabelStyle}"/>
+
+                                <Border Grid.Column="1"
+                                        Style="{StaticResource DogValueBoxStyle}">
+
+                                    <TextBlock Text="{Binding DeactivationDate}"
+                                               Style="{StaticResource DogValueStyle}"/>
+
+                                </Border>
+
+                            </Grid>
+
+
+                            <Grid>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Raison"
+                                           Style="{StaticResource DogLabelStyle}"/>
+
+                                <Border Grid.Column="1"
+                                        Style="{StaticResource DogValueBoxStyle}">
+
+                                    <TextBlock Text="{Binding DeactivationReason}"
+                                               Style="{StaticResource DogValueStyle}"/>
+
+                                </Border>
+
+                            </Grid>
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- ==================================================
+                         INFORMATIONS SUPPLÉMENTAIRES
+                         ================================================== -->
+
+                    <Border Grid.Column="2"
+                            Style="{StaticResource DogCardStyle}">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Informations supplémentaires"
                                        Style="{StaticResource DogSectionTitleStyle}"
                                        Margin="0,0,0,18"/>
 
@@ -302,17 +637,12 @@
                             <Grid Margin="0,0,0,10">
 
                                 <Grid.ColumnDefinitions>
-
                                     <ColumnDefinition Width="120"/>
-
                                     <ColumnDefinition Width="*"/>
-
                                 </Grid.ColumnDefinitions>
-
 
                                 <TextBlock Text="Âge"
                                            Style="{StaticResource DogLabelStyle}"/>
-
 
                                 <Border Grid.Column="1"
                                         Style="{StaticResource DogValueBoxStyle}">
@@ -327,20 +657,15 @@
 
                             <!-- Poids -->
 
-                            <Grid Margin="0,0,0,10">
+                            <Grid Margin="0,0,0,14">
 
                                 <Grid.ColumnDefinitions>
-
                                     <ColumnDefinition Width="120"/>
-
                                     <ColumnDefinition Width="*"/>
-
                                 </Grid.ColumnDefinitions>
-
 
                                 <TextBlock Text="Poids"
                                            Style="{StaticResource DogLabelStyle}"/>
-
 
                                 <Border Grid.Column="1"
                                         Style="{StaticResource DogValueBoxStyle}">
@@ -353,60 +678,20 @@
                             </Grid>
 
 
-                            <!-- Stérilisé -->
+                            <!-- Commentaires -->
 
-                            <Grid Margin="0,0,0,10">
+                            <TextBlock Text="Commentaires"
+                                       Style="{StaticResource DogLabelStyle}"
+                                       Margin="0,0,0,6"/>
 
-                                <Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource DogValueBoxStyle}"
+                                    MinHeight="70">
 
-                                    <ColumnDefinition Width="120"/>
+                                <TextBlock Text="{Binding Comments}"
+                                           Style="{StaticResource DogValueStyle}"
+                                           TextWrapping="Wrap"/>
 
-                                    <ColumnDefinition Width="*"/>
-
-                                </Grid.ColumnDefinitions>
-
-
-                                <TextBlock Text="Stérilisé"
-                                           Style="{StaticResource DogLabelStyle}"/>
-
-
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
-
-                                    <TextBlock Text="{Binding Sterilized}"
-                                               Style="{StaticResource DogValueStyle}"/>
-
-                                </Border>
-
-                            </Grid>
-
-
-                            <!-- Statut -->
-
-                            <Grid>
-
-                                <Grid.ColumnDefinitions>
-
-                                    <ColumnDefinition Width="120"/>
-
-                                    <ColumnDefinition Width="*"/>
-
-                                </Grid.ColumnDefinitions>
-
-
-                                <TextBlock Text="Statut"
-                                           Style="{StaticResource DogLabelStyle}"/>
-
-
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
-
-                                    <TextBlock Text="{Binding Status}"
-                                               Style="{StaticResource DogValueStyle}"/>
-
-                                </Border>
-
-                            </Grid>
+                            </Border>
 
                         </StackPanel>
 
@@ -416,7 +701,7 @@
 
 
                 <!-- ==================================================
-                     PROPRIÉTAIRE
+                     LICENCE ACTUELLE
                      ================================================== -->
 
                 <Border Style="{StaticResource DogCardStyle}"
@@ -424,7 +709,7 @@
 
                     <StackPanel>
 
-                        <TextBlock Text="Propriétaire"
+                        <TextBlock Text="Licence actuelle"
                                    Style="{StaticResource DogSectionTitleStyle}"
                                    Margin="0,0,0,18"/>
 
@@ -433,49 +718,162 @@
 
                             <Grid.ColumnDefinitions>
 
-                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+
+                                <ColumnDefinition Width="18"/>
 
                                 <ColumnDefinition Width="*"/>
 
-                                <ColumnDefinition Width="24"/>
+                                <ColumnDefinition Width="18"/>
 
-                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+
+                                <ColumnDefinition Width="18"/>
 
                                 <ColumnDefinition Width="*"/>
 
                             </Grid.ColumnDefinitions>
 
 
-                            <TextBlock Grid.Column="0"
-                                       Text="Nom"
-                                       Style="{StaticResource DogLabelStyle}"/>
+                            <!-- Numéro -->
+
+                            <StackPanel Grid.Column="0">
+
+                                <TextBlock Text="Licence"
+                                           Style="{StaticResource DogLabelStyle}"
+                                           Margin="0,0,0,6"/>
+
+                                <Border Style="{StaticResource DogValueBoxStyle}">
+
+                                    <TextBlock Text="{Binding LicenseNumber}"
+                                               Style="{StaticResource DogValueStyle}"/>
+
+                                </Border>
+
+                            </StackPanel>
 
 
-                            <Border Grid.Column="1"
-                                    Style="{StaticResource DogValueBoxStyle}">
+                            <!-- Statut -->
 
-                                <TextBlock Text="{Binding OwnerName}"
-                                           Style="{StaticResource DogValueStyle}"/>
+                            <StackPanel Grid.Column="2">
 
-                            </Border>
+                                <TextBlock Text="Statut"
+                                           Style="{StaticResource DogLabelStyle}"
+                                           Margin="0,0,0,6"/>
+
+                                <Border Style="{StaticResource DogValueBoxStyle}">
+
+                                    <TextBlock Text="{Binding LicenseStatus}"
+                                               Style="{StaticResource DogValueStyle}"/>
+
+                                </Border>
+
+                            </StackPanel>
 
 
-                            <TextBlock Grid.Column="3"
-                                       Text="Licence"
-                                       Style="{StaticResource DogLabelStyle}"/>
+                            <!-- Émission -->
+
+                            <StackPanel Grid.Column="4">
+
+                                <TextBlock Text="Émission"
+                                           Style="{StaticResource DogLabelStyle}"
+                                           Margin="0,0,0,6"/>
+
+                                <Border Style="{StaticResource DogValueBoxStyle}">
+
+                                    <TextBlock Text="{Binding LicenseIssueDate}"
+                                               Style="{StaticResource DogValueStyle}"/>
+
+                                </Border>
+
+                            </StackPanel>
 
 
-                            <Border Grid.Column="4"
-                                    Style="{StaticResource DogValueBoxStyle}">
+                            <!-- Expiration -->
 
-                                <TextBlock Text="{Binding LicenseNumber}"
-                                           Style="{StaticResource DogValueStyle}"/>
+                            <StackPanel Grid.Column="6">
 
-                            </Border>
+                                <TextBlock Text="Expiration"
+                                           Style="{StaticResource DogLabelStyle}"
+                                           Margin="0,0,0,6"/>
+
+                                <Border Style="{StaticResource DogValueBoxStyle}">
+
+                                    <TextBlock Text="{Binding LicenseExpirationDate}"
+                                               Style="{StaticResource DogValueStyle}"/>
+
+                                </Border>
+
+                            </StackPanel>
 
                         </Grid>
 
+
+                        <!-- Actions -->
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,20,0,0">
+
+                            <Button Content="Renouveler la licence"
+                                    Command="{Binding RenewLicenseCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
+                                    Padding="18,9"
+                                    FontSize="13"/>
+
+                        </StackPanel>
+
                     </StackPanel>
+
+                </Border>
+
+
+                <!-- ==================================================
+                     HISTORIQUE
+                     ================================================== -->
+
+                <TextBlock Text="Historique des licences"
+                           Style="{StaticResource DogSectionTitleStyle}"
+                           Margin="0,30,0,14"/>
+
+
+                <Border Background="White"
+                        BorderBrush="#E4E7EC"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        ClipToBounds="True">
+
+                    <DataGrid ItemsSource="{Binding LicenseHistory}"
+                              Style="{StaticResource LicenseHistoryDataGridStyle}"
+                              ColumnHeaderStyle="{StaticResource LicenseHistoryHeaderStyle}"
+                              CellStyle="{StaticResource LicenseHistoryCellStyle}"
+                              MaxHeight="260">
+
+                        <DataGrid.Columns>
+
+                            <DataGridTextColumn Header="Licence"
+                                                Binding="{Binding LicenseNumber}"
+                                                Width="*"
+                                                ElementStyle="{StaticResource LicenseHistoryTextStyle}"/>
+
+                            <DataGridTextColumn Header="Date d'émission"
+                                                Binding="{Binding IssueDate}"
+                                                Width="*"
+                                                ElementStyle="{StaticResource LicenseHistoryTextStyle}"/>
+
+                            <DataGridTextColumn Header="Date d'expiration"
+                                                Binding="{Binding ExpirationDate}"
+                                                Width="*"
+                                                ElementStyle="{StaticResource LicenseHistoryTextStyle}"/>
+
+                            <DataGridTextColumn Header="Statut"
+                                                Binding="{Binding Status}"
+                                                Width="*"
+                                                ElementStyle="{StaticResource LicenseHistoryTextStyle}"/>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
 
                 </Border>
 
