@@ -114,7 +114,228 @@
 
 
         <!-- ==================================================
-             HISTORIQUE DES LICENCES
+             TEXTBOX ÉDITION
+             ================================================== -->
+
+        <Style x:Key="DogEditTextBoxBaseStyle"
+               TargetType="TextBox">
+
+            <Setter Property="Height"
+                    Value="38"/>
+
+            <Setter Property="Background"
+                    Value="White"/>
+
+            <Setter Property="BorderBrush"
+                    Value="#D0D5DD"/>
+
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+
+            <Setter Property="Foreground"
+                    Value="#242424"/>
+
+            <Setter Property="FontSize"
+                    Value="14"/>
+
+            <Setter Property="Padding"
+                    Value="10,0"/>
+
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
+
+            <Setter Property="Template">
+
+                <Setter.Value>
+
+                    <ControlTemplate TargetType="TextBox">
+
+                        <Border x:Name="InputBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"/>
+
+                        </Border>
+
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsKeyboardFocused"
+                                     Value="True">
+
+                                <Setter TargetName="InputBorder"
+                                        Property="BorderBrush"
+                                        Value="#E87524"/>
+
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+
+                </Setter.Value>
+
+            </Setter>
+
+        </Style>
+
+
+        <!-- ==================================================
+             LECTURE / ÉDITION
+             ================================================== -->
+
+        <Style x:Key="DogReadOnlyContainerStyle"
+               TargetType="Border"
+               BasedOn="{StaticResource DogValueBoxStyle}">
+
+            <Setter Property="Visibility"
+                    Value="Visible"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                    <Setter Property="Visibility"
+                            Value="Collapsed"/>
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <Style x:Key="DogEditTextBoxStyle"
+               TargetType="TextBox"
+               BasedOn="{StaticResource DogEditTextBoxBaseStyle}">
+
+            <Setter Property="Visibility"
+                    Value="Collapsed"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                    <Setter Property="Visibility"
+                            Value="Visible"/>
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <Style x:Key="DogEditComboBoxStyle"
+               TargetType="ComboBox"
+               BasedOn="{StaticResource RoundedComboBoxStyle}">
+
+            <Setter Property="Height"
+                    Value="38"/>
+
+            <Setter Property="Visibility"
+                    Value="Collapsed"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                    <Setter Property="Visibility"
+                            Value="Visible"/>
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <Style x:Key="DogEditGridStyle"
+               TargetType="Grid">
+
+            <Setter Property="Visibility"
+                    Value="Collapsed"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                    <Setter Property="Visibility"
+                            Value="Visible"/>
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <!-- ==================================================
+             BOUTONS DU MODE ÉDITION
+             ================================================== -->
+
+        <Style x:Key="DogModifyButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource SecondaryActionButtonStyle}">
+
+            <Setter Property="Visibility"
+                    Value="Visible"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding HasSelectedDog}"
+                             Value="False">
+
+                    <Setter Property="Visibility"
+                            Value="Collapsed"/>
+
+                </DataTrigger>
+
+
+                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                    <Setter Property="Visibility"
+                            Value="Collapsed"/>
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <Style x:Key="DogEditButtonsStyle"
+               TargetType="StackPanel">
+
+            <Setter Property="Visibility"
+                    Value="Collapsed"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                    <Setter Property="Visibility"
+                            Value="Visible"/>
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <!-- ==================================================
+             HISTORIQUE LICENCES
              ================================================== -->
 
         <Style x:Key="LicenseHistoryDataGridStyle"
@@ -149,12 +370,6 @@
 
             <Setter Property="Background"
                     Value="White"/>
-
-            <Setter Property="RowBackground"
-                    Value="White"/>
-
-            <Setter Property="AlternatingRowBackground"
-                    Value="#FCFCFD"/>
 
             <Setter Property="RowHeight"
                     Value="44"/>
@@ -240,22 +455,108 @@
                      ENTÊTE
                      ================================================== -->
 
-                <TextBlock Text="{Binding DogName,
-                                          StringFormat=Fiche de chien — {0}}"
-                           FontSize="26"
-                           FontWeight="SemiBold"
-                           Foreground="#242B38"/>
+                <Grid Margin="0,0,0,28">
+
+                    <Grid.ColumnDefinitions>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="Auto"/>
+
+                    </Grid.ColumnDefinitions>
 
 
-                <TextBlock Text="Consultez les informations du chien, de son propriétaire et de sa licence."
-                           Margin="0,7,0,28"
-                           FontSize="14"
-                           Foreground="#667085"/>
+                    <StackPanel>
+
+                        <TextBlock Text="{Binding DogName,
+                                                  StringFormat=Fiche de chien — {0}}"
+                                   FontSize="26"
+                                   FontWeight="SemiBold"
+                                   Foreground="#242B38"/>
+
+                        <TextBlock Text="Consultez et gérez les informations du chien, de son propriétaire et de sa licence."
+                                   Margin="0,7,0,0"
+                                   FontSize="14"
+                                   Foreground="#667085"/>
+
+                    </StackPanel>
+
+
+                    <!-- MODIFIER -->
+
+                    <Button Grid.Column="1"
+                            Content="Modifier"
+                            Command="{Binding ModifyCommand}"
+                            Style="{StaticResource DogModifyButtonStyle}"
+                            VerticalAlignment="Top"/>
+
+
+                    <!-- ANNULER / ENREGISTRER -->
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Top"
+                                Style="{StaticResource DogEditButtonsStyle}">
+
+                        <Button Content="Annuler"
+                                Command="{Binding CancelCommand}"
+                                Style="{StaticResource SecondaryActionButtonStyle}"
+                                Margin="0,0,12,0"/>
+
+                        <Button Content="Enregistrer"
+                                Command="{Binding SaveCommand}"
+                                Style="{StaticResource PrimaryActionButtonStyle}"/>
+
+                    </StackPanel>
+
+                </Grid>
+
+
+                <!-- ==================================================
+                     MESSAGE DE VALIDATION
+                     ================================================== -->
+
+                <Border Background="#FFF4ED"
+                        BorderBrush="#E87524"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="14"
+                        Margin="0,0,0,20">
+
+                    <Border.Style>
+
+                        <Style TargetType="Border">
+
+                            <Setter Property="Visibility"
+                                    Value="Visible"/>
+
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding ValidationMessage}"
+                                             Value="">
+
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed"/>
+
+                                </DataTrigger>
+
+                            </Style.Triggers>
+
+                        </Style>
+
+                    </Border.Style>
+
+
+                    <TextBlock Text="{Binding ValidationMessage}"
+                               Foreground="#8A3B00"
+                               FontSize="13"
+                               TextWrapping="Wrap"/>
+
+                </Border>
 
 
                 <!-- ==================================================
                      LIGNE 1
-                     INFORMATIONS + PROPRIÉTAIRE
                      ================================================== -->
 
                 <Grid>
@@ -285,7 +586,7 @@
                                        Margin="0,0,0,18"/>
 
 
-                            <!-- Nom -->
+                            <!-- NOM -->
 
                             <Grid Margin="0,0,0,10">
 
@@ -297,18 +598,25 @@
                                 <TextBlock Text="Nom"
                                            Style="{StaticResource DogLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
+                                <Grid Grid.Column="1">
 
-                                    <TextBlock Text="{Binding DogName}"
-                                               Style="{StaticResource DogValueStyle}"/>
+                                    <Border Style="{StaticResource DogReadOnlyContainerStyle}">
 
-                                </Border>
+                                        <TextBlock Text="{Binding DogName}"
+                                                   Style="{StaticResource DogValueStyle}"/>
+
+                                    </Border>
+
+                                    <TextBox Text="{Binding DogName,
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource DogEditTextBoxStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
 
-                            <!-- Race -->
+                            <!-- RACE -->
 
                             <Grid Margin="0,0,0,10">
 
@@ -320,18 +628,29 @@
                                 <TextBlock Text="Race"
                                            Style="{StaticResource DogLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
+                                <Grid Grid.Column="1">
 
-                                    <TextBlock Text="{Binding Breed}"
-                                               Style="{StaticResource DogValueStyle}"/>
+                                    <Border Style="{StaticResource DogReadOnlyContainerStyle}">
 
-                                </Border>
+                                        <TextBlock Text="{Binding Breed}"
+                                                   Style="{StaticResource DogValueStyle}"/>
+
+                                    </Border>
+
+                                    <ComboBox ItemsSource="{Binding BreedOptions}"
+                                              Text="{Binding Breed,
+                                                             UpdateSourceTrigger=PropertyChanged}"
+                                              IsEditable="True"
+                                              IsTextSearchEnabled="True"
+                                              StaysOpenOnEdit="True"
+                                              Style="{StaticResource DogEditComboBoxStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
 
-                            <!-- Couleur -->
+                            <!-- COULEUR -->
 
                             <Grid Margin="0,0,0,10">
 
@@ -343,18 +662,29 @@
                                 <TextBlock Text="Couleur"
                                            Style="{StaticResource DogLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
+                                <Grid Grid.Column="1">
 
-                                    <TextBlock Text="{Binding Color}"
-                                               Style="{StaticResource DogValueStyle}"/>
+                                    <Border Style="{StaticResource DogReadOnlyContainerStyle}">
 
-                                </Border>
+                                        <TextBlock Text="{Binding Color}"
+                                                   Style="{StaticResource DogValueStyle}"/>
+
+                                    </Border>
+
+                                    <ComboBox ItemsSource="{Binding ColorOptions}"
+                                              Text="{Binding Color,
+                                                             UpdateSourceTrigger=PropertyChanged}"
+                                              IsEditable="True"
+                                              IsTextSearchEnabled="True"
+                                              StaysOpenOnEdit="True"
+                                              Style="{StaticResource DogEditComboBoxStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
 
-                            <!-- Sexe -->
+                            <!-- SEXE -->
 
                             <Grid Margin="0,0,0,10">
 
@@ -366,18 +696,25 @@
                                 <TextBlock Text="Sexe"
                                            Style="{StaticResource DogLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
+                                <Grid Grid.Column="1">
 
-                                    <TextBlock Text="{Binding Sex}"
-                                               Style="{StaticResource DogValueStyle}"/>
+                                    <Border Style="{StaticResource DogReadOnlyContainerStyle}">
 
-                                </Border>
+                                        <TextBlock Text="{Binding SexDisplay}"
+                                                   Style="{StaticResource DogValueStyle}"/>
+
+                                    </Border>
+
+                                    <ComboBox ItemsSource="{Binding SexOptions}"
+                                              SelectedItem="{Binding Sex}"
+                                              Style="{StaticResource DogEditComboBoxStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
 
-                            <!-- Stérilisé -->
+                            <!-- STÉRILISÉ -->
 
                             <Grid Margin="0,0,0,10">
 
@@ -389,18 +726,25 @@
                                 <TextBlock Text="Stérilisé"
                                            Style="{StaticResource DogLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
+                                <Grid Grid.Column="1">
 
-                                    <TextBlock Text="{Binding Sterilized}"
-                                               Style="{StaticResource DogValueStyle}"/>
+                                    <Border Style="{StaticResource DogReadOnlyContainerStyle}">
 
-                                </Border>
+                                        <TextBlock Text="{Binding Sterilized}"
+                                                   Style="{StaticResource DogValueStyle}"/>
+
+                                    </Border>
+
+                                    <ComboBox ItemsSource="{Binding SterilizedOptions}"
+                                              SelectedItem="{Binding Sterilized}"
+                                              Style="{StaticResource DogEditComboBoxStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
 
-                            <!-- Naissance -->
+                            <!-- NAISSANCE -->
 
                             <Grid>
 
@@ -441,8 +785,6 @@
                                        Margin="0,0,0,18"/>
 
 
-                            <!-- Dossier -->
-
                             <Grid Margin="0,0,0,10">
 
                                 <Grid.ColumnDefinitions>
@@ -464,9 +806,7 @@
                             </Grid>
 
 
-                            <!-- Nom -->
-
-                            <Grid Margin="0,0,0,10">
+                            <Grid Margin="0,0,0,14">
 
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="120"/>
@@ -487,11 +827,9 @@
                             </Grid>
 
 
-                            <!-- Adresse -->
-
                             <TextBlock Text="Adresse"
                                        Style="{StaticResource DogLabelStyle}"
-                                       Margin="0,4,0,6"/>
+                                       Margin="0,0,0,6"/>
 
                             <Border Style="{StaticResource DogValueBoxStyle}">
 
@@ -502,10 +840,9 @@
                             </Border>
 
 
-                            <!-- Voir propriétaire -->
-
                             <Button Content="Voir le propriétaire"
                                     Command="{Binding OpenOwnerCommand}"
+                                    IsEnabled="{Binding HasSelectedDog}"
                                     Style="{StaticResource SecondaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
                                     Padding="16,8"
@@ -521,7 +858,6 @@
 
                 <!-- ==================================================
                      LIGNE 2
-                     STATUT + INFOS SUPPLÉMENTAIRES
                      ================================================== -->
 
                 <Grid Margin="0,24,0,0">
@@ -551,6 +887,8 @@
                                        Margin="0,0,0,18"/>
 
 
+                            <!-- STATUT ACTUEL -->
+
                             <Grid Margin="0,0,0,10">
 
                                 <Grid.ColumnDefinitions>
@@ -561,16 +899,25 @@
                                 <TextBlock Text="Statut actuel"
                                            Style="{StaticResource DogLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
+                                <Grid Grid.Column="1">
 
-                                    <TextBlock Text="{Binding Status}"
-                                               Style="{StaticResource DogValueStyle}"/>
+                                    <Border Style="{StaticResource DogReadOnlyContainerStyle}">
 
-                                </Border>
+                                        <TextBlock Text="{Binding Status}"
+                                                   Style="{StaticResource DogValueStyle}"/>
+
+                                    </Border>
+
+                                    <ComboBox ItemsSource="{Binding StatusOptions}"
+                                              SelectedItem="{Binding Status}"
+                                              Style="{StaticResource DogEditComboBoxStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
+
+                            <!-- DATE INACTIVATION -->
 
                             <Grid Margin="0,0,0,10">
 
@@ -582,16 +929,27 @@
                                 <TextBlock Text="Date d'inactivation"
                                            Style="{StaticResource DogLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
+                                <Grid Grid.Column="1">
 
-                                    <TextBlock Text="{Binding DeactivationDate}"
-                                               Style="{StaticResource DogValueStyle}"/>
+                                    <Border Style="{StaticResource DogReadOnlyContainerStyle}">
 
-                                </Border>
+                                        <TextBlock Text="{Binding DeactivationDateDisplay}"
+                                                   Style="{StaticResource DogValueStyle}"/>
+
+                                    </Border>
+
+                                    <TextBox Text="{Binding DeactivationDate,
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                             IsEnabled="{Binding IsInactive}"
+                                             ToolTip="Format : AAAA-MM-JJ"
+                                             Style="{StaticResource DogEditTextBoxStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
+
+                            <!-- RAISON -->
 
                             <Grid>
 
@@ -603,13 +961,21 @@
                                 <TextBlock Text="Raison"
                                            Style="{StaticResource DogLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
+                                <Grid Grid.Column="1">
 
-                                    <TextBlock Text="{Binding DeactivationReason}"
-                                               Style="{StaticResource DogValueStyle}"/>
+                                    <Border Style="{StaticResource DogReadOnlyContainerStyle}">
 
-                                </Border>
+                                        <TextBlock Text="{Binding DeactivationReasonDisplay}"
+                                                   Style="{StaticResource DogValueStyle}"/>
+
+                                    </Border>
+
+                                    <TextBox Text="{Binding DeactivationReason,
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                             IsEnabled="{Binding IsInactive}"
+                                             Style="{StaticResource DogEditTextBoxStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
@@ -632,7 +998,7 @@
                                        Margin="0,0,0,18"/>
 
 
-                            <!-- Âge -->
+                            <!-- ÂGE -->
 
                             <Grid Margin="0,0,0,10">
 
@@ -644,18 +1010,46 @@
                                 <TextBlock Text="Âge"
                                            Style="{StaticResource DogLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
 
-                                    <TextBlock Text="{Binding Age}"
-                                               Style="{StaticResource DogValueStyle}"/>
+                                <Grid Grid.Column="1">
 
-                                </Border>
+                                    <Border Style="{StaticResource DogReadOnlyContainerStyle}">
+
+                                        <TextBlock Text="{Binding AgeDisplay}"
+                                                   Style="{StaticResource DogValueStyle}"/>
+
+                                    </Border>
+
+
+                                    <Grid Style="{StaticResource DogEditGridStyle}">
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="10"/>
+                                            <ColumnDefinition Width="100"/>
+                                        </Grid.ColumnDefinitions>
+
+
+                                        <TextBox Grid.Column="0"
+                                                 Text="{Binding AgeValueInput,
+                                                                UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource DogEditTextBoxBaseStyle}"/>
+
+
+                                        <ComboBox Grid.Column="2"
+                                                  ItemsSource="{Binding AgeUnitOptions}"
+                                                  SelectedItem="{Binding AgeUnit}"
+                                                  Style="{StaticResource RoundedComboBoxStyle}"
+                                                  Height="38"/>
+
+                                    </Grid>
+
+                                </Grid>
 
                             </Grid>
 
 
-                            <!-- Poids -->
+                            <!-- POIDS -->
 
                             <Grid Margin="0,0,0,14">
 
@@ -667,31 +1061,53 @@
                                 <TextBlock Text="Poids"
                                            Style="{StaticResource DogLabelStyle}"/>
 
-                                <Border Grid.Column="1"
-                                        Style="{StaticResource DogValueBoxStyle}">
+                                <Grid Grid.Column="1">
 
-                                    <TextBlock Text="{Binding Weight}"
-                                               Style="{StaticResource DogValueStyle}"/>
+                                    <Border Style="{StaticResource DogReadOnlyContainerStyle}">
 
-                                </Border>
+                                        <TextBlock Text="{Binding WeightDisplay}"
+                                                   Style="{StaticResource DogValueStyle}"/>
+
+                                    </Border>
+
+                                    <TextBox Text="{Binding WeightInput,
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource DogEditTextBoxStyle}"/>
+
+                                </Grid>
 
                             </Grid>
 
 
-                            <!-- Commentaires -->
+                            <!-- COMMENTAIRES -->
 
                             <TextBlock Text="Commentaires"
                                        Style="{StaticResource DogLabelStyle}"
                                        Margin="0,0,0,6"/>
 
-                            <Border Style="{StaticResource DogValueBoxStyle}"
-                                    MinHeight="70">
 
-                                <TextBlock Text="{Binding Comments}"
-                                           Style="{StaticResource DogValueStyle}"
-                                           TextWrapping="Wrap"/>
+                            <Grid>
 
-                            </Border>
+                                <Border Style="{StaticResource DogReadOnlyContainerStyle}"
+                                        MinHeight="80">
+
+                                    <TextBlock Text="{Binding Comments}"
+                                               Style="{StaticResource DogValueStyle}"
+                                               TextWrapping="Wrap"/>
+
+                                </Border>
+
+
+                                <TextBox Text="{Binding Comments,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource DogEditTextBoxStyle}"
+                                         Height="80"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         VerticalContentAlignment="Top"
+                                         Padding="10"/>
+
+                            </Grid>
 
                         </StackPanel>
 
@@ -735,8 +1151,6 @@
                             </Grid.ColumnDefinitions>
 
 
-                            <!-- Numéro -->
-
                             <StackPanel Grid.Column="0">
 
                                 <TextBlock Text="Licence"
@@ -752,8 +1166,6 @@
 
                             </StackPanel>
 
-
-                            <!-- Statut -->
 
                             <StackPanel Grid.Column="2">
 
@@ -771,8 +1183,6 @@
                             </StackPanel>
 
 
-                            <!-- Émission -->
-
                             <StackPanel Grid.Column="4">
 
                                 <TextBlock Text="Émission"
@@ -788,8 +1198,6 @@
 
                             </StackPanel>
 
-
-                            <!-- Expiration -->
 
                             <StackPanel Grid.Column="6">
 
@@ -809,14 +1217,13 @@
                         </Grid>
 
 
-                        <!-- Actions -->
-
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Right"
                                     Margin="0,20,0,0">
 
                             <Button Content="Renouveler la licence"
                                     Command="{Binding RenewLicenseCommand}"
+                                    IsEnabled="{Binding HasSelectedDog}"
                                     Style="{StaticResource PrimaryActionButtonStyle}"
                                     Padding="18,9"
                                     FontSize="13"/>
@@ -829,7 +1236,7 @@
 
 
                 <!-- ==================================================
-                     HISTORIQUE
+                     HISTORIQUE DES LICENCES
                      ================================================== -->
 
                 <TextBlock Text="Historique des licences"
