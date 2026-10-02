@@ -7,13 +7,25 @@ namespace MuniChien.App.ViewModels;
 
 public class LicensesViewModel : ViewModelBase
 {
+    // ==================================================
+    // NAVIGATION
+    // ==================================================
+
     private readonly Action<OwnerDogViewModel>?
         _openDogAction;
 
 
+    // ==================================================
+    // DONNÉES
+    // ==================================================
+
     private readonly IReadOnlyList<LicenseListItemViewModel>
         _allLicenses;
 
+
+    // ==================================================
+    // FILTRES
+    // ==================================================
 
     private string _licenseNumberFilter =
         string.Empty;
@@ -33,6 +45,10 @@ public class LicensesViewModel : ViewModelBase
     private string _expirationFilter =
         string.Empty;
 
+
+    // ==================================================
+    // SÉLECTION
+    // ==================================================
 
     private LicenseListItemViewModel?
         _selectedLicense;
@@ -91,10 +107,18 @@ public class LicensesViewModel : ViewModelBase
     }
 
 
+    // ==================================================
+    // OPTIONS
+    // ==================================================
+
     public IReadOnlyList<string>
         StatusOptions
     { get; }
 
+
+    // ==================================================
+    // COLLECTION
+    // ==================================================
 
     public ObservableCollection<LicenseListItemViewModel>
         Licenses
@@ -117,7 +141,9 @@ public class LicensesViewModel : ViewModelBase
                 return;
             }
 
-            _licenseNumberFilter = value;
+            _licenseNumberFilter =
+                value;
+
             OnPropertyChanged();
         }
     }
@@ -134,7 +160,9 @@ public class LicensesViewModel : ViewModelBase
                 return;
             }
 
-            _dogNameFilter = value;
+            _dogNameFilter =
+                value;
+
             OnPropertyChanged();
         }
     }
@@ -151,7 +179,9 @@ public class LicensesViewModel : ViewModelBase
                 return;
             }
 
-            _ownerNameFilter = value;
+            _ownerNameFilter =
+                value;
+
             OnPropertyChanged();
         }
     }
@@ -168,7 +198,9 @@ public class LicensesViewModel : ViewModelBase
                 return;
             }
 
-            _municipalityFilter = value;
+            _municipalityFilter =
+                value;
+
             OnPropertyChanged();
         }
     }
@@ -185,8 +217,19 @@ public class LicensesViewModel : ViewModelBase
                 return;
             }
 
-            _statusFilter = value;
+            _statusFilter =
+                value;
+
             OnPropertyChanged();
+
+            OnPropertyChanged(
+                nameof(IsValidFilterActive));
+
+            OnPropertyChanged(
+                nameof(IsRenewalFilterActive));
+
+            OnPropertyChanged(
+                nameof(IsExpiredFilterActive));
         }
     }
 
@@ -202,33 +245,62 @@ public class LicensesViewModel : ViewModelBase
                 return;
             }
 
-            _expirationFilter = value;
+            _expirationFilter =
+                value;
+
             OnPropertyChanged();
         }
     }
 
 
     // ==================================================
-    // STATS
+    // ÉTAT DES CARTES
+    // ==================================================
+
+    public bool IsValidFilterActive =>
+        StatusFilter == "Valide";
+
+
+    public bool IsRenewalFilterActive =>
+        StatusFilter == "À renouveler";
+
+
+    public bool IsExpiredFilterActive =>
+        StatusFilter == "Expirée";
+
+
+    // ==================================================
+    // STATISTIQUES
     // ==================================================
 
     public int ValidCount =>
         _allLicenses.Count(
-            x => x.Status == "Valide");
+            license =>
+                license.Status == "Valide");
 
 
     public int RenewalCount =>
         _allLicenses.Count(
-            x => x.Status == "À renouveler");
+            license =>
+                license.Status == "À renouveler");
 
 
     public int ExpiredCount =>
         _allLicenses.Count(
-            x => x.Status == "Expirée");
+            license =>
+                license.Status == "Expirée");
 
+
+    // ==================================================
+    // RÉSULTATS
+    // ==================================================
 
     public int ResultCount =>
         Licenses.Count;
+
+
+    public bool HasResults =>
+        ResultCount > 0;
 
 
     public string ResultCountText =>
@@ -279,7 +351,7 @@ public class LicensesViewModel : ViewModelBase
 
 
     // ==================================================
-    // OUVRIR
+    // OUVRIR UNE LICENCE
     // ==================================================
 
     private void OpenSelectedLicense()
@@ -291,12 +363,13 @@ public class LicensesViewModel : ViewModelBase
 
 
         _openDogAction?.Invoke(
-            SelectedLicense.ToDogViewModel());
+            SelectedLicense
+                .ToDogViewModel());
     }
 
 
     // ==================================================
-    // FILTRAGE
+    // RECHERCHE
     // ==================================================
 
     private void ApplyFilters()
@@ -306,85 +379,115 @@ public class LicensesViewModel : ViewModelBase
             _allLicenses;
 
 
+        // ----------------------------------------------
+        // NUMÉRO
+        // ----------------------------------------------
+
         if (!string.IsNullOrWhiteSpace(
                 LicenseNumberFilter))
         {
             filtered =
                 filtered.Where(
-                    x =>
+                    license =>
                         ContainsIgnoreCase(
-                            x.LicenseNumber,
+                            license.LicenseNumber,
                             LicenseNumberFilter));
         }
 
+
+        // ----------------------------------------------
+        // CHIEN
+        // ----------------------------------------------
 
         if (!string.IsNullOrWhiteSpace(
                 DogNameFilter))
         {
             filtered =
                 filtered.Where(
-                    x =>
+                    license =>
                         ContainsIgnoreCase(
-                            x.DogName,
+                            license.DogName,
                             DogNameFilter));
         }
 
+
+        // ----------------------------------------------
+        // PROPRIÉTAIRE
+        // ----------------------------------------------
 
         if (!string.IsNullOrWhiteSpace(
                 OwnerNameFilter))
         {
             filtered =
                 filtered.Where(
-                    x =>
+                    license =>
                         ContainsIgnoreCase(
-                            x.OwnerName,
+                            license.OwnerName,
                             OwnerNameFilter));
         }
 
+
+        // ----------------------------------------------
+        // MUNICIPALITÉ
+        // ----------------------------------------------
 
         if (!string.IsNullOrWhiteSpace(
                 MunicipalityFilter))
         {
             filtered =
                 filtered.Where(
-                    x =>
+                    license =>
                         ContainsIgnoreCase(
-                            x.Municipality,
+                            license.Municipality,
                             MunicipalityFilter));
         }
 
+
+        // ----------------------------------------------
+        // EXPIRATION
+        // ----------------------------------------------
 
         if (!string.IsNullOrWhiteSpace(
                 ExpirationFilter))
         {
             filtered =
                 filtered.Where(
-                    x =>
+                    license =>
                         ContainsIgnoreCase(
-                            x.ExpirationDateDisplay,
+                            license.ExpirationDateDisplay,
                             ExpirationFilter));
         }
 
 
-        if (StatusFilter != "Tous")
+        // ----------------------------------------------
+        // STATUT
+        // ----------------------------------------------
+
+        if (!string.IsNullOrWhiteSpace(
+                StatusFilter) &&
+            StatusFilter != "Tous")
         {
             filtered =
                 filtered.Where(
-                    x =>
-                        x.Status ==
+                    license =>
+                        license.Status ==
                         StatusFilter);
         }
 
+
+        // ----------------------------------------------
+        // RECHARGE COLLECTION
+        // ----------------------------------------------
 
         Licenses.Clear();
 
 
         foreach (
-            LicenseListItemViewModel item
+            LicenseListItemViewModel license
             in filtered)
         {
             Licenses.Add(
-                item);
+                license);
         }
 
 
@@ -392,22 +495,13 @@ public class LicensesViewModel : ViewModelBase
             null;
 
 
-        OnPropertyChanged(
-            nameof(ValidCount));
-
-        OnPropertyChanged(
-            nameof(RenewalCount));
-
-        OnPropertyChanged(
-            nameof(ExpiredCount));
-
-        OnPropertyChanged(
-            nameof(ResultCount));
-
-        OnPropertyChanged(
-            nameof(ResultCountText));
+        RefreshSummary();
     }
 
+
+    // ==================================================
+    // RESET
+    // ==================================================
 
     private void ResetFilters()
     {
@@ -433,6 +527,10 @@ public class LicensesViewModel : ViewModelBase
         ApplyFilters();
     }
 
+
+    // ==================================================
+    // CARTES
+    // ==================================================
 
     private void ShowValid()
     {
@@ -460,6 +558,36 @@ public class LicensesViewModel : ViewModelBase
         ApplyFilters();
     }
 
+
+    // ==================================================
+    // RAFRAÎCHISSEMENT
+    // ==================================================
+
+    private void RefreshSummary()
+    {
+        OnPropertyChanged(
+            nameof(ValidCount));
+
+        OnPropertyChanged(
+            nameof(RenewalCount));
+
+        OnPropertyChanged(
+            nameof(ExpiredCount));
+
+        OnPropertyChanged(
+            nameof(ResultCount));
+
+        OnPropertyChanged(
+            nameof(ResultCountText));
+
+        OnPropertyChanged(
+            nameof(HasResults));
+    }
+
+
+    // ==================================================
+    // OUTILS
+    // ==================================================
 
     private static bool ContainsIgnoreCase(
         string source,
