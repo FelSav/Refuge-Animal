@@ -9,6 +9,7 @@ public static class LicenseRenewalDialogService
         string dogName,
         string ownerName,
         string licenseNumber,
+        string currentStatus,
         DateTime currentExpirationDate,
         DateTime renewalDate,
         DateTime newExpirationDate)
@@ -18,15 +19,19 @@ public static class LicenseRenewalDialogService
                 dogName,
                 ownerName,
                 licenseNumber,
+                currentStatus,
                 currentExpirationDate,
                 renewalDate,
                 newExpirationDate);
 
+
         if (Application.Current?.MainWindow is Window mainWindow &&
             mainWindow.IsVisible)
         {
-            dialog.Owner = mainWindow;
+            dialog.Owner =
+                mainWindow;
         }
+
 
         return dialog.ShowDialog() == true;
     }

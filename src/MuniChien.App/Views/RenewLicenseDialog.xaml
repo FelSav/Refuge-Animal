@@ -192,9 +192,8 @@
 
                         <Border Style="{StaticResource RenewalValueBoxStyle}">
 
-                            <TextBlock Text="Valide"
-                                       Style="{StaticResource RenewalValueStyle}"/>
-
+                            <TextBlock Text="{Binding CurrentStatus}"
+                                        Style="{StaticResource RenewalValueStyle}"/>
                         </Border>
 
                     </StackPanel>

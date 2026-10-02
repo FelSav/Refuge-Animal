@@ -2,20 +2,693 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid Background="#F5F5F5">
-        <StackPanel Margin="40">
+    <UserControl.Resources>
 
-            <TextBlock Text="Licences"
-                       FontSize="32"
-                       FontWeight="SemiBold"
-                       Foreground="#242424"/>
+        <!-- ==================================================
+             CARTES
+             ================================================== -->
 
-            <TextBlock Text="Gestion et renouvellement des licences"
-                       Margin="0,8,0,0"
-                       FontSize="16"
-                       Foreground="#666666"/>
+        <Style x:Key="LicenseCardButtonStyle"
+               TargetType="Button">
 
-        </StackPanel>
+            <Setter Property="Background"
+                    Value="White"/>
+
+            <Setter Property="BorderBrush"
+                    Value="#E4E7EC"/>
+
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+
+            <Setter Property="Cursor"
+                    Value="Hand"/>
+
+            <Setter Property="Padding"
+                    Value="22,18"/>
+
+            <Setter Property="Template">
+
+                <Setter.Value>
+
+                    <ControlTemplate TargetType="Button">
+
+                        <Border x:Name="CardBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="14"
+                                Padding="{TemplateBinding Padding}">
+
+                            <ContentPresenter/>
+
+                        </Border>
+
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+
+                                <Setter TargetName="CardBorder"
+                                        Property="BorderBrush"
+                                        Value="#E87524"/>
+
+                                <Setter TargetName="CardBorder"
+                                        Property="Background"
+                                        Value="#FFF9F5"/>
+
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+
+                </Setter.Value>
+
+            </Setter>
+
+        </Style>
+
+
+        <!-- ==================================================
+             FILTRES
+             ================================================== -->
+
+        <Style x:Key="LicenseFilterTextBoxStyle"
+               TargetType="TextBox">
+
+            <Setter Property="Height"
+                    Value="38"/>
+
+            <Setter Property="Background"
+                    Value="White"/>
+
+            <Setter Property="BorderBrush"
+                    Value="#D0D5DD"/>
+
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+
+            <Setter Property="Padding"
+                    Value="10,0"/>
+
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
+
+            <Setter Property="FontSize"
+                    Value="13"/>
+
+            <Setter Property="Template">
+
+                <Setter.Value>
+
+                    <ControlTemplate TargetType="TextBox">
+
+                        <Border x:Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"/>
+
+                        </Border>
+
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsKeyboardFocused"
+                                     Value="True">
+
+                                <Setter TargetName="Border"
+                                        Property="BorderBrush"
+                                        Value="#E87524"/>
+
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+
+                </Setter.Value>
+
+            </Setter>
+
+        </Style>
+
+
+        <Style x:Key="LicenseFilterLabelStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="FontSize"
+                    Value="12"/>
+
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+
+            <Setter Property="Foreground"
+                    Value="#667085"/>
+
+            <Setter Property="Margin"
+                    Value="0,0,0,6"/>
+
+        </Style>
+
+
+        <!-- ==================================================
+             DATAGRID
+             ================================================== -->
+
+        <Style x:Key="LicenseDataGridStyle"
+               TargetType="DataGrid">
+
+            <Setter Property="AutoGenerateColumns"
+                    Value="False"/>
+
+            <Setter Property="CanUserAddRows"
+                    Value="False"/>
+
+            <Setter Property="CanUserDeleteRows"
+                    Value="False"/>
+
+            <Setter Property="CanUserResizeRows"
+                    Value="False"/>
+
+            <Setter Property="CanUserReorderColumns"
+                    Value="False"/>
+
+            <Setter Property="IsReadOnly"
+                    Value="True"/>
+
+            <Setter Property="HeadersVisibility"
+                    Value="Column"/>
+
+            <Setter Property="GridLinesVisibility"
+                    Value="None"/>
+
+            <Setter Property="BorderThickness"
+                    Value="0"/>
+
+            <Setter Property="Background"
+                    Value="White"/>
+
+            <Setter Property="RowBackground"
+                    Value="White"/>
+
+            <Setter Property="AlternatingRowBackground"
+                    Value="#FCFCFD"/>
+
+            <Setter Property="RowHeight"
+                    Value="48"/>
+
+            <Setter Property="ColumnHeaderHeight"
+                    Value="44"/>
+
+            <Setter Property="SelectionMode"
+                    Value="Single"/>
+
+        </Style>
+
+
+        <Style x:Key="LicenseHeaderStyle"
+               TargetType="DataGridColumnHeader">
+
+            <Setter Property="Background"
+                    Value="#F8FAFC"/>
+
+            <Setter Property="Foreground"
+                    Value="#344054"/>
+
+            <Setter Property="FontSize"
+                    Value="12"/>
+
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+
+            <Setter Property="Padding"
+                    Value="12,0"/>
+
+            <Setter Property="BorderBrush"
+                    Value="#EAECF0"/>
+
+            <Setter Property="BorderThickness"
+                    Value="0,0,0,1"/>
+
+        </Style>
+
+
+        <Style x:Key="LicenseRowStyle"
+               TargetType="DataGridRow">
+
+            <Setter Property="Cursor"
+                    Value="Hand"/>
+
+            <Setter Property="BorderThickness"
+                    Value="0"/>
+
+            <Setter Property="FocusVisualStyle"
+                    Value="{x:Null}"/>
+
+
+            <Style.Triggers>
+
+                <Trigger Property="IsMouseOver"
+                         Value="True">
+
+                    <Setter Property="Background"
+                            Value="#FFF8F3"/>
+
+                </Trigger>
+
+
+                <Trigger Property="IsSelected"
+                         Value="True">
+
+                    <Setter Property="Background"
+                            Value="#FFF1E6"/>
+
+                </Trigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+
+        <Style x:Key="LicenseCellStyle"
+               TargetType="DataGridCell">
+
+            <Setter Property="BorderThickness"
+                    Value="0"/>
+
+            <Setter Property="Background"
+                    Value="Transparent"/>
+
+            <Setter Property="FocusVisualStyle"
+                    Value="{x:Null}"/>
+
+        </Style>
+
+
+        <Style x:Key="LicenseCellTextStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="VerticalAlignment"
+                    Value="Center"/>
+
+            <Setter Property="Margin"
+                    Value="12,0"/>
+
+            <Setter Property="Foreground"
+                    Value="#344054"/>
+
+            <Setter Property="TextTrimming"
+                    Value="CharacterEllipsis"/>
+
+        </Style>
+
+    </UserControl.Resources>
+
+
+    <!-- ==================================================
+         PAGE
+         ================================================== -->
+
+    <Grid Background="#F6F7F9">
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+
+            <StackPanel Margin="52,38,52,42">
+
+
+                <!-- ==================================================
+                     ENTÊTE
+                     ================================================== -->
+
+                <TextBlock Text="Licences"
+                           FontSize="26"
+                           FontWeight="SemiBold"
+                           Foreground="#242B38"/>
+
+
+                <TextBlock Text="Consultez et gérez les licences de chiens."
+                           FontSize="14"
+                           Foreground="#667085"
+                           Margin="0,7,0,28"/>
+
+
+                <!-- ==================================================
+                     STATISTIQUES
+                     ================================================== -->
+
+                <Grid Margin="0,0,0,24">
+
+                    <Grid.ColumnDefinitions>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="18"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="18"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                    </Grid.ColumnDefinitions>
+
+
+                    <!-- VALIDES -->
+
+                    <Button Grid.Column="0"
+                            Command="{Binding ShowValidCommand}"
+                            Style="{StaticResource LicenseCardButtonStyle}">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Licences valides"
+                                       HorizontalAlignment="Center"
+                                       Foreground="#667085"
+                                       FontSize="13"/>
+
+                            <TextBlock Text="{Binding ValidCount}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,7,0,0"
+                                       FontSize="28"
+                                       FontWeight="SemiBold"
+                                       Foreground="#242B38"/>
+
+                        </StackPanel>
+
+                    </Button>
+
+
+                    <!-- À RENOUVELER -->
+
+                    <Button Grid.Column="2"
+                            Command="{Binding ShowRenewalCommand}"
+                            Style="{StaticResource LicenseCardButtonStyle}">
+
+                        <StackPanel>
+
+                            <TextBlock Text="À renouveler"
+                                       HorizontalAlignment="Center"
+                                       Foreground="#667085"
+                                       FontSize="13"/>
+
+                            <TextBlock Text="{Binding RenewalCount}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,7,0,0"
+                                       FontSize="28"
+                                       FontWeight="SemiBold"
+                                       Foreground="#242B38"/>
+
+                        </StackPanel>
+
+                    </Button>
+
+
+                    <!-- EXPIRÉES -->
+
+                    <Button Grid.Column="4"
+                            Command="{Binding ShowExpiredCommand}"
+                            Style="{StaticResource LicenseCardButtonStyle}">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Expirées"
+                                       HorizontalAlignment="Center"
+                                       Foreground="#667085"
+                                       FontSize="13"/>
+
+                            <TextBlock Text="{Binding ExpiredCount}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,7,0,0"
+                                       FontSize="28"
+                                       FontWeight="SemiBold"
+                                       Foreground="#242B38"/>
+
+                        </StackPanel>
+
+                    </Button>
+
+                </Grid>
+
+
+                <!-- ==================================================
+                     RECHERCHE
+                     ================================================== -->
+
+                <Border Background="White"
+                        BorderBrush="#E4E7EC"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="22"
+                        Margin="0,0,0,28">
+
+                    <StackPanel>
+
+                        <TextBlock Text="Recherche"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="#242B38"
+                                   Margin="0,0,0,18"/>
+
+
+                        <WrapPanel>
+
+
+                            <!-- NUMÉRO -->
+
+                            <StackPanel Width="210"
+                                        Margin="0,0,14,14">
+
+                                <TextBlock Text="Numéro de licence"
+                                           Style="{StaticResource LicenseFilterLabelStyle}"/>
+
+                                <TextBox Text="{Binding LicenseNumberFilter,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource LicenseFilterTextBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- CHIEN -->
+
+                            <StackPanel Width="210"
+                                        Margin="0,0,14,14">
+
+                                <TextBlock Text="Nom du chien"
+                                           Style="{StaticResource LicenseFilterLabelStyle}"/>
+
+                                <TextBox Text="{Binding DogNameFilter,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource LicenseFilterTextBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- PROPRIÉTAIRE -->
+
+                            <StackPanel Width="210"
+                                        Margin="0,0,14,14">
+
+                                <TextBlock Text="Propriétaire"
+                                           Style="{StaticResource LicenseFilterLabelStyle}"/>
+
+                                <TextBox Text="{Binding OwnerNameFilter,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource LicenseFilterTextBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- MUNICIPALITÉ -->
+
+                            <StackPanel Width="210"
+                                        Margin="0,0,14,14">
+
+                                <TextBlock Text="Municipalité"
+                                           Style="{StaticResource LicenseFilterLabelStyle}"/>
+
+                                <TextBox Text="{Binding MunicipalityFilter,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource LicenseFilterTextBoxStyle}"/>
+
+                            </StackPanel>
+
+
+                            <!-- STATUT -->
+
+                            <StackPanel Width="210"
+                                        Margin="0,0,14,14">
+
+                                <TextBlock Text="Statut"
+                                           Style="{StaticResource LicenseFilterLabelStyle}"/>
+
+                                <ComboBox ItemsSource="{Binding StatusOptions}"
+                                          SelectedItem="{Binding StatusFilter}"
+                                          Style="{StaticResource RoundedComboBoxStyle}"
+                                          Height="38"/>
+
+                            </StackPanel>
+
+
+                            <!-- EXPIRATION -->
+
+                            <StackPanel Width="210"
+                                        Margin="0,0,14,14">
+
+                                <TextBlock Text="Expiration"
+                                           Style="{StaticResource LicenseFilterLabelStyle}"/>
+
+                                <TextBox Text="{Binding ExpirationFilter,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Exemple : 2027-01 ou 2027-01-15"
+                                         Style="{StaticResource LicenseFilterTextBoxStyle}"/>
+
+                            </StackPanel>
+
+                        </WrapPanel>
+
+
+                        <!-- ACTIONS -->
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,6,0,0">
+
+                            <Button Content="Réinitialiser"
+                                    Command="{Binding ResetCommand}"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    Margin="0,0,12,0"
+                                    Padding="18,9"/>
+
+
+                            <Button Content="Rechercher"
+                                    Command="{Binding SearchCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
+                                    Padding="20,9"/>
+
+                        </StackPanel>
+
+                    </StackPanel>
+
+                </Border>
+
+
+                <!-- ==================================================
+                     TITRE DU TABLEAU
+                     ================================================== -->
+
+                <Grid Margin="0,0,0,14">
+
+                    <Grid.ColumnDefinitions>
+
+                        <ColumnDefinition Width="Auto"/>
+
+                        <ColumnDefinition Width="Auto"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                    </Grid.ColumnDefinitions>
+
+
+                    <TextBlock Text="Licences"
+                               FontSize="19"
+                               FontWeight="SemiBold"
+                               Foreground="#242B38"/>
+
+
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding ResultCountText}"
+                               Margin="14,4,0,0"
+                               FontSize="13"
+                               Foreground="#667085"/>
+
+                </Grid>
+
+
+                <!-- ==================================================
+                     TABLEAU
+                     ================================================== -->
+
+                <Border Background="White"
+                        BorderBrush="#E4E7EC"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        ClipToBounds="True">
+
+                    <DataGrid ItemsSource="{Binding Licenses}"
+                              SelectedItem="{Binding SelectedLicense,
+                                                    Mode=TwoWay}"
+                              MouseDoubleClick="LicensesDataGrid_MouseDoubleClick"
+                              Style="{StaticResource LicenseDataGridStyle}"
+                              ColumnHeaderStyle="{StaticResource LicenseHeaderStyle}"
+                              RowStyle="{StaticResource LicenseRowStyle}"
+                              CellStyle="{StaticResource LicenseCellStyle}"
+                              MaxHeight="520">
+
+                        <DataGrid.Columns>
+
+                            <DataGridTextColumn Header="Licence"
+                                                Binding="{Binding LicenseNumber}"
+                                                Width="0.8*"
+                                                ElementStyle="{StaticResource LicenseCellTextStyle}"/>
+
+
+                            <DataGridTextColumn Header="Propriétaire"
+                                                Binding="{Binding OwnerName}"
+                                                Width="1.4*"
+                                                ElementStyle="{StaticResource LicenseCellTextStyle}"/>
+
+
+                            <DataGridTextColumn Header="Chien"
+                                                Binding="{Binding DogName}"
+                                                Width="1*"
+                                                ElementStyle="{StaticResource LicenseCellTextStyle}"/>
+
+
+                            <DataGridTextColumn Header="Municipalité"
+                                                Binding="{Binding Municipality}"
+                                                Width="1.2*"
+                                                ElementStyle="{StaticResource LicenseCellTextStyle}"/>
+
+
+                            <DataGridTextColumn Header="Émission"
+                                                Binding="{Binding IssueDateDisplay}"
+                                                Width="1*"
+                                                ElementStyle="{StaticResource LicenseCellTextStyle}"/>
+
+
+                            <DataGridTextColumn Header="Expiration"
+                                                Binding="{Binding ExpirationDateDisplay}"
+                                                Width="1*"
+                                                ElementStyle="{StaticResource LicenseCellTextStyle}"/>
+
+
+                            <DataGridTextColumn Header="Statut"
+                                                Binding="{Binding Status}"
+                                                Width="1*"
+                                                ElementStyle="{StaticResource LicenseCellTextStyle}"/>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+                </Border>
+
+
+                <TextBlock Text="Double-cliquez sur une licence pour ouvrir la fiche du chien associé."
+                            Margin="4,12,0,0"
+                             FontSize="12"
+                            Foreground="#98A2B3"/>
+
+            </StackPanel>
+
+        </ScrollViewer>
+
     </Grid>
 
 </UserControl>

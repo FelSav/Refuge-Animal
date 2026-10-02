@@ -756,6 +756,9 @@ public class DogsViewModel : ViewModelBase
 
     private void LoadLicense()
     {
+        LicenseHistory.Clear();
+
+
         if (!HasSelectedDog ||
             LicenseNumber == "—")
         {
@@ -772,38 +775,58 @@ public class DogsViewModel : ViewModelBase
         }
 
 
-        // Données temporaires en attendant l'API.
+        LicenseListItemViewModel? license =
+            LocalLicenseStore.GetCurrentLicense(
+                LicenseNumber);
+
+
+        if (license is null)
+        {
+            _licenseStatus =
+                "—";
+
+            _licenseIssueDate =
+                null;
+
+            _licenseExpirationDate =
+                null;
+
+            return;
+        }
+
+
         _licenseStatus =
-            "Valide";
+            license.Status;
 
         _licenseIssueDate =
-            new DateTime(
-                2026,
-                1,
-                15);
+            license.IssueDate;
 
         _licenseExpirationDate =
-            new DateTime(
-                2027,
-                1,
-                15);
+            license.ExpirationDate;
 
 
-        LicenseHistory.Add(
-            new DogLicenseHistoryViewModel
-            {
-                LicenseNumber =
-                    LicenseNumber,
+        RefreshLicenseHistory();
+    }
 
-                IssueDate =
-                    LicenseIssueDate,
+    private void RefreshLicenseHistory()
+    {
+        LicenseHistory.Clear();
 
-                ExpirationDate =
-                    LicenseExpirationDate,
 
-                Status =
-                    LicenseStatus
-            });
+        if (LicenseNumber == "—")
+        {
+            return;
+        }
+
+
+        foreach (
+            DogLicenseHistoryViewModel entry
+            in LocalLicenseStore.GetHistory(
+                LicenseNumber))
+        {
+            LicenseHistory.Add(
+                entry);
+        }
     }
 
 
@@ -1151,10 +1174,15 @@ public class DogsViewModel : ViewModelBase
         }
 
 
-        if (!_licenseExpirationDate.HasValue)
+        LicenseListItemViewModel? currentLicense =
+            LocalLicenseStore.GetCurrentLicense(
+                LicenseNumber);
+
+
+        if (currentLicense is null)
         {
             ValidationMessage =
-                "Les informations de la licence actuelle sont incomplètes.";
+                "Impossible de trouver les informations de cette licence.";
 
             return;
         }
@@ -1164,11 +1192,10 @@ public class DogsViewModel : ViewModelBase
             DateTime.Today;
 
 
-        // Évite un double renouvellement accidentel
-        // pendant la même journée.
+        // Protection contre le double renouvellement
+        // effectué la même journée.
 
-        if (_licenseIssueDate.HasValue &&
-            _licenseIssueDate.Value.Date ==
+        if (currentLicense.IssueDate.Date ==
             renewalDate.Date)
         {
             ValidationMessage =
@@ -1179,7 +1206,7 @@ public class DogsViewModel : ViewModelBase
 
 
         DateTime newExpirationDate =
-            CalculateLicenseExpiration(
+            LocalLicenseStore.CalculateExpiration(
                 renewalDate);
 
 
@@ -1188,7 +1215,8 @@ public class DogsViewModel : ViewModelBase
                 DogName,
                 OwnerName,
                 LicenseNumber,
-                _licenseExpirationDate.Value,
+                currentLicense.Status,
+                currentLicense.ExpirationDate,
                 renewalDate,
                 newExpirationDate);
 
@@ -1199,18 +1227,33 @@ public class DogsViewModel : ViewModelBase
         }
 
 
-        ArchiveCurrentLicensePeriod();
+        LicenseListItemViewModel? renewedLicense =
+            LocalLicenseStore.RenewLicense(
+                LicenseNumber,
+                renewalDate);
 
 
-        _licenseIssueDate =
-            renewalDate;
+        if (renewedLicense is null)
+        {
+            ValidationMessage =
+                "Le renouvellement de la licence a échoué.";
 
-        _licenseExpirationDate =
-            newExpirationDate;
+            return;
+        }
+
 
         _licenseStatus =
-            "Valide";
+            renewedLicense.Status;
 
+        _licenseIssueDate =
+            renewedLicense.IssueDate;
+
+        _licenseExpirationDate =
+            renewedLicense.ExpirationDate;
+
+
+        OnPropertyChanged(
+            nameof(LicenseStatus));
 
         OnPropertyChanged(
             nameof(LicenseIssueDate));
@@ -1218,30 +1261,8 @@ public class DogsViewModel : ViewModelBase
         OnPropertyChanged(
             nameof(LicenseExpirationDate));
 
-        OnPropertyChanged(
-            nameof(LicenseStatus));
 
-
-        LicenseHistory.Add(
-            new DogLicenseHistoryViewModel
-            {
-                LicenseNumber =
-                    LicenseNumber,
-
-                IssueDate =
-                    LicenseIssueDate,
-
-                ExpirationDate =
-                    LicenseExpirationDate,
-
-                Status =
-                    "Valide"
-            });
-
-
-        // Plus tard :
-        // POST / licences / renew
-        // et création du paiement associé via l'API.
+        RefreshLicenseHistory();
     }
 
 

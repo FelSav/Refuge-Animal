@@ -4,14 +4,11 @@ namespace MuniChien.App.Views;
 
 public partial class RenewLicenseDialog : Window
 {
-    // ==================================================
-    // CONSTRUCTEUR
-    // ==================================================
-
     public RenewLicenseDialog(
         string dogName,
         string ownerName,
         string licenseNumber,
+        string currentStatus,
         DateTime currentExpirationDate,
         DateTime renewalDate,
         DateTime newExpirationDate)
@@ -27,6 +24,9 @@ public partial class RenewLicenseDialog : Window
 
         LicenseNumber =
             licenseNumber;
+
+        CurrentStatus =
+            currentStatus;
 
         CurrentExpirationDate =
             FormatDate(
@@ -46,15 +46,13 @@ public partial class RenewLicenseDialog : Window
     }
 
 
-    // ==================================================
-    // DONNÉES AFFICHÉES
-    // ==================================================
-
     public string DogName { get; }
 
     public string OwnerName { get; }
 
     public string LicenseNumber { get; }
+
+    public string CurrentStatus { get; }
 
     public string CurrentExpirationDate { get; }
 
@@ -62,10 +60,6 @@ public partial class RenewLicenseDialog : Window
 
     public string NewExpirationDate { get; }
 
-
-    // ==================================================
-    // CONFIRMER
-    // ==================================================
 
     private void Confirm_Click(
         object sender,
@@ -78,10 +72,6 @@ public partial class RenewLicenseDialog : Window
     }
 
 
-    // ==================================================
-    // ANNULER
-    // ==================================================
-
     private void Cancel_Click(
         object sender,
         RoutedEventArgs e)
@@ -92,10 +82,6 @@ public partial class RenewLicenseDialog : Window
         Close();
     }
 
-
-    // ==================================================
-    // FORMAT
-    // ==================================================
 
     private static string FormatDate(
         DateTime date)

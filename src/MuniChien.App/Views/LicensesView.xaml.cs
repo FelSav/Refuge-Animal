@@ -1,26 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using MuniChien.App.ViewModels;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
-namespace MuniChien.App.Views
+namespace MuniChien.App.Views;
+
+public partial class LicensesView : UserControl
 {
-    /// <summary>
-    /// Logique d'interaction pour LicensesView.xaml
-    /// </summary>
-    public partial class LicensesView : UserControl
+    public LicensesView()
     {
-        public LicensesView()
+        InitializeComponent();
+    }
+
+
+    private void LicensesDataGrid_MouseDoubleClick(
+        object sender,
+        MouseButtonEventArgs e)
+    {
+        if (DataContext is not LicensesViewModel viewModel)
         {
-            InitializeComponent();
+            return;
+        }
+
+
+        if (viewModel.SelectedLicense is null)
+        {
+            return;
+        }
+
+
+        if (viewModel.OpenSelectedLicenseCommand.CanExecute(null))
+        {
+            viewModel.OpenSelectedLicenseCommand.Execute(null);
         }
     }
 }

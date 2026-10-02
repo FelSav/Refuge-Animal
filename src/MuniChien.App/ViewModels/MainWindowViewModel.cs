@@ -19,7 +19,8 @@ public class MainWindowViewModel : ViewModelBase
     // SIDEBAR
     // ==================================================
 
-    private bool _isHomeSelected = true;
+    private bool _isHomeSelected =
+        true;
 
     private bool _isSearchSelected;
 
@@ -47,28 +48,36 @@ public class MainWindowViewModel : ViewModelBase
 
 
         ShowHomeCommand =
-            new RelayCommand(ShowHome);
+            new RelayCommand(
+                ShowHome);
 
         ShowSearchCommand =
-            new RelayCommand(ShowSearch);
+            new RelayCommand(
+                ShowSearch);
 
         ShowOwnersCommand =
-            new RelayCommand(ShowOwners);
+            new RelayCommand(
+                ShowOwners);
 
         ShowDogsCommand =
-            new RelayCommand(ShowDogs);
+            new RelayCommand(
+                ShowDogs);
 
         ShowLicensesCommand =
-            new RelayCommand(ShowLicenses);
+            new RelayCommand(
+                ShowLicenses);
 
         ShowPaymentsCommand =
-            new RelayCommand(ShowPayments);
+            new RelayCommand(
+                ShowPayments);
 
         ShowReportsCommand =
-            new RelayCommand(ShowReports);
+            new RelayCommand(
+                ShowReports);
 
         ShowAdministrationCommand =
-            new RelayCommand(ShowAdministration);
+            new RelayCommand(
+                ShowAdministration);
     }
 
 
@@ -78,7 +87,8 @@ public class MainWindowViewModel : ViewModelBase
 
     public string PageTitle
     {
-        get => _pageTitle;
+        get =>
+            _pageTitle;
 
         private set
         {
@@ -87,7 +97,8 @@ public class MainWindowViewModel : ViewModelBase
                 return;
             }
 
-            _pageTitle = value;
+            _pageTitle =
+                value;
 
             OnPropertyChanged();
         }
@@ -96,7 +107,8 @@ public class MainWindowViewModel : ViewModelBase
 
     public ViewModelBase CurrentViewModel
     {
-        get => _currentViewModel;
+        get =>
+            _currentViewModel;
 
         private set
         {
@@ -105,7 +117,8 @@ public class MainWindowViewModel : ViewModelBase
                 return;
             }
 
-            _currentViewModel = value;
+            _currentViewModel =
+                value;
 
             OnPropertyChanged();
         }
@@ -282,7 +295,7 @@ public class MainWindowViewModel : ViewModelBase
 
 
     // ==================================================
-    // MENU PRINCIPAL
+    // PAGES
     // ==================================================
 
     private void ShowHome()
@@ -323,7 +336,8 @@ public class MainWindowViewModel : ViewModelBase
     private void ShowLicenses()
     {
         NavigateTo(
-            new LicensesViewModel(),
+            new LicensesViewModel(
+                OpenDog),
             "Licences");
     }
 
@@ -353,7 +367,7 @@ public class MainWindowViewModel : ViewModelBase
 
 
     // ==================================================
-    // PROPRIÉTAIRE -> CHIEN
+    // OUVRIR UN CHIEN
     // ==================================================
 
     private void OpenDog(
@@ -368,7 +382,7 @@ public class MainWindowViewModel : ViewModelBase
 
 
     // ==================================================
-    // CHIEN -> PROPRIÉTAIRE
+    // OUVRIR UN PROPRIÉTAIRE
     // ==================================================
 
     private void OpenOwner(
@@ -383,7 +397,7 @@ public class MainWindowViewModel : ViewModelBase
 
 
     // ==================================================
-    // NAVIGATION CENTRALISÉE
+    // NAVIGATION
     // ==================================================
 
     private void NavigateTo(
@@ -402,7 +416,7 @@ public class MainWindowViewModel : ViewModelBase
 
 
     // ==================================================
-    // SYNCHRONISATION SIDEBAR
+    // SIDEBAR
     // ==================================================
 
     private void SelectNavigation(
