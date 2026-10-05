@@ -1,0 +1,662 @@
+﻿<UserControl x:Class="MuniChien.App.Views.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+
+        <!-- ==================================================
+             CARTE RAPPORT
+             ================================================== -->
+
+        <Style x:Key="ReportCardStyle"
+               TargetType="Border">
+
+            <Setter Property="Background"
+                    Value="White"/>
+
+            <Setter Property="BorderBrush"
+                    Value="#E4E7EC"/>
+
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+
+            <Setter Property="CornerRadius"
+                    Value="14"/>
+
+            <Setter Property="Padding"
+                    Value="20"/>
+
+        </Style>
+
+
+        <!-- ==================================================
+             TITRE SECTION
+             ================================================== -->
+
+        <Style x:Key="ReportSectionTitleStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="FontSize"
+                    Value="19"/>
+
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+
+            <Setter Property="Foreground"
+                    Value="#242B38"/>
+
+        </Style>
+
+
+        <!-- ==================================================
+             TITRE CARTE
+             ================================================== -->
+
+        <Style x:Key="ReportCardTitleStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="FontSize"
+                    Value="16"/>
+
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+
+            <Setter Property="Foreground"
+                    Value="#242B38"/>
+
+        </Style>
+
+
+        <!-- ==================================================
+             DESCRIPTION CARTE
+             ================================================== -->
+
+        <Style x:Key="ReportCardDescriptionStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="FontSize"
+                    Value="12"/>
+
+            <Setter Property="Foreground"
+                    Value="#667085"/>
+
+            <Setter Property="TextWrapping"
+                    Value="Wrap"/>
+
+        </Style>
+
+
+        <!-- ==================================================
+             CARTE DÉSACTIVÉE
+             ================================================== -->
+
+        <Style x:Key="DisabledReportCardStyle"
+               TargetType="Border"
+               BasedOn="{StaticResource ReportCardStyle}">
+
+            <Setter Property="Opacity"
+                    Value="0.62"/>
+
+            <Setter Property="Background"
+                    Value="#FAFAFA"/>
+
+        </Style>
+
+
+        <!-- ==================================================
+             BADGE À VENIR
+             ================================================== -->
+
+        <Style x:Key="ComingSoonBadgeStyle"
+               TargetType="Border">
+
+            <Setter Property="Background"
+                    Value="#F2F4F7"/>
+
+            <Setter Property="BorderBrush"
+                    Value="#D0D5DD"/>
+
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+
+            <Setter Property="CornerRadius"
+                    Value="10"/>
+
+            <Setter Property="Padding"
+                    Value="8,3"/>
+
+            <Setter Property="HorizontalAlignment"
+                    Value="Left"/>
+
+        </Style>
+
+    </UserControl.Resources>
+
+
+    <Grid Background="#F6F7F9">
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+
+            <StackPanel Margin="52,36,52,44">
+
+
+                <!-- ==================================================
+                     ENTÊTE
+                     ================================================== -->
+
+                <TextBlock Text="Rapports"
+                           FontSize="26"
+                           FontWeight="SemiBold"
+                           Foreground="#242B38"/>
+
+
+                <TextBlock Text="Générez, consultez et exportez les rapports de MuniChien."
+                           FontSize="14"
+                           Foreground="#667085"
+                           Margin="0,7,0,24"/>
+
+
+                <!-- ==================================================
+                     PARAMÈTRES
+                     ================================================== -->
+
+                <Border Background="White"
+                        BorderBrush="#E4E7EC"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="22"
+                        Margin="0,0,0,30">
+
+                    <StackPanel>
+
+                        <TextBlock Text="Paramètres du rapport"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="#242B38"/>
+
+
+                        <TextBlock Text="Ces filtres seront appliqués aux rapports qui utilisent les informations correspondantes."
+                                   FontSize="12"
+                                   Foreground="#98A2B3"
+                                   Margin="0,5,0,18"/>
+
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+
+                                <ColumnDefinition Width="*"/>
+
+                                <ColumnDefinition Width="20"/>
+
+                                <ColumnDefinition Width="*"/>
+
+                            </Grid.ColumnDefinitions>
+
+
+                            <!-- MUNICIPALITÉ -->
+
+                            <StackPanel Grid.Column="0">
+
+                                <TextBlock Text="Municipalité"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="#667085"
+                                           Margin="0,0,0,6"/>
+
+                                <ComboBox ItemsSource="{Binding MunicipalityOptions}"
+                                          SelectedItem="{Binding SelectedMunicipality}"
+                                          Style="{StaticResource RoundedComboBoxStyle}"
+                                          Height="40"/>
+
+                            </StackPanel>
+
+
+                            <!-- PÉRIODE -->
+
+                            <StackPanel Grid.Column="2">
+
+                                <TextBlock Text="Période"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="#667085"
+                                           Margin="0,0,0,6"/>
+
+                                <ComboBox ItemsSource="{Binding PeriodOptions}"
+                                          SelectedItem="{Binding SelectedPeriod}"
+                                          Style="{StaticResource RoundedComboBoxStyle}"
+                                          Height="40"/>
+
+                                <TextBlock Text="La période est utilisée pour les rapports comportant des données datées."
+                                           FontSize="11"
+                                           Foreground="#98A2B3"
+                                           Margin="2,6,0,0"/>
+
+                            </StackPanel>
+
+                        </Grid>
+
+                    </StackPanel>
+
+                </Border>
+
+
+                <!-- ==================================================
+                     LISTES
+                     ================================================== -->
+
+                <TextBlock Text="Listes"
+                           Style="{StaticResource ReportSectionTitleStyle}"
+                           Margin="0,0,0,14"/>
+
+
+                <Grid>
+
+                    <Grid.ColumnDefinitions>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="16"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="16"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                    </Grid.ColumnDefinitions>
+
+
+                    <!-- CHIENS -->
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource ReportCardStyle}">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Chiens"
+                                       Style="{StaticResource ReportCardTitleStyle}"/>
+
+
+                            <TextBlock Text="Liste actuelle des chiens avec leur propriétaire, leur race et leur licence."
+                                       Style="{StaticResource ReportCardDescriptionStyle}"
+                                       Margin="0,7,0,18"
+                                       MinHeight="46"/>
+
+
+                            <Button Content="Générer le rapport"
+                                    Command="{Binding GenerateDogsReportCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
+                                    HorizontalAlignment="Left"
+                                    Padding="15,8"/>
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- PROPRIÉTAIRES -->
+
+                    <Border Grid.Column="2"
+                            Style="{StaticResource ReportCardStyle}">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Propriétaires"
+                                       Style="{StaticResource ReportCardTitleStyle}"/>
+
+
+                            <TextBlock Text="Liste des propriétaires et résumé des chiens et licences associés."
+                                       Style="{StaticResource ReportCardDescriptionStyle}"
+                                       Margin="0,7,0,18"
+                                       MinHeight="46"/>
+
+
+                            <Button Content="Générer le rapport"
+                                    Command="{Binding GenerateOwnersReportCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
+                                    HorizontalAlignment="Left"
+                                    Padding="15,8"/>
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- SOLDES IMPAYÉS -->
+
+                    <Border Grid.Column="4"
+                            Style="{StaticResource DisabledReportCardStyle}">
+
+                        <StackPanel>
+
+                            <Border Style="{StaticResource ComingSoonBadgeStyle}"
+                                    Margin="0,0,0,10">
+
+                                <TextBlock Text="À venir"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="#667085"/>
+
+                            </Border>
+
+
+                            <TextBlock Text="Soldes impayés"
+                                       Style="{StaticResource ReportCardTitleStyle}"/>
+
+
+                            <TextBlock Text="Dossiers contenant encore un solde à payer."
+                                       Style="{StaticResource ReportCardDescriptionStyle}"
+                                       Margin="0,7,0,18"
+                                       MinHeight="46"/>
+
+
+                            <Button Content="Disponible après Paiements"
+                                    IsEnabled="False"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    HorizontalAlignment="Left"
+                                    Padding="15,8"/>
+
+                        </StackPanel>
+
+                    </Border>
+
+                </Grid>
+
+
+                <!-- DEUXIÈME LIGNE LISTES -->
+
+                <Grid Margin="0,16,0,0">
+
+                    <Grid.ColumnDefinitions>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="16"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="16"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                    </Grid.ColumnDefinitions>
+
+
+                    <!-- FRAIS DE RETARD -->
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource DisabledReportCardStyle}">
+
+                        <StackPanel>
+
+                            <Border Style="{StaticResource ComingSoonBadgeStyle}"
+                                    Margin="0,0,0,10">
+
+                                <TextBlock Text="À venir"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="#667085"/>
+
+                            </Border>
+
+
+                            <TextBlock Text="Frais de retard"
+                                       Style="{StaticResource ReportCardTitleStyle}"/>
+
+
+                            <TextBlock Text="Dossiers comportant des frais ou pénalités de retard."
+                                       Style="{StaticResource ReportCardDescriptionStyle}"
+                                       Margin="0,7,0,18"
+                                       MinHeight="46"/>
+
+
+                            <Button Content="Disponible après Paiements"
+                                    IsEnabled="False"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    HorizontalAlignment="Left"
+                                    Padding="15,8"/>
+
+                        </StackPanel>
+
+                    </Border>
+
+                </Grid>
+
+
+                <!-- ==================================================
+                     FINANCES
+                     ================================================== -->
+
+                <TextBlock Text="Finances"
+                           Style="{StaticResource ReportSectionTitleStyle}"
+                           Margin="0,30,0,14"/>
+
+
+                <Grid>
+
+                    <Grid.ColumnDefinitions>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="16"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="16"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                    </Grid.ColumnDefinitions>
+
+
+                    <!-- PAIEMENTS -->
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource DisabledReportCardStyle}">
+
+                        <StackPanel>
+
+                            <Border Style="{StaticResource ComingSoonBadgeStyle}"
+                                    Margin="0,0,0,10">
+
+                                <TextBlock Text="À venir"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="#667085"/>
+
+                            </Border>
+
+
+                            <TextBlock Text="Paiements"
+                                       Style="{StaticResource ReportCardTitleStyle}"/>
+
+
+                            <TextBlock Text="Historique complet des paiements enregistrés."
+                                       Style="{StaticResource ReportCardDescriptionStyle}"
+                                       Margin="0,7,0,18"
+                                       MinHeight="46"/>
+
+
+                            <Button Content="Disponible après Paiements"
+                                    IsEnabled="False"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    HorizontalAlignment="Left"
+                                    Padding="15,8"/>
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- REVENUS -->
+
+                    <Border Grid.Column="2"
+                            Style="{StaticResource DisabledReportCardStyle}">
+
+                        <StackPanel>
+
+                            <Border Style="{StaticResource ComingSoonBadgeStyle}"
+                                    Margin="0,0,0,10">
+
+                                <TextBlock Text="À venir"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="#667085"/>
+
+                            </Border>
+
+
+                            <TextBlock Text="Revenus"
+                                       Style="{StaticResource ReportCardTitleStyle}"/>
+
+
+                            <TextBlock Text="Sommaire des revenus selon une période sélectionnée."
+                                       Style="{StaticResource ReportCardDescriptionStyle}"
+                                       Margin="0,7,0,18"
+                                       MinHeight="46"/>
+
+
+                            <Button Content="Disponible après Paiements"
+                                    IsEnabled="False"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    HorizontalAlignment="Left"
+                                    Padding="15,8"/>
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- JOURNALIERS -->
+
+                    <Border Grid.Column="4"
+                            Style="{StaticResource DisabledReportCardStyle}">
+
+                        <StackPanel>
+
+                            <Border Style="{StaticResource ComingSoonBadgeStyle}"
+                                    Margin="0,0,0,10">
+
+                                <TextBlock Text="À venir"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="#667085"/>
+
+                            </Border>
+
+
+                            <TextBlock Text="Paiements journaliers"
+                                       Style="{StaticResource ReportCardTitleStyle}"/>
+
+
+                            <TextBlock Text="Résumé des transactions effectuées aujourd'hui."
+                                       Style="{StaticResource ReportCardDescriptionStyle}"
+                                       Margin="0,7,0,18"
+                                       MinHeight="46"/>
+
+
+                            <Button Content="Disponible après Paiements"
+                                    IsEnabled="False"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    HorizontalAlignment="Left"
+                                    Padding="15,8"/>
+
+                        </StackPanel>
+
+                    </Border>
+
+                </Grid>
+
+
+                <!-- ==================================================
+                     STATISTIQUES
+                     ================================================== -->
+
+                <TextBlock Text="Statistiques"
+                           Style="{StaticResource ReportSectionTitleStyle}"
+                           Margin="0,30,0,14"/>
+
+
+                <Grid>
+
+                    <Grid.ColumnDefinitions>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="16"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="16"/>
+
+                        <ColumnDefinition Width="*"/>
+
+                    </Grid.ColumnDefinitions>
+
+
+                    <!-- RACES -->
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource ReportCardStyle}">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Chiens par race"
+                                       Style="{StaticResource ReportCardTitleStyle}"/>
+
+
+                            <TextBlock Text="Répartition du nombre de chiens selon leur race."
+                                       Style="{StaticResource ReportCardDescriptionStyle}"
+                                       Margin="0,7,0,18"
+                                       MinHeight="46"/>
+
+
+                            <Button Content="Générer le rapport"
+                                    Command="{Binding GenerateBreedReportCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
+                                    HorizontalAlignment="Left"
+                                    Padding="15,8"/>
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- LICENCES -->
+
+                    <Border Grid.Column="2"
+                            Style="{StaticResource ReportCardStyle}">
+
+                        <StackPanel>
+
+                            <TextBlock Text="Licences"
+                                       Style="{StaticResource ReportCardTitleStyle}"/>
+
+
+                            <TextBlock Text="Rapport des licences avec expiration, statut et municipalité."
+                                       Style="{StaticResource ReportCardDescriptionStyle}"
+                                       Margin="0,7,0,18"
+                                       MinHeight="46"/>
+
+
+                            <Button Content="Générer le rapport"
+                                    Command="{Binding GenerateLicensesReportCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
+                                    HorizontalAlignment="Left"
+                                    Padding="15,8"/>
+
+                        </StackPanel>
+
+                    </Border>
+
+                </Grid>
+
+            </StackPanel>
+
+        </ScrollViewer>
+
+    </Grid>
+
+</UserControl>
