@@ -396,7 +396,7 @@
 
                         <StackPanel>
 
-                            <TextBlock Text="Solde dû"
+                            <TextBlock Text="Montant facturé"
                                        FontSize="12"
                                        Foreground="#667085"/>
 
@@ -440,7 +440,7 @@
 
                         <StackPanel>
 
-                            <TextBlock Text="Paiements"
+                            <TextBlock Text="Paiements reçus"
                                        FontSize="12"
                                        Foreground="#667085"/>
 
@@ -462,7 +462,7 @@
 
                         <StackPanel>
 
-                            <TextBlock Text="Balance"
+                            <TextBlock Text="Solde dû"
                                        FontSize="12"
                                        Foreground="#667085"/>
 

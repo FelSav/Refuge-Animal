@@ -15,6 +15,9 @@ public class PaymentsViewModel : ViewModelBase
     private PaymentOwnerOption?
         _selectedOwner;
 
+    private readonly IPaymentService
+        _paymentService;
+
 
     // ==================================================
     // NOUVEAU PAIEMENT
@@ -59,10 +62,15 @@ public class PaymentsViewModel : ViewModelBase
     // CONSTRUCTEUR
     // ==================================================
 
-    public PaymentsViewModel()
+    public PaymentsViewModel(
+        IPaymentService? paymentService = null)
     {
+        _paymentService =
+            paymentService ?? new LocalPaymentService();
+
+
         OwnerOptions =
-            LocalPaymentStore
+            _paymentService
                 .GetOwnerOptions();
 
 
@@ -355,7 +363,7 @@ public class PaymentsViewModel : ViewModelBase
         }
 
 
-        LocalPaymentStore.AddPayment(
+        _paymentService.AddPayment(
             SelectedOwner.OwnerId,
             NewPaymentDate.Value,
             amount,
@@ -425,7 +433,7 @@ public class PaymentsViewModel : ViewModelBase
 
         foreach (
             PaymentListItemViewModel payment
-            in LocalPaymentStore
+            in _paymentService
                 .GetPaymentsForOwner(
                     SelectedOwner.OwnerId))
         {
@@ -435,7 +443,7 @@ public class PaymentsViewModel : ViewModelBase
 
 
         PaymentAccountSnapshot snapshot =
-            LocalPaymentStore
+            _paymentService
                 .GetAccountSnapshot(
                     SelectedOwner.OwnerId);
 
