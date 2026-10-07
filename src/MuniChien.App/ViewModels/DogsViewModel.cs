@@ -14,6 +14,7 @@ public class DogsViewModel : ViewModelBase
 
     private readonly OwnerDogViewModel? _sourceDog;
     private readonly Action<int>? _openOwnerAction;
+    private readonly ILicenseService _licenseService;
 
 
     // ==================================================
@@ -131,13 +132,17 @@ public class DogsViewModel : ViewModelBase
 
     public DogsViewModel(
         OwnerDogViewModel? dog = null,
-        Action<int>? openOwnerAction = null)
+        Action<int>? openOwnerAction = null,
+        ILicenseService? licenseService = null)
     {
         _sourceDog =
             dog;
 
         _openOwnerAction =
             openOwnerAction;
+
+        _licenseService =
+            licenseService ?? new LocalLicenseService();
 
 
         BreedOptions =
@@ -776,7 +781,7 @@ public class DogsViewModel : ViewModelBase
 
 
         LicenseListItemViewModel? license =
-            LocalLicenseStore.GetCurrentLicense(
+            _licenseService.GetCurrentLicense(
                 LicenseNumber);
 
 
@@ -821,7 +826,7 @@ public class DogsViewModel : ViewModelBase
 
         foreach (
             DogLicenseHistoryViewModel entry
-            in LocalLicenseStore.GetHistory(
+            in _licenseService.GetHistory(
                 LicenseNumber))
         {
             LicenseHistory.Add(
@@ -1175,7 +1180,7 @@ public class DogsViewModel : ViewModelBase
 
 
         LicenseListItemViewModel? currentLicense =
-            LocalLicenseStore.GetCurrentLicense(
+            _licenseService.GetCurrentLicense(
                 LicenseNumber);
 
 
@@ -1206,7 +1211,7 @@ public class DogsViewModel : ViewModelBase
 
 
         DateTime newExpirationDate =
-            LocalLicenseStore.CalculateExpiration(
+            _licenseService.CalculateExpiration(
                 renewalDate);
 
 
@@ -1228,7 +1233,7 @@ public class DogsViewModel : ViewModelBase
 
 
         LicenseListItemViewModel? renewedLicense =
-            LocalLicenseStore.RenewLicense(
+            _licenseService.RenewLicense(
                 LicenseNumber,
                 renewalDate);
 

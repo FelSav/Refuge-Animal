@@ -14,6 +14,9 @@ public class LicensesViewModel : ViewModelBase
     private readonly Action<OwnerDogViewModel>?
         _openDogAction;
 
+    private readonly ILicenseService
+        _licenseService;
+
 
     // ==================================================
     // DONNÉES
@@ -59,14 +62,18 @@ public class LicensesViewModel : ViewModelBase
     // ==================================================
 
     public LicensesViewModel(
-        Action<OwnerDogViewModel>? openDogAction = null)
+        Action<OwnerDogViewModel>? openDogAction = null,
+        ILicenseService? licenseService = null)
     {
         _openDogAction =
             openDogAction;
 
+        _licenseService =
+            licenseService ?? new LocalLicenseService();
+
 
         _allLicenses =
-            LocalLicenseStore.Licenses;
+            _licenseService.GetLicenses();
 
 
         StatusOptions =
