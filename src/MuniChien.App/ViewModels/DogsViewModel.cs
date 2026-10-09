@@ -1287,9 +1287,8 @@ public class DogsViewModel : ViewModelBase
                 currentLicense.Status,
                 currentLicense.ExpirationDate,
                 renewalDate,
-                newExpirationDate);
-
-
+                newExpirationDate,
+                out bool extendToNextYear);
         if (!confirmed)
         {
             return;
@@ -1299,9 +1298,8 @@ public class DogsViewModel : ViewModelBase
         LicenseListItemViewModel? renewedLicense =
             _licenseService.RenewLicense(
                 LicenseNumber,
-                renewalDate);
-
-
+                renewalDate,
+                extendToNextYear);
         if (renewedLicense is null)
         {
             ValidationMessage =
@@ -1403,19 +1401,8 @@ public class DogsViewModel : ViewModelBase
 
 
     // ==================================================
-    // RÈGLE MÉTIER :
-    // UNE LICENCE EST VALIDE 1 AN À PARTIR
-    // DE LA DATE DU RENOUVELLEMENT.
+    // La règle d'expiration est centralisée dans ILicenseService.
     // ==================================================
-
-    private static DateTime CalculateLicenseExpiration(
-        DateTime renewalDate)
-    {
-        return renewalDate
-            .Date
-            .AddYears(1);
-    }
-
 
     // ==================================================
     // PRÉPARATION ÂGE

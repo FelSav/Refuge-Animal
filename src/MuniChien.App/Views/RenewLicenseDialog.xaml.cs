@@ -58,13 +58,44 @@ public partial class RenewLicenseDialog : Window
 
     public string RenewalDate { get; }
 
-    public string NewExpirationDate { get; }
+    public string NewExpirationDate { get; private set; }
+
+    public bool ExtendToNextYear =>
+        ExceptionalExtensionCheckBox.IsChecked == true;
 
 
+    private void ExceptionalExtensionCheckBox_Changed(
+        object sender,
+        RoutedEventArgs e)
+    {
+        int renewalYear = DateTime.ParseExact(
+            RenewalDate,
+            "yyyy-MM-dd",
+            System.Globalization.CultureInfo.InvariantCulture).Year;
+
+        int expirationYear = renewalYear + (ExtendToNextYear ? 1 : 0);
+        NewExpirationDate = FormatDate(new DateTime(expirationYear, 12, 31));
+        ExpirationDateTextBlock.Text = NewExpirationDate;
+    }
     private void Confirm_Click(
         object sender,
         RoutedEventArgs e)
     {
+        if (ExtendToNextYear)
+        {
+            MessageBoxResult permissionConfirmation = MessageBox.Show(
+                "Confirmez-vous que le refuge a expressément autorisé " +
+                "la prolongation exceptionnelle jusqu'au 31 décembre de l'année suivante ?",
+                "Prolongation exceptionnelle",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (permissionConfirmation != MessageBoxResult.Yes)
+            {
+                return;
+            }
+        }
+
         DialogResult =
             true;
 

@@ -1,4 +1,4 @@
-﻿using MuniChien.App.ViewModels;
+using MuniChien.App.ViewModels;
 
 namespace MuniChien.App.Services;
 
@@ -75,17 +75,19 @@ public static class LocalLicenseStore
     // ==================================================
     // RÈGLE MÉTIER
     //
-    // Pour le moment :
-    // une licence expire exactement 1 an
-    // après la date de renouvellement.
+    // Toute licence expire le 31 décembre de son année.
+    // Exception autorisée explicitement par le refuge :
+    // expiration au 31 décembre de l'année suivante.
     // ==================================================
 
     public static DateTime CalculateExpiration(
-        DateTime renewalDate)
+        DateTime renewalDate,
+        bool extendToNextYear = false)
     {
-        return renewalDate
-            .Date
-            .AddYears(1);
+        int expirationYear = checked(
+            renewalDate.Year + (extendToNextYear ? 1 : 0));
+
+        return new DateTime(expirationYear, 12, 31);
     }
 
 
@@ -96,7 +98,8 @@ public static class LocalLicenseStore
     public static LicenseListItemViewModel?
         RenewLicense(
             string licenseNumber,
-            DateTime renewalDate)
+            DateTime renewalDate,
+            bool extendToNextYear = false)
     {
         LicenseListItemViewModel? license =
             GetCurrentLicense(
@@ -111,9 +114,8 @@ public static class LocalLicenseStore
 
         DateTime newExpiration =
             CalculateExpiration(
-                renewalDate);
-
-
+                renewalDate,
+                extendToNextYear);
         // ----------------------------------------------
         // ARCHIVER L'ANCIENNE PÉRIODE
         // ----------------------------------------------
@@ -229,7 +231,7 @@ public static class LocalLicenseStore
             "Jean Tremblay",
             "Roberval",
             new DateTime(2026, 1, 15),
-            new DateTime(2027, 1, 15),
+            new DateTime(2026, 12, 31),
             "Valide",
             "Labrador",
             72,
@@ -247,7 +249,7 @@ public static class LocalLicenseStore
             "Jean Tremblay",
             "Roberval",
             new DateTime(2026, 3, 18),
-            new DateTime(2027, 3, 18),
+            new DateTime(2026, 12, 31),
             "Valide",
             "Husky",
             24,
@@ -265,7 +267,7 @@ public static class LocalLicenseStore
             "Pierre Savard",
             "Chambord",
             new DateTime(2024, 8, 12),
-            new DateTime(2025, 8, 12),
+            new DateTime(2024, 12, 31),
             "Expirée",
             "Berger allemand",
             60,
@@ -282,8 +284,8 @@ public static class LocalLicenseStore
             "Charlie",
             "Sophie Gagnon",
             "Saint-Félicien",
-            new DateTime(2025, 10, 25),
-            new DateTime(2026, 10, 25),
+            new DateTime(2026, 1, 25),
+            new DateTime(2026, 12, 31),
             "À renouveler",
             "Golden Retriever",
             48,
@@ -300,8 +302,8 @@ public static class LocalLicenseStore
             "Luna",
             "Marc Bouchard",
             "Roberval",
-            new DateTime(2025, 11, 4),
-            new DateTime(2026, 11, 4),
+            new DateTime(2026, 2, 4),
+            new DateTime(2026, 12, 31),
             "À renouveler",
             "Caniche",
             36,
@@ -317,9 +319,9 @@ public static class LocalLicenseStore
             "10603",
             "Rocky",
             "Julie Fortin",
-            "Dolbeau-Mistassini",
+            "Dolbeau - Mistassini",
             new DateTime(2026, 7, 8),
-            new DateTime(2027, 7, 8),
+            new DateTime(2026, 12, 31),
             "Valide",
             "Berger australien",
             30,
@@ -337,7 +339,7 @@ public static class LocalLicenseStore
             "Luc Tremblay",
             "Saint-Prime",
             new DateTime(2024, 9, 10),
-            new DateTime(2025, 9, 10),
+            new DateTime(2024, 12, 31),
             "Expirée",
             "Shih Tzu",
             84,
@@ -355,7 +357,7 @@ public static class LocalLicenseStore
             "Nathalie Simard",
             "Roberval",
             new DateTime(2026, 4, 22),
-            new DateTime(2027, 4, 22),
+            new DateTime(2026, 12, 31),
             "Valide",
             "Croisé",
             54,

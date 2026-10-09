@@ -1,4 +1,4 @@
-﻿using MuniChien.App.Views;
+using MuniChien.App.Views;
 using System.Windows;
 
 namespace MuniChien.App.Services;
@@ -12,7 +12,8 @@ public static class LicenseRenewalDialogService
         string currentStatus,
         DateTime currentExpirationDate,
         DateTime renewalDate,
-        DateTime newExpirationDate)
+        DateTime newExpirationDate,
+        out bool extendToNextYear)
     {
         RenewLicenseDialog dialog =
             new RenewLicenseDialog(
@@ -33,6 +34,8 @@ public static class LicenseRenewalDialogService
         }
 
 
-        return dialog.ShowDialog() == true;
+        bool confirmed = dialog.ShowDialog() == true;
+        extendToNextYear = confirmed && dialog.ExtendToNextYear;
+        return confirmed;
     }
 }

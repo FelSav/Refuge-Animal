@@ -267,7 +267,8 @@
                                        Style="{StaticResource RenewalLabelStyle}"
                                        Margin="0,0,0,5"/>
 
-                            <TextBlock Text="{Binding NewExpirationDate}"
+                            <TextBlock x:Name="ExpirationDateTextBlock"
+                                       Text="{Binding NewExpirationDate, Mode=OneWay}"
                                        FontSize="15"
                                        FontWeight="SemiBold"
                                        Foreground="#E87524"/>
@@ -279,13 +280,36 @@
                 </Border>
 
 
-                <TextBlock Text="La nouvelle licence sera valide pendant 1 an à partir de la date du renouvellement."
+                <TextBlock Text="Par défaut, une licence expire le 31 décembre de l'année du renouvellement."
                            FontSize="12"
                            Foreground="#667085"
                            TextWrapping="Wrap"
                            Margin="0,10,0,0"/>
 
-
+                <Border Background="#FFF8F3"
+                        BorderBrush="#F2B98F"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="14"
+                        Margin="0,16,0,0">
+                    <StackPanel>
+                        <CheckBox x:Name="ExceptionalExtensionCheckBox"
+                                  FontSize="12"
+                                  FontWeight="SemiBold"
+                                  Foreground="#344054"
+                                  Checked="ExceptionalExtensionCheckBox_Changed"
+                                  Unchecked="ExceptionalExtensionCheckBox_Changed">
+                            <TextBlock Text="Prolongation exceptionnelle jusqu'au 31 décembre de l'année suivante"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="400"/>
+                        </CheckBox>
+                        <TextBlock Text="À sélectionner uniquement si le refuge autorise expressément cette exception. Aucun prolongement automatique selon la date."
+                                   Margin="22,7,0,0"
+                                   FontSize="12"
+                                   Foreground="#667085"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
                 <!-- ==================================================
                      INFO
                      ================================================== -->

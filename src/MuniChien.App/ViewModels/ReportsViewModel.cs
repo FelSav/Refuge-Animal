@@ -1,4 +1,4 @@
-﻿using MuniChien.App.Navigation;
+using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using MuniChien.App.Views;
 using System.Windows.Input;
@@ -524,28 +524,8 @@ public class ReportsViewModel : ViewModelBase
     private static IReadOnlyList<string>
         BuildMunicipalityOptions()
     {
-        List<string> municipalities =
-            LocalLicenseStore.Licenses
-                .Select(
-                    license =>
-                        license.Municipality)
-                .Where(
-                    municipality =>
-                        !string.IsNullOrWhiteSpace(
-                            municipality))
-                .Distinct(
-                    StringComparer.OrdinalIgnoreCase)
-                .OrderBy(
-                    municipality =>
-                        municipality)
-                .ToList();
-
-
-        municipalities.Insert(
-            0,
-            "Toutes les municipalités");
-
-
+        List<string> municipalities = MunicipalityCatalog.All.ToList();
+        municipalities.Insert(0, "Toutes les municipalités");
         return municipalities;
     }
 

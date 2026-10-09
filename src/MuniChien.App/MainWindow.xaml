@@ -190,15 +190,9 @@
 
 
                 <Grid.ColumnDefinitions>
-
                     <ColumnDefinition Width="Auto"/>
-
-                    <ColumnDefinition Width="Auto"/>
-
                     <ColumnDefinition Width="*"/>
-
                     <ColumnDefinition Width="Auto"/>
-
                 </Grid.ColumnDefinitions>
 
 
@@ -214,18 +208,18 @@
 
                 <!-- Municipalité -->
 
-                <TextBlock Grid.Column="1"
+                <!--<TextBlock Grid.Column="1"
                            Text="Municipalité : Roberval"
                            FontSize="12"
                            FontWeight="SemiBold"
                            Foreground="#344054"
                            Margin="18,2,0,0"
-                           VerticalAlignment="Center"/>
+                           VerticalAlignment="Center"/>-->
 
 
                 <!-- Connexion admin -->
 
-                <Button Grid.Column="3"
+                <Button Grid.Column="2"
                         Content="Connexion admin"
                         Style="{StaticResource AdminLoginButtonStyle}"
                         VerticalAlignment="Center"/>

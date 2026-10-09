@@ -1,4 +1,4 @@
-﻿using MuniChien.App.ViewModels;
+using MuniChien.App.ViewModels;
 
 namespace MuniChien.App.Services;
 
@@ -27,19 +27,22 @@ public class LocalLicenseService : ILicenseService
 
 
     public DateTime CalculateExpiration(
-        DateTime renewalDate)
+        DateTime renewalDate,
+        bool extendToNextYear = false)
     {
         return LocalLicenseStore.CalculateExpiration(
-            renewalDate);
+            renewalDate,
+            extendToNextYear);
     }
-
 
     public LicenseListItemViewModel? RenewLicense(
         string licenseNumber,
-        DateTime renewalDate)
+        DateTime renewalDate,
+        bool extendToNextYear = false)
     {
         return LocalLicenseStore.RenewLicense(
             licenseNumber,
-            renewalDate);
+            renewalDate,
+            extendToNextYear);
     }
 }
