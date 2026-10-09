@@ -1,4 +1,4 @@
-﻿namespace MuniChien.App.ViewModels;
+namespace MuniChien.App.ViewModels;
 
 public class OwnerDogViewModel
 {
@@ -30,6 +30,10 @@ public class OwnerDogViewModel
     // ==================================================
     // AFFICHAGE DE L'ÂGE
     // ==================================================
+
+    public string SelectionDisplay => $"{DogName} — {OwnerName}";
+
+    public override string ToString() => SelectionDisplay;
 
     public string AgeDisplay
     {

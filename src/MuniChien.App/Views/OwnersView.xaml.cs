@@ -1,4 +1,4 @@
-﻿using MuniChien.App.ViewModels;
+using MuniChien.App.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -26,14 +26,8 @@ public partial class OwnersView : UserControl
             $"{viewModel.FirstName} {viewModel.LastName}".Trim();
 
 
-        int nextDogId =
-            viewModel.Dogs.Count == 0
-                ? 1
-                : viewModel.Dogs.Max(dog => dog.DogId) + 1;
-
-
         AddDogDialog dialog =
-            new(ownerName, nextDogId);
+            new(ownerName, viewModel.NextDogId, viewModel.OwnerId);
 
 
         if (Window.GetWindow(this) is Window ownerWindow)
@@ -49,7 +43,7 @@ public partial class OwnersView : UserControl
         if (result == true &&
             dialog.CreatedDog is not null)
         {
-            viewModel.Dogs.Add(
+            viewModel.AddDog(
                 dialog.CreatedDog);
         }
     }

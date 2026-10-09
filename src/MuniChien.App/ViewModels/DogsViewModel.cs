@@ -1,4 +1,4 @@
-﻿using MuniChien.App.Navigation;
+using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -12,9 +12,11 @@ public class DogsViewModel : ViewModelBase
     // SOURCE / NAVIGATION
     // ==================================================
 
-    private readonly OwnerDogViewModel? _sourceDog;
+    private OwnerDogViewModel? _sourceDog;
+    private OwnerDogViewModel? _selectedDogOption;
     private readonly Action<int>? _openOwnerAction;
     private readonly ILicenseService _licenseService;
+    private readonly IAnimalDirectoryService _directoryService;
 
 
     // ==================================================
@@ -133,7 +135,8 @@ public class DogsViewModel : ViewModelBase
     public DogsViewModel(
         OwnerDogViewModel? dog = null,
         Action<int>? openOwnerAction = null,
-        ILicenseService? licenseService = null)
+        ILicenseService? licenseService = null,
+        IAnimalDirectoryService? directoryService = null)
     {
         _sourceDog =
             dog;
@@ -143,6 +146,9 @@ public class DogsViewModel : ViewModelBase
 
         _licenseService =
             licenseService ?? new LocalLicenseService();
+
+        _directoryService =
+            directoryService ?? new LocalAnimalDirectoryService();
 
 
         BreedOptions =
@@ -216,9 +222,14 @@ public class DogsViewModel : ViewModelBase
             new RelayCommand(OpenOwner);
 
 
-        LoadDog();
+        foreach (var option in _directoryService.GetDogs())
+            DogOptions.Add(option);
 
-        LoadLicense();
+        // Si la fiche provient de Licences/Propriétaires, conserver le chien demandé.
+        // Sinon, ouvrir directement le premier chien au lieu d'une page vide.
+        SelectedDogOption = DogOptions.FirstOrDefault(x => x.DogId == dog?.DogId)
+                            ?? DogOptions.FirstOrDefault(x => x.DogId == 1)
+                            ?? DogOptions.FirstOrDefault();
     }
 
 
@@ -237,6 +248,39 @@ public class DogsViewModel : ViewModelBase
     public IReadOnlyList<string> StatusOptions { get; }
 
     public IReadOnlyList<string> AgeUnitOptions { get; }
+
+    // Sélection directe d'un chien, sans obligation de passer par Propriétaires.
+    public ObservableCollection<OwnerDogViewModel> DogOptions { get; } = [];
+
+    public OwnerDogViewModel? SelectedDogOption
+    {
+        get => _selectedDogOption;
+        set
+        {
+            if (ReferenceEquals(_selectedDogOption, value) || IsEditing) return;
+            _selectedDogOption = value;
+            _sourceDog = value is null ? null : _directoryService.GetDog(value.DogId) ?? value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(HasSelectedDog));
+            OnPropertyChanged(nameof(DogId));
+            OnPropertyChanged(nameof(OwnerId));
+            OnPropertyChanged(nameof(OwnerName));
+            OnPropertyChanged(nameof(OwnerFileNumber));
+            OnPropertyChanged(nameof(OwnerAddress));
+            OnPropertyChanged(nameof(LicenseNumber));
+            IsEditing = false;
+            ValidationMessage = string.Empty;
+            LoadDog();
+            LoadLicense();
+            OnPropertyChanged(nameof(AgeDisplay));
+            OnPropertyChanged(nameof(WeightDisplay));
+            OnPropertyChanged(nameof(LicenseStatus));
+            OnPropertyChanged(nameof(LicenseIssueDate));
+            OnPropertyChanged(nameof(LicenseExpirationDate));
+        }
+    }
+
+    public bool IsNotEditing => !IsEditing;
 
 
     // ==================================================
@@ -262,6 +306,7 @@ public class DogsViewModel : ViewModelBase
                 value;
 
             OnPropertyChanged();
+            OnPropertyChanged(nameof(IsNotEditing));
         }
     }
 
@@ -525,14 +570,15 @@ public class DogsViewModel : ViewModelBase
 
 
     public string OwnerFileNumber =>
-        HasSelectedDog
-            ? "#12345"
+        OwnerId > 0 && _directoryService.GetOwner(OwnerId) is { } owner
+            ? $"#{owner.FileNumber}"
             : "—";
 
 
     public string OwnerAddress =>
-        HasSelectedDog
-            ? "123, boulevard Exemple, Roberval, QC, G8H 2M9"
+        OwnerId > 0
+            ? (_directoryService.GetOwner(OwnerId)?.Address is { Length: > 0 } address
+                ? address : "—")
             : "—";
 
 
@@ -714,9 +760,9 @@ public class DogsViewModel : ViewModelBase
             _weightKg =
                 0;
 
-            Comments =
-                "—";
-
+            Comments = string.Empty;
+            DeactivationDate = string.Empty;
+            DeactivationReason = string.Empty;
             return;
         }
 
@@ -745,8 +791,10 @@ public class DogsViewModel : ViewModelBase
         _weightKg =
             _sourceDog.WeightKg;
 
-        Comments =
-            "Chien calme et sociable.";
+        DogDirectoryDetails? details = _directoryService.GetDogDetails(DogId);
+        Comments = details?.Comments ?? string.Empty;
+        DeactivationDate = details?.DeactivationDate ?? string.Empty;
+        DeactivationReason = details?.DeactivationReason ?? string.Empty;
 
 
         PrepareAgeInput();
@@ -1043,12 +1091,28 @@ public class DogsViewModel : ViewModelBase
         PrepareWeightInput();
 
 
-        IsEditing =
-            false;
+        // L'enregistrement reste en mémoire pour toute la session de l'app.
+        // Les anciennes périodes de licence restent dans ILicenseService.
+        _directoryService.SaveDog(new OwnerDogViewModel
+        {
+            DogId = DogId, OwnerId = OwnerId,
+            DogName = DogName, OwnerName = OwnerName, Breed = Breed,
+            AgeMonths = _ageMonths, WeightKg = _weightKg,
+            Color = Color, Sex = Sex, Status = Status,
+            Sterilized = Sterilized, LicenseNumber = LicenseNumber == "—" ? string.Empty : LicenseNumber
+        }, new DogDirectoryDetails
+        {
+            Comments = Comments,
+            DeactivationDate = DeactivationDate,
+            DeactivationReason = DeactivationReason
+        });
 
-
-        // Plus tard :
-        // appel API.
+        IsEditing = false;
+        int savedDogId = DogId;
+        DogOptions.Clear();
+        foreach (var option in _directoryService.GetDogs()) DogOptions.Add(option);
+        _selectedDogOption = null;
+        SelectedDogOption = DogOptions.FirstOrDefault(x => x.DogId == savedDogId);
     }
 
 
