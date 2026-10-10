@@ -4,6 +4,44 @@
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- Tuile légère pour les raccourcis de l'accueil. -->
+        <Style x:Key="QuickActionTileStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E0E5EC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="17"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Tile"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Tile" Property="BorderBrush" Value="#E87524"/>
+                                <Setter TargetName="Tile" Property="Background" Value="#FFF9F3"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Tile" Property="Background" Value="#FFF0E2"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Tile" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
 
@@ -98,26 +136,120 @@
 
 
                 <!-- ==================================================
-                     ACTIONS RAPIDES
+                     ACTIONS RAPIDES : 6 MODULES ACCESSIBLES
                      ================================================== -->
 
-                <TextBlock Text="Actions rapides"
+                <TextBlock Text="Accès rapides"
                            FontSize="22"
                            FontWeight="SemiBold"
                            Foreground="#242B38"
-                           Margin="0,0,0,28"/>
+                           Margin="0,0,0,4"/>
 
-                <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Ouvrez directement un module de MuniChien."
+                           FontSize="13"
+                           Foreground="#667085"
+                           Margin="0,0,0,17"/>
 
-                    <Button Content="Rechercher un dossier"
-                            Style="{StaticResource PrimaryActionButtonStyle}"
-                            Margin="24,0,120,0"/>
+                <UniformGrid Columns="3" Rows="2">
 
-                    <Button Content="Rechercher un propriétaire"
-                            Style="{StaticResource SecondaryActionButtonStyle}"/>
+                    <!-- RECHERCHE -->
+                    <Button Style="{StaticResource QuickActionTileStyle}"
+                            Command="{Binding OpenSearchQuickCommand}"
+                            Margin="0,0,12,12" MinHeight="128"
+                            ToolTip="Rechercher des dossiers, chiens et licences">
+                        <StackPanel>
+                            <Border Width="36" Height="36" CornerRadius="9"
+                                    Background="#FFF0E2" HorizontalAlignment="Left" Margin="0,0,0,11">
+                                <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="17" Foreground="#C85C16"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Recherche" FontSize="15" FontWeight="SemiBold" Foreground="#242B38"/>
+                            <TextBlock Text="Trouver un dossier" FontSize="12" Foreground="#667085" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Button>
 
-                </StackPanel>
+                    <!-- PROPRIÉTAIRES -->
+                    <Button Style="{StaticResource QuickActionTileStyle}"
+                            Command="{Binding OpenOwnersQuickCommand}"
+                            Margin="0,0,12,12" MinHeight="128">
+                        <StackPanel>
+                            <Border Width="36" Height="36" CornerRadius="9"
+                                    Background="#FFF0E2" HorizontalAlignment="Left" Margin="0,0,0,11">
+                                <TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="17" Foreground="#C85C16"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Propriétaires" FontSize="15" FontWeight="SemiBold" Foreground="#242B38"/>
+                            <TextBlock Text="Consulter les dossiers" FontSize="12" Foreground="#667085" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Button>
 
+                    <!-- CHIENS -->
+                    <Button Style="{StaticResource QuickActionTileStyle}"
+                            Command="{Binding OpenDogsQuickCommand}"
+                            Margin="0,0,0,12" MinHeight="128">
+                        <StackPanel>
+                            <Border Width="36" Height="36" CornerRadius="9"
+                                    Background="#FFF0E2" HorizontalAlignment="Left" Margin="0,0,0,11">
+                                <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="17" Foreground="#C85C16"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Chiens" FontSize="15" FontWeight="SemiBold" Foreground="#242B38"/>
+                            <TextBlock Text="Voir les fiches" FontSize="12" Foreground="#667085" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- LICENCES -->
+                    <Button Style="{StaticResource QuickActionTileStyle}"
+                            Command="{Binding OpenLicensesQuickCommand}"
+                            Margin="0,0,12,0" MinHeight="128">
+                        <StackPanel>
+                            <Border Width="36" Height="36" CornerRadius="9"
+                                    Background="#FFF0E2" HorizontalAlignment="Left" Margin="0,0,0,11">
+                                <TextBlock Text="&#xE8EC;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="17" Foreground="#C85C16"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Licences" FontSize="15" FontWeight="SemiBold" Foreground="#242B38"/>
+                            <TextBlock Text="Suivre les renouvellements" FontSize="12" Foreground="#667085" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- PAIEMENTS -->
+                    <Button Style="{StaticResource QuickActionTileStyle}"
+                            Command="{Binding OpenPaymentsQuickCommand}"
+                            Margin="0,0,12,0" MinHeight="128">
+                        <StackPanel>
+                            <Border Width="36" Height="36" CornerRadius="9"
+                                    Background="#FFF0E2" HorizontalAlignment="Left" Margin="0,0,0,11">
+                                <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="17" Foreground="#C85C16"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Paiements" FontSize="15" FontWeight="SemiBold" Foreground="#242B38"/>
+                            <TextBlock Text="Comptes et reçus" FontSize="12" Foreground="#667085" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- AVIS -->
+                    <Button Style="{StaticResource QuickActionTileStyle}"
+                            Command="{Binding OpenNoticesQuickCommand}"
+                            Margin="0,0,0,0" MinHeight="128">
+                        <StackPanel>
+                            <Border Width="36" Height="36" CornerRadius="9"
+                                    Background="#FFF0E2" HorizontalAlignment="Left" Margin="0,0,0,11">
+                                <TextBlock Text="&#xE715;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="17" Foreground="#C85C16"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Avis" FontSize="15" FontWeight="SemiBold" Foreground="#242B38"/>
+                            <TextBlock Text="Préparer les rappels" FontSize="12" Foreground="#667085" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Button>
+
+                </UniformGrid>
             </StackPanel>
 
         </ScrollViewer>

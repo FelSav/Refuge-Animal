@@ -1,5 +1,7 @@
-﻿using MuniChien.App.Navigation;
+using MuniChien.App.Navigation;
+using System.Windows;
 using System.Windows.Input;
+using MuniChien.App.Views;
 
 namespace MuniChien.App.ViewModels;
 
@@ -10,6 +12,10 @@ public class MainWindowViewModel : ViewModelBase
     // ==================================================
 
     private ViewModelBase _currentViewModel;
+
+    // Connexion de démonstration : état conservé uniquement en mémoire.
+    // N'accorde aucun droit côté API / serveur.
+    private bool _isAdminLoggedIn;
 
     private string _pageTitle =
         "Accueil";
@@ -46,7 +52,7 @@ public class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         _currentViewModel =
-            new HomeViewModel();
+            new HomeViewModel(NavigateFromHome);
 
 
         ShowHomeCommand =
@@ -83,6 +89,8 @@ public class MainWindowViewModel : ViewModelBase
         ShowAdministrationCommand =
             new RelayCommand(
                 ShowAdministration);
+
+        ToggleAdminLoginCommand = new RelayCommand(ToggleAdminLogin);
     }
 
 
@@ -311,6 +319,13 @@ public class MainWindowViewModel : ViewModelBase
 
     public ICommand ShowAdministrationCommand { get; }
 
+    public ICommand ToggleAdminLoginCommand { get; }
+
+    public bool IsAdminLoggedIn => _isAdminLoggedIn;
+
+    public string AdminButtonText =>
+        IsAdminLoggedIn ? "Admin · Déconnexion" : "Connexion admin";
+
 
     // ==================================================
     // PAGES
@@ -319,7 +334,7 @@ public class MainWindowViewModel : ViewModelBase
     private void ShowHome()
     {
         NavigateTo(
-            new HomeViewModel(),
+            new HomeViewModel(NavigateFromHome),
             "Accueil");
     }
 
@@ -383,9 +398,89 @@ public class MainWindowViewModel : ViewModelBase
 
     private void ShowAdministration()
     {
+        if (!EnsureAdminLogin())
+        {
+            // Rétablit la sélection du menu après une connexion annulée.
+            SelectNavigation(string.Empty);
+            SelectNavigation(PageTitle);
+            OnPropertyChanged(nameof(IsAdministrationSelected));
+            return;
+        }
+
         NavigateTo(
-            new AdministrationViewModel(),
+            new AdministrationViewModel(LogoutAdmin),
             "Administration");
+    }
+
+
+    // ==================================================
+    // RACCOURCIS DE L'ACCUEIL
+    // ==================================================
+
+    private void NavigateFromHome(string page)
+    {
+        switch (page)
+        {
+            case "Recherche": ShowSearch(); break;
+            case "Propriétaires": ShowOwners(); break;
+            case "Chiens": ShowDogs(); break;
+            case "Licences": ShowLicenses(); break;
+            case "Paiements": ShowPayments(); break;
+            case "Avis": ShowNotices(); break;
+        }
+    }
+
+
+    // ==================================================
+    // CONNEXION ADMINISTRATEUR (DÉMONSTRATION LOCALE)
+    // ==================================================
+
+    private bool EnsureAdminLogin()
+    {
+        if (_isAdminLoggedIn)
+            return true;
+
+        var dialog = new AdminLoginDialog();
+        if (Application.Current?.MainWindow is Window mainWindow)
+            dialog.Owner = mainWindow;
+
+        if (dialog.ShowDialog() != true)
+            return false;
+
+        _isAdminLoggedIn = true;
+        OnPropertyChanged(nameof(IsAdminLoggedIn));
+        OnPropertyChanged(nameof(AdminButtonText));
+        return true;
+    }
+
+    private void ToggleAdminLogin()
+    {
+        if (!_isAdminLoggedIn)
+        {
+            // Se connecter depuis l'en-tête ouvre la page Administration.
+            ShowAdministration();
+            return;
+        }
+
+        if (MessageBox.Show(
+                "Fermer la session administrateur de démonstration ?",
+                "Déconnexion administrateur",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question) == MessageBoxResult.Yes)
+        {
+            LogoutAdmin();
+        }
+    }
+
+    private void LogoutAdmin()
+    {
+        _isAdminLoggedIn = false;
+        OnPropertyChanged(nameof(IsAdminLoggedIn));
+        OnPropertyChanged(nameof(AdminButtonText));
+
+        // Ne laisse pas le panneau Administration ouvert après déconnexion.
+        if (IsAdministrationSelected)
+            ShowHome();
     }
 
 

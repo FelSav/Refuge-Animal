@@ -223,7 +223,9 @@
                 <!-- Connexion admin -->
 
                 <Button Grid.Column="2"
-                        Content="Connexion admin"
+                        Content="{Binding AdminButtonText, Mode=OneWay}"
+                        Command="{Binding ToggleAdminLoginCommand}"
+                        ToolTip="Accès administrateur de démonstration"
                         Style="{StaticResource AdminLoginButtonStyle}"
                         VerticalAlignment="Center"/>
 

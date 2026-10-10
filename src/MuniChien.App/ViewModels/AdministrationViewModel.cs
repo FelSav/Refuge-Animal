@@ -1,4 +1,4 @@
-﻿using MuniChien.App.Navigation;
+using MuniChien.App.Navigation;
 using MuniChien.App.Views;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -11,6 +11,8 @@ public class AdministrationViewModel : ViewModelBase
     // ==================================================
     // ÉTAT
     // ==================================================
+
+    private readonly Action? _logoutAdmin;
 
     private DateTime _lastBackupAt;
 
@@ -25,8 +27,9 @@ public class AdministrationViewModel : ViewModelBase
     // CONSTRUCTEUR
     // ==================================================
 
-    public AdministrationViewModel()
+    public AdministrationViewModel(Action? logoutAdmin = null)
     {
+        _logoutAdmin = logoutAdmin;
         BackupRetentionDays =
             14;
 
@@ -363,12 +366,14 @@ public class AdministrationViewModel : ViewModelBase
 
     private void Logout()
     {
-        MessageBox.Show(
-            "La déconnexion administrateur sera reliée au système d'authentification lorsqu'il sera branché.\n\n" +
-            "Aucune session réelle n'est fermée pour l'instant.",
-            "Déconnexion administrateur",
-            MessageBoxButton.OK,
-            MessageBoxImage.Information);
+        if (MessageBox.Show(
+                "Fermer la session administrateur de démonstration ?",
+                "Déconnexion administrateur",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question) == MessageBoxResult.Yes)
+        {
+            _logoutAdmin?.Invoke();
+        }
     }
 
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -25,6 +25,10 @@ public class HomeViewModel : ViewModelBase
 
     private readonly DashboardLayoutService _layoutService = new();
 
+    // Navigation fournie par MainWindowViewModel : aucune dépendance
+    // directe du tableau de bord envers les autres pages.
+    private readonly Action<string>? _navigate;
+
     private bool _isCustomizationOpen;
 
     private DashboardCardViewModel? _selectedCard;
@@ -44,8 +48,17 @@ public class HomeViewModel : ViewModelBase
     // CONSTRUCTEUR
     // ==================================================
 
-    public HomeViewModel()
+    public HomeViewModel(Action<string>? navigate = null)
     {
+        _navigate = navigate;
+
+        OpenSearchQuickCommand = new RelayCommand(() => _navigate?.Invoke("Recherche"));
+        OpenOwnersQuickCommand = new RelayCommand(() => _navigate?.Invoke("Propriétaires"));
+        OpenDogsQuickCommand = new RelayCommand(() => _navigate?.Invoke("Chiens"));
+        OpenLicensesQuickCommand = new RelayCommand(() => _navigate?.Invoke("Licences"));
+        OpenPaymentsQuickCommand = new RelayCommand(() => _navigate?.Invoke("Paiements"));
+        OpenNoticesQuickCommand = new RelayCommand(() => _navigate?.Invoke("Avis"));
+
         AvailableMetrics = CreateAvailableMetrics();
 
         LoadCustomMetrics();
@@ -72,6 +85,15 @@ public class HomeViewModel : ViewModelBase
 
         ApplySavedLayout();
     }
+
+
+    // Raccourcis du tableau de bord
+    public ICommand OpenSearchQuickCommand { get; }
+    public ICommand OpenOwnersQuickCommand { get; }
+    public ICommand OpenDogsQuickCommand { get; }
+    public ICommand OpenLicensesQuickCommand { get; }
+    public ICommand OpenPaymentsQuickCommand { get; }
+    public ICommand OpenNoticesQuickCommand { get; }
 
 
     // ==================================================
