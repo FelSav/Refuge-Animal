@@ -1,0 +1,211 @@
+<UserControl x:Class="MuniChien.App.Views.NoticesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="NoticeCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E4E7EC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+        <Style x:Key="NoticeCampaignButton" TargetType="Button"
+               BasedOn="{StaticResource SecondaryActionButtonStyle}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="18,13"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid Background="#F6F7F9">
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="46,32,46,40">
+                <TextBlock Text="Avis" FontSize="27" FontWeight="SemiBold" Foreground="#242B38"/>
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Préparez et suivez les avis de paiement des licences."
+                               Margin="0,7,20,0" FontSize="14" Foreground="#667085"
+                               TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Content="Configurer le modèle d'avis"
+                            Command="{Binding ConfigureTemplateCommand}"
+                            Style="{StaticResource SecondaryActionButtonStyle}"
+                            Padding="14,9" VerticalAlignment="Center"/>
+                </Grid>
+
+                <Border Background="#FFF8EB" BorderBrush="#F7CE88" BorderThickness="1"
+                        CornerRadius="10" Padding="16" Margin="0,0,0,22">
+                    <StackPanel>
+                        <TextBlock Text="MODE DÉMONSTRATION — AUCUN COURRIER RÉEL"
+                                   FontWeight="Bold" Foreground="#8A4B08" FontSize="13"/>
+                        <TextBlock Text="Les soldes affichés sont fictifs et ne sont pas rattachés à une année de licence. Les documents imprimés porteront la mention « Ne pas envoyer »."
+                                   TextWrapping="Wrap" Foreground="#8A4B08" FontSize="12" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Grid Margin="0,0,0,22">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="14"/>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="14"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource NoticeCard}">
+                        <StackPanel>
+                            <TextBlock Text="Dossiers avec solde (démo)" FontSize="12" Foreground="#667085"/>
+                            <TextBlock Text="{Binding CandidateCount, Mode=OneWay}" Margin="0,7,0,0"
+                                       FontSize="25" FontWeight="SemiBold" Foreground="#242B38"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource NoticeCard}">
+                        <StackPanel>
+                            <TextBlock Text="Soldes cumulés (démo)" FontSize="12" Foreground="#667085"/>
+                            <TextBlock Text="{Binding TotalBalanceDisplay, Mode=OneWay}" Margin="0,7,0,0"
+                                       FontSize="25" FontWeight="SemiBold" Foreground="#242B38"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="4" Style="{StaticResource NoticeCard}">
+                        <StackPanel>
+                            <TextBlock Text="Envois simulés" FontSize="12" Foreground="#667085"/>
+                            <TextBlock Text="{Binding SentCount, Mode=OneWay}" Margin="0,7,0,0"
+                                       FontSize="25" FontWeight="SemiBold" Foreground="#242B38"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <TextBlock Text="Campagne" FontSize="19" FontWeight="SemiBold"
+                           Foreground="#242B38" Margin="0,0,0,12"/>
+                <Grid Margin="0,0,0,22">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="Premier avis · Janvier" Command="{Binding ShowJanuaryCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NoticeCampaignButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsJanuarySelected}" Value="True">
+                                        <Setter Property="Background" Value="#FFE8D6"/>
+                                        <Setter Property="BorderBrush" Value="#E97824"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Grid.Column="2" Content="Deuxième rappel · Mars" Command="{Binding ShowMarchCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NoticeCampaignButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsMarchSelected}" Value="True">
+                                        <Setter Property="Background" Value="#FFE8D6"/>
+                                        <Setter Property="BorderBrush" Value="#E97824"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+                <TextBlock Text="Campagne sélectionnée" FontSize="11" Foreground="#667085"/>
+                <TextBlock Text="{Binding SelectedCampaign}" FontSize="14" FontWeight="SemiBold"
+                           Foreground="#242B38" Margin="0,4,0,18"/>
+
+                <Border Style="{StaticResource NoticeCard}" Margin="0,0,0,22">
+                    <StackPanel>
+                        <TextBlock Text="Filtres et préparation" FontSize="18" FontWeight="SemiBold" Foreground="#242B38" Margin="0,0,0,14"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="115"/><ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Année" FontSize="12" Foreground="#667085" Margin="0,0,0,5"/>
+                                <ComboBox ItemsSource="{Binding YearOptions}" SelectedItem="{Binding SelectedYear}"
+                                          Style="{StaticResource RoundedComboBoxStyle}" Height="40"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Municipalité" FontSize="12" Foreground="#667085" Margin="0,0,0,5"/>
+                                <ComboBox ItemsSource="{Binding MunicipalityOptions}" SelectedItem="{Binding SelectedMunicipality}"
+                                          Style="{StaticResource RoundedComboBoxStyle}" Height="40"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="Nom ou numéro de dossier" FontSize="12" Foreground="#667085" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding OwnerSearch, UpdateSourceTrigger=PropertyChanged}"
+                                         Height="40" Padding="10,9" BorderBrush="#D0D5DD"/>
+                            </StackPanel>
+                            <Button Grid.Column="6" Content="Rechercher" Command="{Binding RefreshCommand}"
+                                    Style="{StaticResource SecondaryActionButtonStyle}" Padding="13,9" VerticalAlignment="Bottom"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource NoticeCard}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Dossiers à examiner" FontSize="18" FontWeight="SemiBold" Foreground="#242B38"/>
+                                <TextBlock Margin="0,4,0,0" FontSize="12" Foreground="#667085"
+                                           Text="Le solde local sert d'exemple, pas de preuve d'impayé pour l'année choisie."/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Content="Tout sélectionner" Command="{Binding SelectAllCommand}"
+                                        Style="{StaticResource SecondaryActionButtonStyle}" Padding="10,7" FontSize="12" Margin="0,0,8,0"/>
+                                <Button Content="Tout désélectionner" Command="{Binding DeselectAllCommand}"
+                                        Style="{StaticResource SecondaryActionButtonStyle}" Padding="10,7" FontSize="12"/>
+                            </StackPanel>
+                        </Grid>
+                        <DataGrid ItemsSource="{Binding Candidates}" AutoGenerateColumns="False"
+                                  CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False"
+                                  HeadersVisibility="Column" GridLinesVisibility="None"
+                                  AlternatingRowBackground="#F9FAFB" RowHeight="42" ColumnHeaderHeight="39"
+                                  BorderBrush="#E4E7EC" BorderThickness="1" MinHeight="265"
+                                  MaxHeight="430" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="✓" Width="45"
+                                    Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <DataGridTextColumn Header="Dossier" Width="85" IsReadOnly="True"
+                                    Binding="{Binding FileNumber}"/>
+                                <DataGridTextColumn Header="Propriétaire" Width="*" IsReadOnly="True"
+                                    Binding="{Binding OwnerName}"/>
+                                <DataGridTextColumn Header="Municipalité" Width="*" IsReadOnly="True"
+                                    Binding="{Binding Municipality}"/>
+                                <DataGridTextColumn Header="Chiens / licences" Width="1.6*" IsReadOnly="True"
+                                    Binding="{Binding DogsDescription}"/>
+                                <DataGridTextColumn Header="Solde fictif" Width="110" IsReadOnly="True"
+                                    Binding="{Binding BalanceDisplay}"/>
+                                <DataGridTextColumn Header="Suivi (démo)" Width="170" IsReadOnly="True"
+                                    Binding="{Binding SentStatusDisplay}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock Text="Aucun dossier ne correspond aux filtres." Margin="0,14,0,0"
+                                   Foreground="#667085" TextAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasCandidates}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <Border BorderBrush="#E4E7EC" BorderThickness="0,1,0,0" Margin="0,17,0,12"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Sélection : " Foreground="#667085"/>
+                                <TextBlock Text="{Binding SelectedCount, Mode=OneWay}" FontWeight="Bold" Foreground="#242B38"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" Content="Simuler l'envoi" Command="{Binding SimulateSentCommand}"
+                                    Style="{StaticResource SecondaryActionButtonStyle}" Padding="14,9"/>
+                            <Button Grid.Column="3" Content="Prévisualiser / Imprimer"
+                                    Command="{Binding PreviewCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}" Padding="14,9"/>
+                        </Grid>
+                        <TextBlock Text="{Binding OperationMessage}" Foreground="#A0450E" Margin="0,12,0,0"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

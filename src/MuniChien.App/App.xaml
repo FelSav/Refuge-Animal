@@ -30,6 +30,10 @@ xmlns:viewModels="clr-namespace:MuniChien.App.ViewModels"
                 <views:PaymentsView/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type viewModels:NoticesViewModel}">
+                <views:NoticesView/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type viewModels:ReportsViewModel}">
                 <views:ReportsView/>
             </DataTemplate>

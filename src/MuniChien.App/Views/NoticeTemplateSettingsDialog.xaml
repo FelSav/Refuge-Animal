@@ -1,0 +1,53 @@
+<Window x:Class="MuniChien.App.Views.NoticeTemplateSettingsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Configurer le modèle d'avis — MuniChien"
+        Width="760" Height="720" MinWidth="640" MinHeight="610"
+        ResizeMode="CanResize" WindowStartupLocation="CenterOwner"
+        Background="#F6F7F9" ShowInTaskbar="False">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="Configuration du modèle d'avis" FontSize="23" FontWeight="SemiBold" Foreground="#242B38"/>
+            <TextBlock Text="Un modèle commun aux 22 municipalités et aux campagnes de janvier et mars."
+                       TextWrapping="Wrap" Foreground="#667085" Margin="0,6,0,0"/>
+        </StackPanel>
+        <Border Grid.Row="1" Background="White" CornerRadius="12" BorderBrush="#E4E7EC"
+                BorderThickness="1" Padding="18">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="1 — Texte de réglementation" FontWeight="SemiBold" FontSize="15" Foreground="#242B38"/>
+                    <TextBlock Text="Paragraphe situé sous « Licences de chiens » sur la fiche papier."
+                               Foreground="#667085" Margin="0,4,0,8" FontSize="12"/>
+                    <TextBox x:Name="RegulationBox" Height="112" AcceptsReturn="True" TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto" Padding="10" MaxLength="500"/>
+                    <TextBlock Text="2 — Date limite de paiement" FontWeight="SemiBold" FontSize="15"
+                               Foreground="#242B38" Margin="0,21,0,3"/>
+                    <TextBlock Text="Indépendante de l'expiration des licences au 31 décembre."
+                               Foreground="#667085" FontSize="12" Margin="0,0,0,8"/>
+                    <DatePicker x:Name="DeadlinePicker" Width="190" HorizontalAlignment="Left" Height="36"/>
+                    <TextBlock Text="Laissez vide si elle n'est pas encore confirmée : l'avis indiquera « date à définir »."
+                               TextWrapping="Wrap" Foreground="#667085" FontSize="12" Margin="0,7,0,0"/>
+                    <TextBlock Text="3 — Texte des méthodes de paiement" FontWeight="SemiBold" FontSize="15"
+                               Foreground="#242B38" Margin="0,21,0,3"/>
+                    <TextBlock Text="Paragraphe situé au bas de la fiche papier."
+                               Foreground="#667085" FontSize="12" Margin="0,0,0,8"/>
+                    <TextBox x:Name="InstructionsBox" Height="112" AcceptsReturn="True" TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto" Padding="10" MaxLength="400"/>
+                    <TextBlock x:Name="ValidationText" Foreground="#B42318"
+                               TextWrapping="Wrap" Margin="0,14,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Annuler" Click="Cancel_Click" Style="{StaticResource SecondaryActionButtonStyle}"
+                    Padding="16,9" Margin="0,0,10,0"/>
+            <Button Content="Enregistrer le modèle" Click="Save_Click" Style="{StaticResource PrimaryActionButtonStyle}"
+                    Padding="16,9"/>
+        </StackPanel>
+    </Grid>
+</Window>

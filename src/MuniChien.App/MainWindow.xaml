@@ -141,6 +141,16 @@
                                  Style="{StaticResource SidebarNavigationItemStyle}"/>
 
 
+                    <!-- Avis -->
+
+                    <RadioButton Content="Avis"
+                                 GroupName="MainNavigation"
+                                 Command="{Binding ShowNoticesCommand}"
+                                 IsChecked="{Binding IsNoticesSelected,
+                                                    Mode=OneWay}"
+                                 Style="{StaticResource SidebarNavigationItemStyle}"/>
+
+
                     <!-- Rapports -->
 
                     <RadioButton Content="Rapports"
@@ -190,9 +200,13 @@
 
 
                 <Grid.ColumnDefinitions>
+
                     <ColumnDefinition Width="Auto"/>
+
                     <ColumnDefinition Width="*"/>
+
                     <ColumnDefinition Width="Auto"/>
+
                 </Grid.ColumnDefinitions>
 
 
@@ -204,17 +218,6 @@
                            FontWeight="SemiBold"
                            Foreground="#242424"
                            VerticalAlignment="Center"/>
-
-
-                <!-- Municipalité -->
-
-                <!--<TextBlock Grid.Column="1"
-                           Text="Municipalité : Roberval"
-                           FontSize="12"
-                           FontWeight="SemiBold"
-                           Foreground="#344054"
-                           Margin="18,2,0,0"
-                           VerticalAlignment="Center"/>-->
 
 
                 <!-- Connexion admin -->

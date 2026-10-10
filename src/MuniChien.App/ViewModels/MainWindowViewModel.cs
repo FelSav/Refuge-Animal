@@ -32,6 +32,8 @@ public class MainWindowViewModel : ViewModelBase
 
     private bool _isPaymentsSelected;
 
+    private bool _isNoticesSelected;
+
     private bool _isReportsSelected;
 
     private bool _isAdministrationSelected;
@@ -70,6 +72,9 @@ public class MainWindowViewModel : ViewModelBase
         ShowPaymentsCommand =
             new RelayCommand(
                 ShowPayments);
+
+        ShowNoticesCommand =
+            new RelayCommand(ShowNotices);
 
         ShowReportsCommand =
             new RelayCommand(
@@ -237,6 +242,17 @@ public class MainWindowViewModel : ViewModelBase
     }
 
 
+    public bool IsNoticesSelected
+    {
+        get => _isNoticesSelected;
+        private set
+        {
+            if (_isNoticesSelected == value) return;
+            _isNoticesSelected = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool IsReportsSelected
     {
         get => _isReportsSelected;
@@ -288,6 +304,8 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand ShowLicensesCommand { get; }
 
     public ICommand ShowPaymentsCommand { get; }
+
+    public ICommand ShowNoticesCommand { get; }
 
     public ICommand ShowReportsCommand { get; }
 
@@ -349,6 +367,11 @@ public class MainWindowViewModel : ViewModelBase
             "Paiements");
     }
 
+
+    private void ShowNotices()
+    {
+        NavigateTo(new NoticesViewModel(), "Avis");
+    }
 
     private void ShowReports()
     {
@@ -439,6 +462,9 @@ public class MainWindowViewModel : ViewModelBase
 
         IsPaymentsSelected =
             page == "Paiements";
+
+        IsNoticesSelected =
+            page == "Avis";
 
         IsReportsSelected =
             page == "Rapports";
