@@ -201,6 +201,31 @@
                                     Command="{Binding PreviewCommand}"
                                     Style="{StaticResource PrimaryActionButtonStyle}" Padding="14,9"/>
                         </Grid>
+                        <Border BorderBrush="#E4E7EC" BorderThickness="0,1,0,0"
+                                Margin="0,16,0,12"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="Supports postaux (démo)" FontSize="15"
+                                           FontWeight="SemiBold" Foreground="#242B38"/>
+                                <TextBlock Text="Prépare les enveloppes ou les étiquettes des dossiers sélectionnés."
+                                           Foreground="#667085" FontSize="12" Margin="0,4,8,0"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" Content="Enveloppes"
+                                    Command="{Binding PreviewEnvelopesCommand}"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    Padding="13,9" VerticalAlignment="Center"/>
+                            <Button Grid.Column="3" Content="Étiquettes"
+                                    Command="{Binding PreviewLabelsCommand}"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    Padding="13,9" VerticalAlignment="Center"/>
+                        </Grid>
                         <TextBlock Text="{Binding OperationMessage}" Foreground="#A0450E" Margin="0,12,0,0"
                                    TextWrapping="Wrap"/>
                     </StackPanel>

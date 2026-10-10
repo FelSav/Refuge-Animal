@@ -54,6 +54,28 @@ public partial class NoticePreviewDialog : Window
 
     private void Print_Click(object sender, RoutedEventArgs e)
     {
+        // Le modèle peut être prévisualisé avec « À DÉFINIR », mais il ne
+        // doit pas être imprimé tant que la date limite n'est pas renseignée.
+        try
+        {
+            var settings = NoticeTemplateSettingsStore.Load();
+            if (!settings.PaymentDeadline.HasValue)
+            {
+                MessageBox.Show(
+                    "La date limite de paiement n'est pas configurée.\n\n" +
+                    "Ouvre « Configurer le modèle d'avis », renseigne la date, " +
+                    "puis relance l'impression de test.",
+                    "Date limite manquante", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Impossible de vérifier la date limite : {ex.Message}",
+                "Configuration des avis", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
         if (MessageBox.Show(
             "Les soldes présentés sont fictifs et ne correspondent pas aux impayés vérifiés d'une année.\n\n" +
             "Chaque page portera « DÉMONSTRATION — NE PAS ENVOYER ».\n\n" +

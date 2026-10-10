@@ -163,13 +163,20 @@ public static class NoticePrintDocumentBuilder
         }
 
         double balanceY = 289 + visibleRows * 11 + 1;
-        Write(canvas, $"Solde : {Money(candidate.AmountInvoiced)}", 53, balanceY, 150, 14, 8.7, bold: true);
-        Write(canvas, $"Paiement reçu : {Money(candidate.PaymentsReceived)}", 267, balanceY, 174, 14, 8.7, bold: true);
-        Write(canvas, $"Total à payer : {Money(candidate.Balance)}", 442, balanceY, 116, 14, 8.7,
+        Write(canvas, $"Montant facturé : {Money(candidate.AmountInvoiced)}", 53, balanceY, 198, 14, 8.0, bold: true);
+        Write(canvas, $"Paiement reçu : {Money(candidate.PaymentsReceived)}", 263, balanceY, 171, 14, 8.2, bold: true);
+        Write(canvas, $"Total à payer : {Money(candidate.Balance)}", 438, balanceY, 120, 14, 8.4,
             bold: true, alignment: TextAlignment.Right);
-        Line(canvas, 53, balanceY + 15, 558, balanceY + 15, 0.75);
 
-        double newY = balanceY + 19;
+        // Les frais de retard expliquent pourquoi le total n'est pas simplement
+        // le montant facturé moins les paiements reçus (ex. 75 + 10 - 25 = 60).
+        double extraFeeHeight = candidate.LateFees > 0 ? 13 : 0;
+        if (candidate.LateFees > 0)
+            Write(canvas, $"Frais de retard : {Money(candidate.LateFees)}",
+                53, balanceY + 13, 220, 12, 8.1, bold: true);
+        Line(canvas, 53, balanceY + 15 + extraFeeHeight, 558, balanceY + 15 + extraFeeHeight, 0.75);
+
+        double newY = balanceY + 19 + extraFeeHeight;
         Write(canvas, "Nouveau chien :", 53, newY, 101, 13, 8.4, bold: true);
         Write(canvas, "Race", 157, newY, 95, 13, 8.4, bold: true);
         Write(canvas, "Couleur", 260, newY, 93, 13, 8.4, bold: true);

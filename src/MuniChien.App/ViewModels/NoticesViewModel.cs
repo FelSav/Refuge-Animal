@@ -1,4 +1,5 @@
 using MuniChien.App.Navigation;
+using MuniChien.App.Printing;
 using MuniChien.App.Services;
 using MuniChien.App.Views;
 using System;
@@ -36,6 +37,8 @@ public sealed class NoticesViewModel : ViewModelBase
         SelectAllCommand = new RelayCommand(() => SelectCandidates(true));
         DeselectAllCommand = new RelayCommand(() => SelectCandidates(false));
         PreviewCommand = new RelayCommand(OpenPreview);
+        PreviewEnvelopesCommand = new RelayCommand(() => OpenMailingPreview(true));
+        PreviewLabelsCommand = new RelayCommand(() => OpenMailingPreview(false));
         ConfigureTemplateCommand = new RelayCommand(OpenTemplateSettings);
         SimulateSentCommand = new RelayCommand(SimulateSent);
 
@@ -121,6 +124,8 @@ public sealed class NoticesViewModel : ViewModelBase
     public ICommand SelectAllCommand { get; }
     public ICommand DeselectAllCommand { get; }
     public ICommand PreviewCommand { get; }
+    public ICommand PreviewEnvelopesCommand { get; }
+    public ICommand PreviewLabelsCommand { get; }
     public ICommand ConfigureTemplateCommand { get; }
     public ICommand SimulateSentCommand { get; }
 
@@ -221,6 +226,67 @@ public sealed class NoticesViewModel : ViewModelBase
         catch (Exception ex)
         {
             OperationMessage = $"Impossible de générer l'aperçu : {ex.Message}";
+        }
+    }
+
+    private void OpenMailingPreview(bool envelopes)
+    {
+        var selection = GetSelection();
+        if (selection.Count == 0)
+        {
+            OperationMessage = "Sélectionne au moins un dossier avant de préparer un support postal.";
+            return;
+        }
+
+        // Une adresse incomplète n'entre jamais dans le document imprimable.
+        // Les autres dossiers peuvent quand même être prévisualisés, avec
+        // confirmation explicite du nombre de dossiers exclus.
+        var valid = new List<NoticeCandidateViewModel>();
+        var invalid = new List<string>();
+        foreach (var recipient in selection)
+        {
+            if (NoticeMailingDocumentBuilder.TryValidateRecipient(recipient, out string reason))
+                valid.Add(recipient);
+            else
+                invalid.Add($"#{recipient.FileNumber} — {recipient.OwnerName} : {reason}");
+        }
+
+        if (valid.Count == 0)
+        {
+            OperationMessage = $"Aucune adresse postale complète parmi les {selection.Count} dossiers sélectionnés. " +
+                "Vérifie la rue, la municipalité, la province et le code postal.";
+            MessageBox.Show(string.Join("\n", invalid.Take(12)), "Adresses à compléter",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (invalid.Count > 0)
+        {
+            string details = string.Join("\n", invalid.Take(10));
+            if (invalid.Count > 10)
+                details += $"\n... et {invalid.Count - 10} autre(s).";
+            MessageBoxResult answer = MessageBox.Show(
+                $"{invalid.Count} dossier(s) exclus de l'impression postale car leur adresse est incomplète :\n\n" +
+                details + "\n\n" +
+                $"Continuer avec les {valid.Count} dossier(s) possédant une adresse complète ?",
+                "Adresses postales à vérifier", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (answer != MessageBoxResult.Yes)
+                return;
+        }
+
+        try
+        {
+            var dialog = new NoticeMailingPreviewDialog(valid, envelopes);
+            if (Application.Current?.MainWindow is Window window)
+                dialog.Owner = window;
+            dialog.ShowDialog();
+            OperationMessage = invalid.Count == 0
+                ? $"Support postal de démonstration préparé pour {valid.Count} dossier(s)."
+                : $"Support postal préparé pour {valid.Count} dossier(s); {invalid.Count} exclu(s) (adresse incomplète).";
+        }
+        catch (Exception ex)
+        {
+            OperationMessage = $"Impossible de créer le support postal : {ex.Message}";
         }
     }
 
