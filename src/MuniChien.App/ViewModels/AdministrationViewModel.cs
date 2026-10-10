@@ -3,6 +3,7 @@ using MuniChien.App.Views;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using System.IO;
 
 namespace MuniChien.App.ViewModels;
 
@@ -273,14 +274,22 @@ public class AdministrationViewModel : ViewModelBase
 
     private void OpenSensitiveSettings()
     {
-        MessageBox.Show(
-            "La gestion des paramètres sensibles sera reliée aux paramètres réels de la municipalité et à l'API.\n\n" +
-            "Cette section pourra notamment contenir les tarifs, frais et règles administratives.",
-            "Paramètres sensibles",
-            MessageBoxButton.OK,
-            MessageBoxImage.Information);
+        try
+        {
+            LicenseTariffsDialog dialog = new();
+            if (Application.Current?.MainWindow is Window mainWindow)
+                dialog.Owner = mainWindow;
+            dialog.ShowDialog();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            MessageBox.Show(
+                $"Impossible d’ouvrir le répertoire local des tarifs :\n{ex.Message}\n\nAucun tarif existant n’a été effacé.",
+                "Tarifs des licences",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
     }
-
 
     // ==================================================
     // ARCHIVES

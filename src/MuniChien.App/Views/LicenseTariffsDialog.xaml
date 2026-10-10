@@ -1,0 +1,243 @@
+<Window x:Class="MuniChien.App.Views.LicenseTariffsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Tarifs des licences — MuniChien"
+        Width="1060" Height="730" MinWidth="880" MinHeight="680"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="#F6F7F9">
+
+    <Window.Resources>
+        <Style x:Key="TariffLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#475467"/>
+            <Setter Property="Margin" Value="0,0,0,7"/>
+        </Style>
+
+        <Style x:Key="TariffInput" TargetType="TextBox">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#242B38"/>
+            <Setter Property="BorderBrush" Value="#D0D5DD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="InputBorder"
+                                CornerRadius="9"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="12,0" VerticalAlignment="Center"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden" Focusable="False" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#F27B29"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="InputBorder" Property="Background" Value="#F2F4F7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TariffGrid" TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="RowHeight" Value="44"/>
+            <Setter Property="ColumnHeaderHeight" Value="40"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="AlternatingRowBackground" Value="#F8FAFC"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Entête -->
+        <Border Grid.Row="0" Background="White" BorderBrush="#EAECF0" BorderThickness="0,0,0,1" Padding="26,14,26,13">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Tarifs des licences" Foreground="#242B38" FontSize="25" FontWeight="SemiBold"/>
+                    <TextBlock Text="Configurez les montants par municipalité, année et type de tarif."
+                               Foreground="#667085" FontSize="13" Margin="0,5,0,0"/>
+                </StackPanel>
+                <Border Grid.Column="1" Background="#FFF3E9" BorderBrush="#F9CFAA"
+                        BorderThickness="1" Padding="12,7" CornerRadius="14" VerticalAlignment="Center">
+                    <TextBlock Text="Données locales · Démo" Foreground="#B6530C" FontWeight="SemiBold" FontSize="12"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Message de sécurité et filtres -->
+        <StackPanel Grid.Row="1" Margin="24,10,24,9">
+            <TextBlock Foreground="#92400E" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,9"
+                       Text="Démonstration locale : les tarifs enregistrés ne modifient pas encore les licences, paiements ou avis."/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="190"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Afficher la municipalité" Style="{StaticResource TariffLabel}"/>
+                    <ComboBox Height="42" ItemsSource="{Binding MunicipalityOptions}"
+                              SelectedItem="{Binding FilterMunicipality, Mode=TwoWay}"
+                              Style="{StaticResource RoundedComboBoxStyle}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Filtrer par année (vide = toutes)" Style="{StaticResource TariffLabel}"/>
+                    <TextBox Text="{Binding FilterYear, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource TariffInput}"/>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+
+        <!-- Répertoire et formulaire -->
+        <Grid Grid.Row="2" Margin="24,0,24,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.25*" MinWidth="390"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*" MinWidth="340"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="White" BorderBrush="#E4E7EC" BorderThickness="1" CornerRadius="13" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Margin="2,0,2,14">
+                        <TextBlock Text="Tarifs enregistrés" FontSize="17" FontWeight="SemiBold" Foreground="#242B38" DockPanel.Dock="Left"/>
+                        <TextBlock Text="{Binding ResultsDisplay}" Foreground="#667085" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    </DockPanel>
+                    <DataGrid Grid.Row="1" Style="{StaticResource TariffGrid}"
+                              ItemsSource="{Binding VisibleTariffs}"
+                              SelectedItem="{Binding SelectedTariff, Mode=TwoWay}"
+                              Background="White">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Municipalité" Binding="{Binding Municipality}" Width="*" MinWidth="125"/>
+                            <DataGridTextColumn Header="Année" Binding="{Binding Year}" Width="66"/>
+                            <DataGridTextColumn Header="Tarif" Binding="{Binding Label}" Width="*" MinWidth="110"/>
+                            <DataGridTextColumn Header="Montant" Binding="{Binding AmountDisplay}" Width="97"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBlock Grid.Row="2" Text="Sélectionnez une ligne pour la modifier ou la supprimer."
+                               Foreground="#667085" FontSize="12" Margin="3,13,3,0" TextWrapping="Wrap"/>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" Background="White" BorderBrush="#E4E7EC" BorderThickness="1" CornerRadius="13" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding EditorTitle}" FontSize="17" FontWeight="SemiBold" Foreground="#242B38" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Content="Nouveau" Command="{Binding NewCommand}"
+                                Style="{StaticResource SecondaryActionButtonStyle}" Padding="12,7"/>
+                    </Grid>
+                    <!-- Formulaire compact : sans ScrollViewer imbriqué.
+                         Municipalité et année sont visibles ensemble. -->
+                    <Grid Grid.Row="1" VerticalAlignment="Top">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Municipalité" Style="{StaticResource TariffLabel}"/>
+                                <ComboBox ItemsSource="{Binding Municipalities}"
+                                          SelectedItem="{Binding Municipality, Mode=TwoWay}"
+                                          Style="{StaticResource RoundedComboBoxStyle}" Height="42"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Année" Style="{StaticResource TariffLabel}"/>
+                                <TextBox Text="{Binding Year, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource TariffInput}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Grid.Row="1" Margin="0,0,0,10">
+                            <TextBlock Text="Libellé du tarif" Style="{StaticResource TariffLabel}"/>
+                            <TextBox Text="{Binding Label, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource TariffInput}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Margin="0,0,0,8">
+                            <TextBlock Text="Montant ($ CAD)" Style="{StaticResource TariffLabel}"/>
+                            <TextBox Text="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource TariffInput}"/>
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="3" Foreground="#667085" FontSize="11" TextWrapping="Wrap"
+                                   Text="Montant : 25,00 ou 25.00. Types de tarifs et prix à confirmer avec le refuge."/>
+                    </Grid>
+                    <StackPanel Grid.Row="2" Margin="0,9,0,0">
+                        <Button Content="Enregistrer le tarif" Command="{Binding SaveCommand}"
+                                Style="{StaticResource PrimaryActionButtonStyle}" Padding="15,10" HorizontalAlignment="Stretch"/>
+                        <Button Content="Supprimer le tarif sélectionné" Command="{Binding DeleteCommand}"
+                                IsEnabled="{Binding CanDelete}"
+                                Style="{StaticResource SecondaryActionButtonStyle}" Padding="15,8" Margin="0,8,0,0"
+                                HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Pied de page toujours visible -->
+        <Border Grid.Row="3" Background="White" BorderBrush="#EAECF0" BorderThickness="0,1,0,0" Padding="24,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="#A04708" FontSize="12"
+                           TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,18,0"/>
+                <Button Grid.Column="1" Content="Fermer" Click="Close_Click"
+                        Padding="20,9" Style="{StaticResource SecondaryActionButtonStyle}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
