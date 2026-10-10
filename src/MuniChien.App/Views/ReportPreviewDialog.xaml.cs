@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using MuniChien.App.ViewModels;
+using MuniChien.App.Services;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
@@ -24,7 +25,8 @@ public partial class ReportPreviewDialog : Window
         string municipality,
         string period,
         IReadOnlyList<string> headers,
-        IReadOnlyList<ReportPreviewRowViewModel> rows)
+        IReadOnlyList<ReportPreviewRowViewModel> rows,
+        string summary = "")
     {
         InitializeComponent();
 
@@ -45,6 +47,8 @@ public partial class ReportPreviewDialog : Window
             DateTime.Now.ToString(
                 "yyyy-MM-dd HH:mm");
 
+
+        Summary = summary;
 
         _headers =
             headers;
@@ -76,6 +80,10 @@ public partial class ReportPreviewDialog : Window
     public string Period { get; }
 
     public string GeneratedAt { get; }
+
+    public string Summary { get; }
+
+    public bool HasSummary => !string.IsNullOrWhiteSpace(Summary);
 
 
     public ObservableCollection<ReportPreviewRowViewModel>
@@ -175,12 +183,13 @@ public partial class ReportPreviewDialog : Window
             new();
 
 
+        List<int> visibleIndexes =
+            Enumerable.Range(0, Math.Min(6, _headers.Count))
+                .Where(i => !string.IsNullOrWhiteSpace(_headers[i]))
+                .ToList();
+
         IEnumerable<string> visibleHeaders =
-            _headers
-                .Where(
-                    header =>
-                        !string.IsNullOrWhiteSpace(
-                            header));
+            visibleIndexes.Select(i => _headers[i]);
 
 
         csv.AppendLine(
@@ -205,21 +214,11 @@ public partial class ReportPreviewDialog : Window
             ];
 
 
-            int visibleColumnCount =
-                _headers.Count(
-                    header =>
-                        !string.IsNullOrWhiteSpace(
-                            header));
-
-
             csv.AppendLine(
                 string.Join(
                     ";",
-                    values
-                        .Take(
-                            visibleColumnCount)
-                        .Select(
-                            EscapeCsv)));
+                    visibleIndexes
+                        .Select(i => EscapeCsv(values[i]))));
         }
 
 
@@ -237,6 +236,16 @@ public partial class ReportPreviewDialog : Window
             MessageBoxImage.Information);
     }
 
+
+    // ==================================================
+    // IMPRIMER (y compris Microsoft Print to PDF)
+    // ==================================================
+
+    private void Print_Click(object sender, RoutedEventArgs e)
+    {
+        ReportPrintService.Print(this, ReportTitle, Description,
+            Municipality, Period, GeneratedAt, Summary, _headers, Rows);
+    }
 
     // ==================================================
     // FERMER

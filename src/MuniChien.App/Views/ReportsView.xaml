@@ -237,10 +237,79 @@
 
                         </Grid>
 
+                        <Grid Margin="0,18,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Date du rapport journalier"
+                                           FontSize="12" FontWeight="SemiBold"
+                                           Foreground="#667085" Margin="0,0,0,6"/>
+                                <DatePicker SelectedDate="{Binding SelectedDailyDate, Mode=TwoWay}"
+                                            Height="40"/>
+                                <TextBlock Text="Utilisée seulement pour les paiements journaliers."
+                                           FontSize="11" Foreground="#98A2B3"
+                                           Margin="2,6,0,0"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="2"
+                                       Text="Soldes impayés et frais de retard : état actuel des comptes, sans filtre de période."
+                                       TextWrapping="Wrap" VerticalAlignment="Center"
+                                       FontSize="12" Foreground="#667085"/>
+                        </Grid>
                     </StackPanel>
 
                 </Border>
 
+                <!-- ==================================================
+                     APERÇU FINANCIER
+                     ================================================== -->
+                <Border Background="#FFF7F0" BorderBrush="#F5DDCA"
+                        BorderThickness="1" CornerRadius="13" Padding="18"
+                        Margin="0,0,0,24">
+                    <StackPanel>
+                        <TextBlock Text="Données financières locales de démonstration"
+                                   FontSize="14" FontWeight="SemiBold" Foreground="#90471B"/>
+                        <TextBlock Text="Totaux des comptes disponibles, toutes dates confondues. Le filtre de municipalité s’applique; pas le filtre de période."
+                                   Foreground="#975F40" FontSize="11" TextWrapping="Wrap"
+                                   Margin="0,4,0,14"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="White" CornerRadius="10"
+                                    Padding="15,12">
+                                <StackPanel>
+                                    <TextBlock Text="Paiements enregistrés" FontSize="12" Foreground="#667085"/>
+                                    <TextBlock Text="{Binding FinancialReceived}" FontSize="21" FontWeight="SemiBold"
+                                               Foreground="#242B38" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Background="White" CornerRadius="10"
+                                    Padding="15,12">
+                                <StackPanel>
+                                    <TextBlock Text="Soldes à recevoir" FontSize="12" Foreground="#667085"/>
+                                    <TextBlock Text="{Binding FinancialOutstanding}" FontSize="21" FontWeight="SemiBold"
+                                               Foreground="#242B38" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="4" Background="White" CornerRadius="10"
+                                    Padding="15,12">
+                                <StackPanel>
+                                    <TextBlock Text="Frais de retard inscrits" FontSize="12" Foreground="#667085"/>
+                                    <TextBlock Text="{Binding FinancialLateFees}" FontSize="21" FontWeight="SemiBold"
+                                               Foreground="#242B38" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
                 <!-- ==================================================
                      LISTES
@@ -327,20 +396,9 @@
                     <!-- SOLDES IMPAYÉS -->
 
                     <Border Grid.Column="4"
-                            Style="{StaticResource DisabledReportCardStyle}">
+                            Style="{StaticResource ReportCardStyle}">
 
                         <StackPanel>
-
-                            <Border Style="{StaticResource ComingSoonBadgeStyle}"
-                                    Margin="0,0,0,10">
-
-                                <TextBlock Text="À venir"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
-                                           Foreground="#667085"/>
-
-                            </Border>
-
 
                             <TextBlock Text="Soldes impayés"
                                        Style="{StaticResource ReportCardTitleStyle}"/>
@@ -352,9 +410,9 @@
                                        MinHeight="46"/>
 
 
-                            <Button Content="Disponible après Paiements"
-                                    IsEnabled="False"
-                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                            <Button Content="Générer le rapport"
+                                    Command="{Binding GenerateBalancesReportCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
                                     Padding="15,8"/>
 
@@ -387,20 +445,9 @@
                     <!-- FRAIS DE RETARD -->
 
                     <Border Grid.Column="0"
-                            Style="{StaticResource DisabledReportCardStyle}">
+                            Style="{StaticResource ReportCardStyle}">
 
                         <StackPanel>
-
-                            <Border Style="{StaticResource ComingSoonBadgeStyle}"
-                                    Margin="0,0,0,10">
-
-                                <TextBlock Text="À venir"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
-                                           Foreground="#667085"/>
-
-                            </Border>
-
 
                             <TextBlock Text="Frais de retard"
                                        Style="{StaticResource ReportCardTitleStyle}"/>
@@ -412,9 +459,9 @@
                                        MinHeight="46"/>
 
 
-                            <Button Content="Disponible après Paiements"
-                                    IsEnabled="False"
-                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                            <Button Content="Générer le rapport"
+                                    Command="{Binding GenerateLateFeesReportCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
                                     Padding="15,8"/>
 
@@ -454,20 +501,9 @@
                     <!-- PAIEMENTS -->
 
                     <Border Grid.Column="0"
-                            Style="{StaticResource DisabledReportCardStyle}">
+                            Style="{StaticResource ReportCardStyle}">
 
                         <StackPanel>
-
-                            <Border Style="{StaticResource ComingSoonBadgeStyle}"
-                                    Margin="0,0,0,10">
-
-                                <TextBlock Text="À venir"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
-                                           Foreground="#667085"/>
-
-                            </Border>
-
 
                             <TextBlock Text="Paiements"
                                        Style="{StaticResource ReportCardTitleStyle}"/>
@@ -479,9 +515,9 @@
                                        MinHeight="46"/>
 
 
-                            <Button Content="Disponible après Paiements"
-                                    IsEnabled="False"
-                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                            <Button Content="Générer le rapport"
+                                    Command="{Binding GeneratePaymentsReportCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
                                     Padding="15,8"/>
 
@@ -493,20 +529,9 @@
                     <!-- REVENUS -->
 
                     <Border Grid.Column="2"
-                            Style="{StaticResource DisabledReportCardStyle}">
+                            Style="{StaticResource ReportCardStyle}">
 
                         <StackPanel>
-
-                            <Border Style="{StaticResource ComingSoonBadgeStyle}"
-                                    Margin="0,0,0,10">
-
-                                <TextBlock Text="À venir"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
-                                           Foreground="#667085"/>
-
-                            </Border>
-
 
                             <TextBlock Text="Revenus"
                                        Style="{StaticResource ReportCardTitleStyle}"/>
@@ -518,9 +543,9 @@
                                        MinHeight="46"/>
 
 
-                            <Button Content="Disponible après Paiements"
-                                    IsEnabled="False"
-                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                            <Button Content="Générer le rapport"
+                                    Command="{Binding GenerateRevenueReportCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
                                     Padding="15,8"/>
 
@@ -532,34 +557,23 @@
                     <!-- JOURNALIERS -->
 
                     <Border Grid.Column="4"
-                            Style="{StaticResource DisabledReportCardStyle}">
+                            Style="{StaticResource ReportCardStyle}">
 
                         <StackPanel>
-
-                            <Border Style="{StaticResource ComingSoonBadgeStyle}"
-                                    Margin="0,0,0,10">
-
-                                <TextBlock Text="À venir"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
-                                           Foreground="#667085"/>
-
-                            </Border>
-
 
                             <TextBlock Text="Paiements journaliers"
                                        Style="{StaticResource ReportCardTitleStyle}"/>
 
 
-                            <TextBlock Text="Résumé des transactions effectuées aujourd'hui."
+                            <TextBlock Text="Transactions d’une journée choisie dans les paramètres."
                                        Style="{StaticResource ReportCardDescriptionStyle}"
                                        Margin="0,7,0,18"
                                        MinHeight="46"/>
 
 
-                            <Button Content="Disponible après Paiements"
-                                    IsEnabled="False"
-                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                            <Button Content="Générer le rapport"
+                                    Command="{Binding GenerateDailyPaymentsReportCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
                                     Padding="15,8"/>
 

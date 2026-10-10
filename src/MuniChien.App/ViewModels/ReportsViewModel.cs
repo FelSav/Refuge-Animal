@@ -1,7 +1,8 @@
-using MuniChien.App.Navigation;
+﻿using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using MuniChien.App.Views;
 using System.Windows.Input;
+using System.Globalization;
 
 namespace MuniChien.App.ViewModels;
 
@@ -10,6 +11,14 @@ public class ReportsViewModel : ViewModelBase
     // ==================================================
     // FILTRES
     // ==================================================
+
+    private readonly LocalFinancialReportService _finance =
+        new(new LocalPaymentService());
+
+    private DateTime? _selectedDailyDate = DateTime.Today;
+    private string _financialReceived = "—";
+    private string _financialOutstanding = "—";
+    private string _financialLateFees = "—";
 
     private string _selectedMunicipality =
         "Toutes les municipalités";
@@ -53,6 +62,14 @@ public class ReportsViewModel : ViewModelBase
         GenerateLicensesReportCommand =
             new RelayCommand(
                 GenerateLicensesReport);
+
+        GenerateBalancesReportCommand = new RelayCommand(GenerateBalancesReport);
+        GenerateLateFeesReportCommand = new RelayCommand(GenerateLateFeesReport);
+        GeneratePaymentsReportCommand = new RelayCommand(GeneratePaymentsReport);
+        GenerateRevenueReportCommand = new RelayCommand(GenerateRevenueReport);
+        GenerateDailyPaymentsReportCommand = new RelayCommand(GenerateDailyPaymentsReport);
+
+        UpdateFinancialOverview();
     }
 
 
@@ -89,6 +106,7 @@ public class ReportsViewModel : ViewModelBase
                 value;
 
             OnPropertyChanged();
+            UpdateFinancialOverview();
         }
     }
 
@@ -112,6 +130,45 @@ public class ReportsViewModel : ViewModelBase
     }
 
 
+    public DateTime? SelectedDailyDate
+    {
+        get => _selectedDailyDate;
+        set
+        {
+            DateTime? normalizedDate = value?.Date ?? DateTime.Today;
+            if (_selectedDailyDate == normalizedDate) return;
+            _selectedDailyDate = normalizedDate;
+            OnPropertyChanged();
+        }
+    }
+
+    public string FinancialReceived
+    {
+        get => _financialReceived;
+        private set { _financialReceived = value; OnPropertyChanged(); }
+    }
+
+    public string FinancialOutstanding
+    {
+        get => _financialOutstanding;
+        private set { _financialOutstanding = value; OnPropertyChanged(); }
+    }
+
+    public string FinancialLateFees
+    {
+        get => _financialLateFees;
+        private set { _financialLateFees = value; OnPropertyChanged(); }
+    }
+
+    private void UpdateFinancialOverview()
+    {
+        var overview = _finance.GetOverview(SelectedMunicipality);
+        var culture = CultureInfo.GetCultureInfo("fr-CA");
+        FinancialReceived = overview.Received.ToString("C2", culture);
+        FinancialOutstanding = overview.Outstanding.ToString("C2", culture);
+        FinancialLateFees = overview.LateFees.ToString("C2", culture);
+    }
+
     // ==================================================
     // COMMANDES
     // ==================================================
@@ -123,6 +180,33 @@ public class ReportsViewModel : ViewModelBase
     public ICommand GenerateBreedReportCommand { get; }
 
     public ICommand GenerateLicensesReportCommand { get; }
+    public ICommand GenerateBalancesReportCommand { get; }
+    public ICommand GenerateLateFeesReportCommand { get; }
+    public ICommand GeneratePaymentsReportCommand { get; }
+    public ICommand GenerateRevenueReportCommand { get; }
+    public ICommand GenerateDailyPaymentsReportCommand { get; }
+
+    private void ShowFinancialReport(FinancialReportResult report)
+    {
+        OpenPreview(report.Title, report.Description, report.Period,
+            report.Headers, report.Rows, report.Summary);
+    }
+
+    private void GenerateBalancesReport() =>
+        ShowFinancialReport(_finance.GenerateUnpaidBalances(SelectedMunicipality));
+
+    private void GenerateLateFeesReport() =>
+        ShowFinancialReport(_finance.GenerateLateFees(SelectedMunicipality));
+
+    private void GeneratePaymentsReport() =>
+        ShowFinancialReport(_finance.GeneratePayments(SelectedMunicipality, SelectedPeriod));
+
+    private void GenerateRevenueReport() =>
+        ShowFinancialReport(_finance.GenerateRevenue(SelectedMunicipality, SelectedPeriod));
+
+    private void GenerateDailyPaymentsReport() =>
+        ShowFinancialReport(_finance.GenerateDailyPayments(
+            SelectedMunicipality, SelectedDailyDate ?? DateTime.Today));
 
 
     // ==================================================
@@ -524,8 +608,28 @@ public class ReportsViewModel : ViewModelBase
     private static IReadOnlyList<string>
         BuildMunicipalityOptions()
     {
-        List<string> municipalities = MunicipalityCatalog.All.ToList();
-        municipalities.Insert(0, "Toutes les municipalités");
+        List<string> municipalities =
+            LocalLicenseStore.Licenses
+                .Select(
+                    license =>
+                        license.Municipality)
+                .Where(
+                    municipality =>
+                        !string.IsNullOrWhiteSpace(
+                            municipality))
+                .Distinct(
+                    StringComparer.OrdinalIgnoreCase)
+                .OrderBy(
+                    municipality =>
+                        municipality)
+                .ToList();
+
+
+        municipalities.Insert(
+            0,
+            "Toutes les municipalités");
+
+
         return municipalities;
     }
 
@@ -539,7 +643,8 @@ public class ReportsViewModel : ViewModelBase
         string description,
         string periodDisplay,
         IReadOnlyList<string> headers,
-        IReadOnlyList<ReportPreviewRowViewModel> rows)
+        IReadOnlyList<ReportPreviewRowViewModel> rows,
+        string summary = "")
     {
         ReportPreviewDialog dialog =
             new(
@@ -548,7 +653,8 @@ public class ReportsViewModel : ViewModelBase
                 SelectedMunicipality,
                 periodDisplay,
                 headers,
-                rows);
+                rows,
+                summary);
 
 
         if (System.Windows.Application.Current?.MainWindow
