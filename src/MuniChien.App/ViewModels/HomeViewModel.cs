@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System;
 using System.Linq;
 using System.Windows.Input;
 using MuniChien.App.Navigation;
@@ -24,6 +25,10 @@ public class HomeViewModel : ViewModelBase
     ];
 
     private readonly DashboardLayoutService _layoutService = new();
+    private readonly IDashboardStatisticsService _statisticsService;
+    private IReadOnlyDictionary<string, string> _metricValues =
+        new Dictionary<string, string>();
+    private string _lastUpdatedDisplay = "Pas encore actualisé";
 
     // Navigation fournie par MainWindowViewModel : aucune dépendance
     // directe du tableau de bord envers les autres pages.
@@ -48,9 +53,12 @@ public class HomeViewModel : ViewModelBase
     // CONSTRUCTEUR
     // ==================================================
 
-    public HomeViewModel(Action<string>? navigate = null)
+    public HomeViewModel(
+        Action<string>? navigate = null,
+        IDashboardStatisticsService? statisticsService = null)
     {
         _navigate = navigate;
+        _statisticsService = statisticsService ?? new LocalDashboardStatisticsService();
 
         OpenSearchQuickCommand = new RelayCommand(() => _navigate?.Invoke("Recherche"));
         OpenOwnersQuickCommand = new RelayCommand(() => _navigate?.Invoke("Propriétaires"));
@@ -83,7 +91,10 @@ public class HomeViewModel : ViewModelBase
         DeleteManualMetricCommand =
             new RelayCommand(DeleteManualMetric);
 
+        RefreshStatisticsCommand = new RelayCommand(RefreshStatistics);
+
         ApplySavedLayout();
+        RefreshStatistics();
     }
 
 
@@ -331,6 +342,21 @@ public class HomeViewModel : ViewModelBase
 
     public ICommand DeleteManualMetricCommand { get; }
 
+    public ICommand RefreshStatisticsCommand { get; }
+
+    public string LastUpdatedDisplay
+    {
+        get => _lastUpdatedDisplay;
+        private set
+        {
+            if (_lastUpdatedDisplay == value)
+                return;
+
+            _lastUpdatedDisplay = value;
+            OnPropertyChanged();
+        }
+    }
+
 
     // ==================================================
     // OUVERTURE / FERMETURE DU PANNEAU
@@ -367,7 +393,7 @@ public class HomeViewModel : ViewModelBase
         [
             new("activeDogs", "Chiens actifs"),
             new("licensesToRenew", "Licences à renouveler"),
-            new("unpaidBalances", "Soldes impayés"),
+            new("unpaidBalances", "Dossiers avec solde dû"),
             new("paymentsToday", "Paiements aujourd'hui"),
             new("dogsWithoutLicense", "Chiens sans licence"),
             new("inactiveDogs", "Chiens inactifs"),
@@ -977,29 +1003,32 @@ public class HomeViewModel : ViewModelBase
 
 
     // ==================================================
-    // VALEURS TEMPORAIRES
-    // PLUS TARD : API DE MAËL
+    // ACTUALISATION DES DONNÉES LOCALES
+    // La navigation vers Accueil crée un nouveau ViewModel,
+    // et ce bouton permet aussi un rafraîchissement manuel.
+    // Les valeurs manuelles et l'ordre des cartes sont préservés.
     // ==================================================
+
+    private void RefreshStatistics()
+    {
+        _metricValues = _statisticsService.GetMetricValues();
+
+        foreach (DashboardCardViewModel card in DashboardCards)
+        {
+            if (card.IsManual)
+                continue;
+
+            card.Value = GetMetricValue(card.Key);
+        }
+
+        LastUpdatedDisplay =
+            $"Mis à jour à {DateTime.Now:HH:mm}";
+    }
 
     private string GetMetricValue(string key)
     {
-        return key switch
-        {
-            "activeDogs" => "1248",
-            "licensesToRenew" => "37",
-            "unpaidBalances" => "18",
-            "paymentsToday" => "12",
-            "dogsWithoutLicense" => "64",
-            "inactiveDogs" => "95",
-            "noticesToSend" => "25",
-            "paymentsThisMonth" => "798",
-
-            "activeOwners" => "—",
-            "inactiveOwners" => "—",
-            "expiredLicenses" => "—",
-            "monthlyRevenue" => "—",
-
-            _ => "—"
-        };
+        return _metricValues.TryGetValue(key, out string? value)
+            ? value
+            : "—";
     }
 }
