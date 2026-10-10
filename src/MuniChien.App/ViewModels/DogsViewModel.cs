@@ -24,6 +24,8 @@ public class DogsViewModel : ViewModelBase
     // ==================================================
 
     private bool _isEditing;
+    private bool _isEditingComments;
+    private string _commentsBeforeQuickEdit = string.Empty;
 
     private string _validationMessage =
         string.Empty;
@@ -215,6 +217,11 @@ public class DogsViewModel : ViewModelBase
         CancelCommand =
             new RelayCommand(CancelChanges);
 
+        EditCommentsCommand = new RelayCommand(StartCommentEditing);
+        SaveCommentsCommand = new RelayCommand(SaveCommentChanges);
+        CancelCommentsCommand = new RelayCommand(CancelCommentChanges);
+        PrintCommentsCommand = new RelayCommand(PrintComments);
+
         RenewLicenseCommand =
             new RelayCommand(RenewLicense);
 
@@ -257,7 +264,7 @@ public class DogsViewModel : ViewModelBase
         get => _selectedDogOption;
         set
         {
-            if (ReferenceEquals(_selectedDogOption, value) || IsEditing) return;
+            if (ReferenceEquals(_selectedDogOption, value) || IsEditing || IsEditingComments) return;
             _selectedDogOption = value;
             _sourceDog = value is null ? null : _directoryService.GetDog(value.DogId) ?? value;
             OnPropertyChanged();
@@ -269,6 +276,7 @@ public class DogsViewModel : ViewModelBase
             OnPropertyChanged(nameof(OwnerAddress));
             OnPropertyChanged(nameof(LicenseNumber));
             IsEditing = false;
+            IsEditingComments = false;
             ValidationMessage = string.Empty;
             LoadDog();
             LoadLicense();
@@ -281,6 +289,31 @@ public class DogsViewModel : ViewModelBase
     }
 
     public bool IsNotEditing => !IsEditing;
+
+    public bool IsEditingComments
+    {
+        get => _isEditingComments;
+        private set
+        {
+            if (_isEditingComments == value) return;
+            _isEditingComments = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsNotEditingComments));
+            OnPropertyChanged(nameof(CanChangeSelection));
+            OnPropertyChanged(nameof(CanUseCommentActions));
+            OnPropertyChanged(nameof(IsCommentsEditable));
+            OnPropertyChanged(nameof(IsCommentsReadOnly));
+        }
+    }
+
+    public bool IsNotEditingComments => !IsEditingComments;
+    public bool CanChangeSelection => !IsEditing && !IsEditingComments;
+    public bool CanUseCommentActions => !IsEditing && !IsEditingComments && HasSelectedDog;
+    public bool IsCommentsEditable => IsEditing || IsEditingComments;
+    public bool IsCommentsReadOnly => !IsCommentsEditable;
+    public string CommentsDisplay => string.IsNullOrWhiteSpace(Comments) || Comments == "—"
+        ? "Aucun commentaire enregistré."
+        : Comments;
 
 
     // ==================================================
@@ -307,6 +340,10 @@ public class DogsViewModel : ViewModelBase
 
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsNotEditing));
+            OnPropertyChanged(nameof(CanChangeSelection));
+            OnPropertyChanged(nameof(CanUseCommentActions));
+            OnPropertyChanged(nameof(IsCommentsEditable));
+            OnPropertyChanged(nameof(IsCommentsReadOnly));
         }
     }
 
@@ -552,6 +589,7 @@ public class DogsViewModel : ViewModelBase
                 value;
 
             OnPropertyChanged();
+            OnPropertyChanged(nameof(CommentsDisplay));
         }
     }
 
@@ -722,6 +760,10 @@ public class DogsViewModel : ViewModelBase
     public ICommand SaveCommand { get; }
 
     public ICommand CancelCommand { get; }
+    public ICommand EditCommentsCommand { get; }
+    public ICommand SaveCommentsCommand { get; }
+    public ICommand CancelCommentsCommand { get; }
+    public ICommand PrintCommentsCommand { get; }
 
     public ICommand RenewLicenseCommand { get; }
 
@@ -889,7 +931,7 @@ public class DogsViewModel : ViewModelBase
 
     private void StartEditing()
     {
-        if (!HasSelectedDog)
+        if (IsEditingComments || !HasSelectedDog)
         {
             return;
         }
@@ -1560,5 +1602,58 @@ public class DogsViewModel : ViewModelBase
 
         _openOwnerAction?.Invoke(
             OwnerId);
+    }
+    // Édition rapide des commentaires, sans modifier les autres champs du chien.
+    private void StartCommentEditing()
+    {
+        if (!HasSelectedDog || IsEditing || IsEditingComments) return;
+        _commentsBeforeQuickEdit = Comments;
+        IsEditingComments = true;
+    }
+
+    private void SaveCommentChanges()
+    {
+        if (!HasSelectedDog || !IsEditingComments) return;
+        OwnerDogViewModel? dog = _directoryService.GetDog(DogId);
+        if (dog is null) return;
+
+        DogDirectoryDetails? details = _directoryService.GetDogDetails(DogId);
+        string updatedComments = Comments.Trim();
+        _directoryService.SaveDog(dog, new DogDirectoryDetails
+        {
+            Comments = updatedComments,
+            DeactivationDate = details?.DeactivationDate ?? string.Empty,
+            DeactivationReason = details?.DeactivationReason ?? string.Empty
+        });
+
+        Comments = updatedComments;
+        IsEditingComments = false;
+    }
+
+    private void CancelCommentChanges()
+    {
+        if (!IsEditingComments) return;
+        Comments = _commentsBeforeQuickEdit;
+        IsEditingComments = false;
+    }
+
+    private void PrintComments()
+    {
+        if (!HasSelectedDog || IsCommentsEditable) return;
+        OwnerDogViewModel? dog = _directoryService.GetDog(DogId);
+        if (dog is null) return;
+
+        OwnerDirectoryItem? owner = _directoryService.GetOwner(dog.OwnerId);
+        string? comments = _directoryService.GetDogDetails(DogId)?.Comments;
+
+        CommentPrintService.Print(
+            "Commentaires du chien",
+            [
+                ("Chien", dog.DogName),
+                ("Propriétaire", owner?.FullName ?? dog.OwnerName),
+                ("Dossier", owner is null ? "—" : $"#{owner.FileNumber}"),
+                ("Licence", string.IsNullOrWhiteSpace(dog.LicenseNumber) ? "—" : dog.LicenseNumber)
+            ],
+            comments);
     }
 }

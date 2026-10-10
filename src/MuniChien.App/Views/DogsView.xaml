@@ -470,7 +470,7 @@
                                   DisplayMemberPath="SelectionDisplay"
                                   TextSearch.TextPath="SelectionDisplay"
                                   IsTextSearchEnabled="True"
-                                  IsEnabled="{Binding IsNotEditing}"
+                                  IsEnabled="{Binding CanChangeSelection}"
                                   Style="{StaticResource RoundedComboBoxStyle}"/>
                     </Grid>
                 </Border>
@@ -512,6 +512,7 @@
                     <Button Grid.Column="1"
                             Content="Modifier"
                             Command="{Binding ModifyCommand}"
+                            IsEnabled="{Binding IsNotEditingComments}"
                             Style="{StaticResource DogModifyButtonStyle}"
                             VerticalAlignment="Top"/>
 
@@ -1104,34 +1105,82 @@
                             </Grid>
 
 
-                            <!-- COMMENTAIRES -->
+                            <!-- COMMENTAIRES : ÉDITION DIRECTE + IMPRESSION -->
+                            <Grid Margin="0,4,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="Commentaires"
-                                       Style="{StaticResource DogLabelStyle}"
-                                       Margin="0,0,0,6"/>
+                                <TextBlock Text="Commentaires" Style="{StaticResource DogLabelStyle}"
+                                           VerticalAlignment="Center"/>
 
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CanUseCommentActions}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <Button Content="Modifier" Command="{Binding EditCommentsCommand}"
+                                            Style="{StaticResource SecondaryActionButtonStyle}" Padding="10,6" Margin="0,0,6,0"/>
+                                    <Button Content="Imprimer" Command="{Binding PrintCommentsCommand}"
+                                            Style="{StaticResource SecondaryActionButtonStyle}" Padding="10,6"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsEditingComments}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <Button Content="Annuler" Command="{Binding CancelCommentsCommand}"
+                                            Style="{StaticResource SecondaryActionButtonStyle}" Padding="10,6" Margin="0,0,6,0"/>
+                                    <Button Content="Enregistrer" Command="{Binding SaveCommentsCommand}"
+                                            Style="{StaticResource PrimaryActionButtonStyle}" Padding="10,6"/>
+                                </StackPanel>
+                            </Grid>
 
                             <Grid>
-
-                                <Border Style="{StaticResource DogReadOnlyContainerStyle}"
-                                        MinHeight="80">
-
-                                    <TextBlock Text="{Binding Comments}"
-                                               Style="{StaticResource DogValueStyle}"
-                                               TextWrapping="Wrap"/>
-
+                                <Border MinHeight="95">
+                                    <Border.Style>
+                                        <Style TargetType="Border" BasedOn="{StaticResource DogValueBoxStyle}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsCommentsEditable}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding CommentsDisplay, Mode=OneWay}" FontSize="14"
+                                               Foreground="#242424" TextWrapping="Wrap"/>
                                 </Border>
 
-
-                                <TextBox Text="{Binding Comments,
-                                                      UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource DogEditTextBoxStyle}"
-                                         Height="80"
-                                         AcceptsReturn="True"
-                                         TextWrapping="Wrap"
-                                         VerticalContentAlignment="Top"
-                                         Padding="10"/>
-
+                                <TextBox Text="{Binding Comments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Height="110" MinWidth="100" AcceptsReturn="True"
+                                         TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="10"
+                                         VerticalScrollBarVisibility="Auto">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox" BasedOn="{StaticResource DogEditTextBoxBaseStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsCommentsEditable}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
                             </Grid>
 
                         </StackPanel>

@@ -495,7 +495,7 @@
                                   DisplayMemberPath="SelectionDisplay"
                                   IsTextSearchEnabled="True"
                                   TextSearch.TextPath="SelectionDisplay"
-                                  IsEnabled="{Binding IsNotEditing}"
+                                  IsEnabled="{Binding CanChangeSelection}"
                                   Style="{StaticResource RoundedComboBoxStyle}"/>
                     </Grid>
                 </Border>
@@ -541,6 +541,7 @@
                     <Button Grid.Column="1"
                             Content="Modifier"
                             Command="{Binding ModifyCommand}"
+                            IsEnabled="{Binding IsNotEditingComments}"
                             Style="{StaticResource OwnerModifyButtonStyle}"
                             VerticalAlignment="Top"/>
 
@@ -980,100 +981,88 @@
 
 
                 <!-- ==================================================
-     COMMENTAIRES
-     ================================================== -->
+                     COMMENTAIRES : ÉDITION DIRECTE ET IMPRESSION
+                     ================================================== -->
+                <Grid Margin="0,30,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Commentaires"
-           Style="{StaticResource OwnerSectionTitleStyle}"
-           Margin="0,30,0,12"/>
+                    <TextBlock Text="Commentaires" Style="{StaticResource OwnerSectionTitleStyle}"
+                               VerticalAlignment="Center"/>
 
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CanUseCommentActions}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <Button Content="Modifier les commentaires" Command="{Binding EditCommentsCommand}"
+                                Style="{StaticResource SecondaryActionButtonStyle}" Padding="14,7" Margin="0,0,8,0"/>
+                        <Button Content="Imprimer" Command="{Binding PrintCommentsCommand}"
+                                Style="{StaticResource SecondaryActionButtonStyle}" Padding="14,7"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditingComments}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <Button Content="Annuler" Command="{Binding CancelCommentsCommand}"
+                                Style="{StaticResource SecondaryActionButtonStyle}" Padding="14,7" Margin="0,0,8,0"/>
+                        <Button Content="Enregistrer" Command="{Binding SaveCommentsCommand}"
+                                Style="{StaticResource PrimaryActionButtonStyle}" Padding="14,7"/>
+                    </StackPanel>
+                </Grid>
 
                 <Grid>
-
                     <!-- Lecture seule -->
-                    <Border Background="White"
-            BorderBrush="#D0D5DD"
-            BorderThickness="1"
-            CornerRadius="12"
-            MinHeight="130">
-
+                    <Border Background="White" BorderBrush="#D0D5DD" BorderThickness="1"
+                            CornerRadius="12" MinHeight="130" Padding="14">
                         <Border.Style>
-
                             <Style TargetType="Border">
-
-                                <Setter Property="Visibility"
-                        Value="Visible"/>
-
+                                <Setter Property="Visibility" Value="Visible"/>
                                 <Style.Triggers>
-
-                                    <DataTrigger Binding="{Binding IsEditing}"
-                                 Value="True">
-
-                                        <Setter Property="Visibility"
-                                Value="Collapsed"/>
-
+                                    <DataTrigger Binding="{Binding IsCommentsReadOnly}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
                                     </DataTrigger>
-
                                 </Style.Triggers>
-
                             </Style>
-
                         </Border.Style>
-
-
-                        <TextBlock Text="{Binding Comments}"
-                   Padding="14"
-                   FontSize="14"
-                   Foreground="#242424"
-                   TextWrapping="Wrap"/>
-
+                        <TextBlock Text="{Binding CommentsDisplay, Mode=OneWay}" FontSize="14"
+                                   Foreground="#242424" TextWrapping="Wrap"/>
                     </Border>
 
-
-                    <!-- Édition -->
-                    <Border Background="White"
-            BorderBrush="#E87524"
-            BorderThickness="1"
-            CornerRadius="12"
-            MinHeight="130">
-
+                    <!-- Édition depuis la fiche complète ou depuis Modifier les commentaires -->
+                    <Border Background="White" BorderBrush="#E87524" BorderThickness="1"
+                            CornerRadius="12" MinHeight="130">
                         <Border.Style>
-
                             <Style TargetType="Border">
-
-                                <Setter Property="Visibility"
-                        Value="Collapsed"/>
-
+                                <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
-
-                                    <DataTrigger Binding="{Binding IsEditing}"
-                                 Value="True">
-
-                                        <Setter Property="Visibility"
-                                Value="Visible"/>
-
+                                    <DataTrigger Binding="{Binding IsCommentsEditable}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
-
                                 </Style.Triggers>
-
                             </Style>
-
                         </Border.Style>
-
-
-                        <TextBox Text="{Binding Comments,
-                                 UpdateSourceTrigger=PropertyChanged}"
-                                 Background="Transparent"
-                                BorderThickness="0"
-                                Padding="14"
-                                FontSize="14"
-                                Foreground="#242424"
-                                AcceptsReturn="True"
-                                TextWrapping="Wrap"
-                                VerticalScrollBarVisibility="Auto"/>
-
+                        <TextBox Text="{Binding Comments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Background="Transparent" BorderThickness="0" Padding="14"
+                                 FontSize="14" Foreground="#242424" AcceptsReturn="True"
+                                 TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
                     </Border>
-
                 </Grid>
 
             </StackPanel>
