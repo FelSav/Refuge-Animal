@@ -10,6 +10,10 @@ public interface INoticeService
     bool WasSent(int ownerId, int year, string campaign);
     DateTime? GetLastSentDate(int ownerId, int year, string campaign);
     void RecordSent(int ownerId, int year, string campaign, DateTime sentAt);
+
+    // Historique de démonstration indépendant du solde actuel et de la campagne affichée.
+    IReadOnlyList<NoticeSentHistoryEntry> GetSentHistory();
+    void ClearDemoHistory();
 }
 
 public sealed class NoticeDogData

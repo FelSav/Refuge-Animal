@@ -8,8 +8,6 @@ namespace MuniChien.App.Services;
 // Aucune entrée de ce service ne constitue un avis de paiement officiel.
 public sealed class LocalNoticeService : INoticeService
 {
-    private static readonly List<LocalNoticeSentEntry> SentHistory = new();
-
     public IReadOnlyList<NoticeCandidateData> GetCandidates(int year, string campaign)
     {
         // L'année et la campagne seront utilisées par le futur service API.
@@ -54,24 +52,42 @@ public sealed class LocalNoticeService : INoticeService
     }
 
     public bool WasSent(int ownerId, int year, string campaign) =>
-        SentHistory.Any(record => record.OwnerId == ownerId
+        LocalNoticeHistoryStore.GetAll().Any(record => record.OwnerId == ownerId
             && record.Year == year && record.Campaign == campaign);
 
     public DateTime? GetLastSentDate(int ownerId, int year, string campaign) =>
-        SentHistory
+        LocalNoticeHistoryStore.GetAll()
             .Where(record => record.OwnerId == ownerId
                 && record.Year == year && record.Campaign == campaign)
             .Select(record => (DateTime?)record.SentAt)
             .OrderByDescending(date => date)
             .FirstOrDefault();
 
+    public IReadOnlyList<NoticeSentHistoryEntry> GetSentHistory() =>
+        LocalNoticeHistoryStore.GetAll();
+
     public void RecordSent(int ownerId, int year, string campaign, DateTime sentAt)
     {
-        if (WasSent(ownerId, year, campaign))
-            return;
+        // Garder les renseignements tels qu'ils se présentaient à la confirmation.
+        // L'API gérera plus tard les versions officielles et l'identité de l'employé.
+        var owner = LocalAnimalDirectoryStore.GetOwner(ownerId);
+        var paymentOwner = LocalPaymentStore.GetOwnerOptions()
+            .FirstOrDefault(item => item.OwnerId == ownerId);
 
-        SentHistory.Add(new LocalNoticeSentEntry(ownerId, year, campaign, sentAt));
+        if (owner is null && paymentOwner is null)
+            throw new InvalidOperationException("Le dossier propriétaire n'existe plus.");
+
+        LocalNoticeHistoryStore.TryAdd(new NoticeSentHistoryEntry
+        {
+            OwnerId = ownerId,
+            FileNumber = owner?.FileNumber ?? paymentOwner?.FileNumber ?? string.Empty,
+            OwnerName = owner?.FullName ?? paymentOwner?.OwnerName ?? string.Empty,
+            Municipality = owner?.Municipality ?? paymentOwner?.Municipality ?? string.Empty,
+            Year = year,
+            Campaign = campaign,
+            SentAt = sentAt
+        });
     }
 
-    private sealed record LocalNoticeSentEntry(int OwnerId, int Year, string Campaign, DateTime SentAt);
+    public void ClearDemoHistory() => LocalNoticeHistoryStore.Clear();
 }

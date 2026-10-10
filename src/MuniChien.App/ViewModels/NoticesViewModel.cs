@@ -27,7 +27,7 @@ public sealed class NoticesViewModel : ViewModelBase
     public NoticesViewModel(INoticeService? noticeService = null)
     {
         _noticeService = noticeService ?? new LocalNoticeService();
-        YearOptions = new[] { DateTime.Today.Year - 1, DateTime.Today.Year, DateTime.Today.Year + 1 };
+        YearOptions = Enumerable.Range(DateTime.Today.Year - 4, 6).Reverse().ToArray();
         MunicipalityOptions = new[] { "Toutes les municipalités" }
             .Concat(MunicipalityCatalog.All).ToArray();
 
@@ -41,6 +41,7 @@ public sealed class NoticesViewModel : ViewModelBase
         PreviewLabelsCommand = new RelayCommand(() => OpenMailingPreview(false));
         ConfigureTemplateCommand = new RelayCommand(OpenTemplateSettings);
         SimulateSentCommand = new RelayCommand(SimulateSent);
+        ClearHistoryCommand = new RelayCommand(ClearDemoHistory);
 
         RefreshCandidates();
     }
@@ -48,6 +49,11 @@ public sealed class NoticesViewModel : ViewModelBase
     public IReadOnlyList<int> YearOptions { get; }
     public IReadOnlyList<string> MunicipalityOptions { get; }
     public ObservableCollection<NoticeCandidateViewModel> Candidates { get; } = new();
+    public ObservableCollection<NoticeHistoryItemViewModel> History { get; } = new();
+    public int HistoryCount => History.Count;
+    public bool HasHistory => HistoryCount > 0;
+    public int JanuaryHistoryCount => History.Count(h => h.Campaign == JanuaryCampaign);
+    public int MarchHistoryCount => History.Count(h => h.Campaign == MarchCampaign);
 
     public string SelectedCampaign
     {
@@ -128,8 +134,21 @@ public sealed class NoticesViewModel : ViewModelBase
     public ICommand PreviewLabelsCommand { get; }
     public ICommand ConfigureTemplateCommand { get; }
     public ICommand SimulateSentCommand { get; }
+    public ICommand ClearHistoryCommand { get; }
 
     private void RefreshCandidates()
+    {
+        try
+        {
+            LoadCandidatesAndHistory();
+        }
+        catch (Exception ex)
+        {
+            OperationMessage = $"Impossible de charger les avis ou l'historique : {ex.Message}";
+        }
+    }
+
+    private void LoadCandidatesAndHistory()
     {
         foreach (var previous in Candidates)
             previous.PropertyChanged -= CandidatePropertyChanged;
@@ -172,8 +191,36 @@ public sealed class NoticesViewModel : ViewModelBase
             Candidates.Add(item);
         }
 
+        RefreshHistory();
         OperationMessage = string.Empty;
         RefreshStatistics();
+    }
+
+    private void RefreshHistory()
+    {
+        History.Clear();
+        var records = _noticeService.GetSentHistory()
+            .Where(entry => entry.Year == SelectedYear);
+
+        if (SelectedMunicipality != "Toutes les municipalités")
+            records = records.Where(entry => string.Equals(
+                entry.Municipality, SelectedMunicipality, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(OwnerSearch))
+        {
+            string search = OwnerSearch.Trim();
+            records = records.Where(entry =>
+                entry.OwnerName.Contains(search, StringComparison.OrdinalIgnoreCase)
+                || entry.FileNumber.Contains(search, StringComparison.OrdinalIgnoreCase));
+        }
+
+        foreach (var record in records.OrderByDescending(entry => entry.SentAt))
+            History.Add(new NoticeHistoryItemViewModel(record));
+
+        OnPropertyChanged(nameof(HistoryCount));
+        OnPropertyChanged(nameof(HasHistory));
+        OnPropertyChanged(nameof(JanuaryHistoryCount));
+        OnPropertyChanged(nameof(MarchHistoryCount));
     }
 
     private void CandidatePropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -307,17 +354,71 @@ public sealed class NoticesViewModel : ViewModelBase
         }
 
         var answer = MessageBox.Show(
-            $"Marquer {newNotices.Count} avis comme envoyés dans la démonstration ?\n\n" +
-            "Cela ne crée aucun envoi postal, ne modifie aucune donnée réelle et ne survivra pas au redémarrage.",
-            "Simulation d'envoi — MuniChien", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            $"Confirmer {newNotices.Count} envoi(s) SIMULÉ(S) pour {SelectedCampaign}, année {SelectedYear} ?\n\n" +
+            "Il n'y a AUCUN envoi postal réel. L'historique de démonstration sera sauvegardé sur cet ordinateur.\n" +
+            "La prévisualisation et l'impression ne marquent jamais un avis comme envoyé.",
+            "Confirmation d'envois simulés — MuniChien", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
         if (answer != MessageBoxResult.Yes) return;
 
-        foreach (var candidate in newNotices)
-            _noticeService.RecordSent(candidate.OwnerId, SelectedYear, SelectedCampaign, DateTime.Now);
+        int saved = 0;
+        try
+        {
+            foreach (var candidate in newNotices)
+            {
+                if (_noticeService.WasSent(candidate.OwnerId, SelectedYear, SelectedCampaign))
+                    continue;
+
+                _noticeService.RecordSent(candidate.OwnerId, SelectedYear, SelectedCampaign, DateTime.Now);
+                saved++;
+            }
+        }
+        catch (Exception ex)
+        {
+            RefreshCandidates();
+            OperationMessage = $"Enregistrement interrompu après {saved} dossier(s) : {ex.Message}";
+            return;
+        }
 
         RefreshCandidates();
-        OperationMessage = $"{newNotices.Count} dossier(s) marqué(s) comme envoyé(s) en mode démonstration.";
+        OperationMessage = $"{saved} envoi(s) SIMULÉ(S) enregistré(s) dans l'historique local. Aucun courrier n'a été envoyé.";
+    }
+
+    private void ClearDemoHistory()
+    {
+        try
+        {
+            if (_noticeService.GetSentHistory().Count == 0)
+            {
+                OperationMessage = "L'historique de démonstration est déjà vide.";
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            OperationMessage = $"Impossible de lire l'historique : {ex.Message}";
+            return;
+        }
+
+        var confirmation = MessageBox.Show(
+            "Supprimer TOUT l'historique d'envois SIMULÉS enregistré sur cet ordinateur ?\n\n" +
+            "Cette action ne touche pas aux dossiers propriétaires, paiements, licences ou documents imprimés.\n" +
+            "Elle ne concerne pas les futurs avis officiels de l'API.",
+            "Réinitialiser uniquement la démonstration", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+        if (confirmation != MessageBoxResult.Yes)
+            return;
+
+        try
+        {
+            _noticeService.ClearDemoHistory();
+            RefreshCandidates();
+            OperationMessage = "Historique de démonstration effacé. Aucun dossier réel n'a été modifié.";
+        }
+        catch (Exception ex)
+        {
+            OperationMessage = $"Impossible de réinitialiser l'historique : {ex.Message}";
+        }
     }
 
     private void RefreshStatistics()
