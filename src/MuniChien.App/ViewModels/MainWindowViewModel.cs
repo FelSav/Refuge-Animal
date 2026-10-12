@@ -348,7 +348,7 @@ public class MainWindowViewModel : ViewModelBase
     private void ShowSearch()
     {
         NavigateTo(
-            new SearchViewModel(),
+            new SearchViewModel(OpenDog, OpenOwner, _services.Animals),
             "Recherche");
     }
 

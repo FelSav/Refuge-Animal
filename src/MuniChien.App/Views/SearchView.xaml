@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="MuniChien.App.Views.SearchView"
+<UserControl x:Class="MuniChien.App.Views.SearchView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
@@ -327,409 +327,317 @@
 
         </Style>
 
+    
+        <BooleanToVisibilityConverter x:Key="SearchBoolToVisibility"/>
+
+        <Style x:Key="SearchTabStyle" TargetType="TabItem">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#667085"/>
+            <Setter Property="Padding" Value="23,12"/>
+            <!-- L'espace entre les onglets est gere dans le template pour eviter
+                 que le TabPanel coupe l'arrondi droit des pastilles. -->
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="TabBackground"
+                                Background="#F2F4F7"
+                                CornerRadius="12"
+                                BorderBrush="Transparent"
+                                BorderThickness="1"
+                                Margin="1,1,13,2"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabBackground" Property="Background" Value="#FFF3E9"/>
+                                <Setter TargetName="TabBackground" Property="BorderBrush" Value="#F5C7AA"/>
+                                <Setter Property="Foreground" Value="#B94D0E"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabBackground" Property="BorderBrush" Value="#F0C3A4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
-
-    <!-- ==================================================
-         PAGE
-         ================================================== -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+    </UserControl.InputBindings>
 
     <Grid Background="#F6F7F9">
-
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled">
-
-            <StackPanel Margin="52,38,52,42">
-
-
-                <!-- ==================================================
-                     TITRE
-                     ================================================== -->
-
-                <TextBlock Text="Recherche"
-                           FontSize="26"
-                           FontWeight="SemiBold"
-                           Foreground="#242B38"/>
-
-                <TextBlock Text="Recherchez un dossier à l'aide du propriétaire, du chien ou des informations de licence."
-                           Margin="0,8,0,28"
-                           FontSize="14"
-                           Foreground="#667085"/>
-
-
-                <!-- ==================================================
-                     CRITÈRES DE RECHERCHE
-                     ================================================== -->
-
-                <Border Style="{StaticResource SoftSectionBorderStyle}">
-
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="32,25,32,36">
+                <DockPanel Margin="0,0,0,22" LastChildFill="True">
+                    <Border DockPanel.Dock="Right" Background="#FFF4EA"
+                            BorderBrush="#FFD0AD" BorderThickness="1"
+                            CornerRadius="12" Padding="15,9" VerticalAlignment="Center">
+                        <TextBlock Text="Données locales · Démo" Foreground="#AA4B12"
+                                   FontSize="12" FontWeight="SemiBold"/>
+                    </Border>
                     <StackPanel>
-
-
-                        <TextBlock Text="Critères de recherche"
-                                   FontSize="19"
-                                   FontWeight="SemiBold"
-                                   Foreground="#242B38"
-                                   Margin="0,0,0,22"/>
-
-
-                        <!-- ==================================================
-                             GRILLE DES CHAMPS
-                             ================================================== -->
-
-                        <Grid>
-
-                            <!--
-                                Tous les champs standards ont la même largeur.
-                                Les colonnes de 20 servent uniquement d'espacement.
-                            -->
-
-                            <Grid.ColumnDefinitions>
-
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="20"/>
-
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="20"/>
-
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="20"/>
-
-                                <ColumnDefinition Width="*"/>
-
-                            </Grid.ColumnDefinitions>
-
-
-                            <Grid.RowDefinitions>
-
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="18"/>
-
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="18"/>
-
-                                <RowDefinition Height="Auto"/>
-
-                            </Grid.RowDefinitions>
-
-
-                            <!-- ==================================================
-                                 LIGNE 1
-                                 ================================================== -->
-
-                            <!-- Propriétaire -->
-                            <StackPanel Grid.Row="0"
-                                        Grid.Column="0">
-
-                                <TextBlock Text="Propriétaire"
-                                           Style="{StaticResource SearchLabelStyle}"/>
-
-                                <TextBox Text="{Binding OwnerName,
-                                                      UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource RoundedTextBoxStyle}"/>
-
-                            </StackPanel>
-
-
-                            <!-- Nom du chien -->
-                            <StackPanel Grid.Row="0"
-                                        Grid.Column="2">
-
-                                <TextBlock Text="Nom du chien"
-                                           Style="{StaticResource SearchLabelStyle}"/>
-
-                                <TextBox Text="{Binding DogName,
-                                                      UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource RoundedTextBoxStyle}"/>
-
-                            </StackPanel>
-
-
-                            <!-- Téléphone -->
-                            <StackPanel Grid.Row="0"
-                                        Grid.Column="4">
-
-                                <TextBlock Text="Téléphone"
-                                           Style="{StaticResource SearchLabelStyle}"/>
-
-                                <TextBox Text="{Binding Phone,
-                                                      UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource RoundedTextBoxStyle}"/>
-
-                            </StackPanel>
-
-
-                            <!-- Licence -->
-                            <StackPanel Grid.Row="0"
-                                        Grid.Column="6">
-
-                                <TextBlock Text="Licence"
-                                           Style="{StaticResource SearchLabelStyle}"/>
-
-                                <TextBox Text="{Binding LicenseNumber,
-                                                      UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource RoundedTextBoxStyle}"/>
-
-                            </StackPanel>
-
-
-                            <!-- ==================================================
-                                 LIGNE 2
-                                 ================================================== -->
-
-                            <!-- Numéro de dossier -->
-                            <StackPanel Grid.Row="2"
-                                        Grid.Column="0">
-
-                                <TextBlock Text="Numéro de dossier"
-                                           Style="{StaticResource SearchLabelStyle}"/>
-
-                                <TextBox Text="{Binding FileNumber,
-                                                      UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource RoundedTextBoxStyle}"/>
-
-                            </StackPanel>
-
-
-                            <!-- Race -->
-                            <StackPanel Grid.Row="2"
-                                        Grid.Column="2">
-
-                                <TextBlock Text="Race"
-                                           Style="{StaticResource SearchLabelStyle}"/>
-
-                                <ComboBox ItemsSource="{Binding BreedOptions}"
-                                          Text="{Binding Breed,
-                                                         UpdateSourceTrigger=PropertyChanged}"
-                                          IsEditable="True"
-                                          Style="{StaticResource RoundedComboBoxStyle}"/>
-
-                            </StackPanel>
-
-
-                            <!-- Couleur -->
-                            <StackPanel Grid.Row="2"
-                                        Grid.Column="4">
-
-                                <TextBlock Text="Couleur"
-                                           Style="{StaticResource SearchLabelStyle}"/>
-
-                                <ComboBox ItemsSource="{Binding ColorOptions}"
-                                          Text="{Binding Color,
-                                                         UpdateSourceTrigger=PropertyChanged}"
-                                          IsEditable="True"
-                                          Style="{StaticResource RoundedComboBoxStyle}"/>
-
-                            </StackPanel>
-
-
-                            <!-- Statut -->
-                            <StackPanel Grid.Row="2"
-                                        Grid.Column="6">
-
-                                <TextBlock Text="Statut"
-                                           Style="{StaticResource SearchLabelStyle}"/>
-
-                                <ComboBox ItemsSource="{Binding StatusOptions}"
-                                          SelectedItem="{Binding Status}"
-                                          Style="{StaticResource RoundedComboBoxStyle}"/>
-
-                            </StackPanel>
-
-
-                            <!-- ==================================================
-                                 LIGNE 3
-                                 ================================================== -->
-
-                            <!-- Âge -->
-                            <StackPanel Grid.Row="4"
-                                        Grid.Column="0">
-
-                                <TextBlock Text="Âge"
-                                           Style="{StaticResource SearchLabelStyle}"/>
-
-                                <TextBox Text="{Binding Age,
-                                                      UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource RoundedTextBoxStyle}"/>
-
-                            </StackPanel>
-
-
-                            <!-- Poids -->
-                            <StackPanel Grid.Row="4"
-                                        Grid.Column="2">
-
-                                <TextBlock Text="Poids"
-                                           Style="{StaticResource SearchLabelStyle}"/>
-
-                                <TextBox Text="{Binding Weight,
-                                                      UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource RoundedTextBoxStyle}"/>
-
-                            </StackPanel>
-
-
-                            <!--
-                                Adresse :
-                                volontairement deux fois plus large.
-                            -->
-
-                            <StackPanel Grid.Row="4"
-                                        Grid.Column="4"
-                                        Grid.ColumnSpan="3">
-
-                                <TextBlock Text="Adresse"
-                                           Style="{StaticResource SearchLabelStyle}"/>
-
-                                <TextBox Text="{Binding Address,
-                                                      UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource RoundedTextBoxStyle}"/>
-
-                            </StackPanel>
-
-                        </Grid>
-
-
-                        <!-- ==================================================
-                             ACTIONS
-                             ================================================== -->
-
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
-                                    Margin="0,24,0,0">
-
-                            <Button Content="Effacer les filtres"
-                                    Command="{Binding ClearFiltersCommand}"
-                                    Style="{StaticResource SearchSecondaryButtonStyle}"
-                                    Margin="0,0,12,0"/>
-
-                            <Button Content="Rechercher"
-                                    Command="{Binding SearchCommand}"
-                                    Style="{StaticResource SearchPrimaryButtonStyle}"/>
-
-                        </StackPanel>
-
+                        <TextBlock Text="Rechercher un dossier" FontSize="26"
+                                   FontWeight="SemiBold" Foreground="#242B38"/>
+                        <TextBlock Text="Les résultats proviennent des mêmes dossiers que les fiches Chiens et Propriétaires."
+                                   FontSize="13" Foreground="#667085" Margin="0,8,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
+                </DockPanel>
 
+                <Border Style="{StaticResource SoftSectionBorderStyle}" Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="Recherche rapide" FontSize="18" FontWeight="SemiBold"
+                                   Foreground="#242B38" Margin="0,0,0,5"/>
+                        <TextBlock Text="Nom, dossier, chien, licence, téléphone, municipalité ou adresse"
+                                   Foreground="#667085" FontSize="12" Margin="0,0,0,11"/>
+                        <TextBox Text="{Binding GlobalText, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource RoundedTextBoxStyle}"
+                                 ToolTip="Rechercher dans les chiens et les propriétaires"/>
+
+                        <Expander IsExpanded="True" Margin="0,19,0,0" Background="Transparent">
+                            <Expander.Header>
+                                <TextBlock Text="Filtres avancés" FontSize="15"
+                                           FontWeight="SemiBold" Foreground="#344054"/>
+                            </Expander.Header>
+                            <Grid Margin="0,16,0,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="15"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="15"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="15"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="Propriétaire" Style="{StaticResource SearchLabelStyle}"/>
+                                    <TextBox Text="{Binding OwnerName, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource RoundedTextBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,0">
+                                    <TextBlock Text="Nom du chien" Style="{StaticResource SearchLabelStyle}"/>
+                                    <TextBox Text="{Binding DogName, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource RoundedTextBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="2" Margin="8,0">
+                                    <TextBlock Text="Numéro de dossier" Style="{StaticResource SearchLabelStyle}"/>
+                                    <TextBox Text="{Binding FileNumber, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource RoundedTextBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="3" Margin="8,0,0,0">
+                                    <TextBlock Text="Licence" Style="{StaticResource SearchLabelStyle}"/>
+                                    <TextBox Text="{Binding LicenseNumber, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource RoundedTextBoxStyle}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="Téléphone / cellulaire" Style="{StaticResource SearchLabelStyle}"/>
+                                    <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource RoundedTextBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="1" Margin="8,0">
+                                    <TextBlock Text="Municipalité" Style="{StaticResource SearchLabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding MunicipalityOptions}"
+                                              SelectedItem="{Binding Municipality, Mode=TwoWay}"
+                                              Style="{StaticResource RoundedComboBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="2" Margin="8,0">
+                                    <TextBlock Text="Race" Style="{StaticResource SearchLabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding BreedOptions}"
+                                              Text="{Binding Breed, UpdateSourceTrigger=PropertyChanged}"
+                                              IsEditable="True" Style="{StaticResource RoundedComboBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="3" Margin="8,0,0,0">
+                                    <TextBlock Text="Statut du chien" Style="{StaticResource SearchLabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding StatusOptions}"
+                                              SelectedItem="{Binding Status, Mode=TwoWay}"
+                                              Style="{StaticResource RoundedComboBoxStyle}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="4" Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="Couleur" Style="{StaticResource SearchLabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding ColorOptions}"
+                                              Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
+                                              IsEditable="True" Style="{StaticResource RoundedComboBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="4" Grid.Column="1" Margin="8,0">
+                                    <TextBlock Text="Âge (mois ou ans)" Style="{StaticResource SearchLabelStyle}"/>
+                                    <TextBox Text="{Binding Age, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource RoundedTextBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="4" Grid.Column="2" Margin="8,0">
+                                    <TextBlock Text="Poids (kg)" Style="{StaticResource SearchLabelStyle}"/>
+                                    <TextBox Text="{Binding Weight, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource RoundedTextBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="4" Grid.Column="3" Margin="8,0,0,0">
+                                    <TextBlock Text="Adresse" Style="{StaticResource SearchLabelStyle}"/>
+                                    <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource RoundedTextBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="6" Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="Sexe du chien" Style="{StaticResource SearchLabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding SexOptions}"
+                                              SelectedItem="{Binding Sex, Mode=TwoWay}"
+                                              Style="{StaticResource RoundedComboBoxStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="6" Grid.Column="1" Margin="8,0">
+                                    <TextBlock Text="Stérilisé" Style="{StaticResource SearchLabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding SterilizedOptions}"
+                                              SelectedItem="{Binding Sterilized, Mode=TwoWay}"
+                                              Style="{StaticResource RoundedComboBoxStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Expander>
+
+                        <DockPanel Margin="0,20,0,0" LastChildFill="True">
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                <Button Content="Effacer les filtres" Command="{Binding ClearFiltersCommand}"
+                                        Style="{StaticResource SearchSecondaryButtonStyle}" Margin="0,0,10,0"/>
+                                <Button Content="Actualiser la recherche" Command="{Binding SearchCommand}"
+                                        Style="{StaticResource SearchPrimaryButtonStyle}"/>
+                            </StackPanel>
+                            <TextBlock Text="Entrée = rechercher · les modifications des fiches sont reprises à l'actualisation"
+                                       VerticalAlignment="Center" Foreground="#667085" FontSize="12"
+                                       TextWrapping="Wrap" Margin="0,0,12,0"/>
+                        </DockPanel>
+                    </StackPanel>
                 </Border>
 
-
-                <!-- ==================================================
-                     RÉSULTATS
-                     ================================================== -->
-
-                <StackPanel Margin="0,32,0,0">
-
-
-                    <!-- Titre résultats -->
-                    <StackPanel Orientation="Horizontal"
-                                Margin="0,0,0,14">
-
-                        <TextBlock Text="Résultats"
-                                   FontSize="22"
-                                   FontWeight="SemiBold"
-                                   Foreground="#242B38"/>
-
-                        <TextBlock Text="{Binding ResultCount,
-                                                Mode=OneWay,
-                                                StringFormat='{}{0} résultats trouvés'}"
-                                   Margin="16,5,0,0"
-                                   FontSize="14"
-                                   Foreground="#667085"/>
-
+                <Border Background="White" BorderBrush="#E4E7EC" BorderThickness="1"
+                        CornerRadius="18" Padding="20" Margin="0,24,0,0">
+                    <StackPanel>
+                        <DockPanel LastChildFill="True" Margin="0,0,0,11">
+                            <TextBlock DockPanel.Dock="Right" Text="{Binding LastUpdatedText}"
+                                       Foreground="#667085" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="Résultats" FontSize="22" FontWeight="SemiBold" Foreground="#242B38"/>
+                        </DockPanel>
+                        <TextBlock Text="Double-cliquez sur une ligne ou sélectionnez-la puis ouvrez sa fiche."
+                                   Foreground="#667085" FontSize="13" Margin="0,0,0,16"/>
+                        <TabControl SelectedIndex="{Binding SelectedResultsTabIndex, Mode=TwoWay}"
+                                    BorderThickness="0" Background="Transparent">
+                            <TabItem Style="{StaticResource SearchTabStyle}">
+                                <TabItem.Header>
+                                    <TextBlock Text="{Binding ResultCount, StringFormat='{}{0} chiens'}"/>
+                                </TabItem.Header>
+                                <StackPanel Margin="0,17,0,0">
+                                    <Border BorderBrush="#E4E7EC" BorderThickness="1" CornerRadius="12"
+                                            ClipToBounds="True">
+                                        <DataGrid x:Name="DogResultsGrid"
+                                                  ItemsSource="{Binding Results}"
+                                                  SelectedItem="{Binding SelectedDogResult, Mode=TwoWay}"
+                                                  MouseDoubleClick="DogResultsGrid_MouseDoubleClick"
+                                                  Style="{StaticResource ResultsDataGridStyle}"
+                                                  ColumnHeaderStyle="{StaticResource ResultsColumnHeaderStyle}"
+                                                  RowStyle="{StaticResource ResultsRowStyle}"
+                                                  CellStyle="{StaticResource ResultsCellStyle}"
+                                                  MinHeight="225" Height="315"
+                                                  CanUserSortColumns="True">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Chien" Binding="{Binding DogName}" Width="130"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Propriétaire" Binding="{Binding OwnerName}" Width="170"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Dossier" Binding="{Binding FileNumber}" Width="90"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Municipalité" Binding="{Binding Municipality}" Width="135"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Licence" Binding="{Binding LicenseNumber}" Width="100"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Race" Binding="{Binding Breed}" Width="145"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Âge" Binding="{Binding Age}" Width="85"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Poids" Binding="{Binding Weight}" Width="90"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Couleur" Binding="{Binding Color}" Width="95"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Sexe" Binding="{Binding Sex}" Width="70"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Stérilisé" Binding="{Binding Sterilized}" Width="95"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Statut" Binding="{Binding Status}" Width="90"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Border>
+                                    <TextBlock Text="Aucun chien ne correspond aux filtres sélectionnés."
+                                               Visibility="{Binding NoDogResults, Converter={StaticResource SearchBoolToVisibility}}"
+                                               Foreground="#667085" Margin="0,12" TextAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                                        <Button Content="Ouvrir le propriétaire" Command="{Binding OpenDogOwnerCommand}"
+                                                IsEnabled="{Binding HasSelectedDog}"
+                                                Style="{StaticResource SearchSecondaryButtonStyle}" Margin="0,0,10,0"/>
+                                        <Button Content="Ouvrir la fiche du chien" Command="{Binding OpenDogCommand}"
+                                                IsEnabled="{Binding HasSelectedDog}"
+                                                Style="{StaticResource SearchPrimaryButtonStyle}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </TabItem>
+                            <TabItem Style="{StaticResource SearchTabStyle}">
+                                <TabItem.Header>
+                                    <TextBlock Text="{Binding OwnerResultCount, StringFormat='{}{0} propriétaires'}"/>
+                                </TabItem.Header>
+                                <StackPanel Margin="0,17,0,0">
+                                    <Border BorderBrush="#E4E7EC" BorderThickness="1" CornerRadius="12"
+                                            ClipToBounds="True">
+                                        <DataGrid x:Name="OwnerResultsGrid"
+                                                  ItemsSource="{Binding OwnerResults}"
+                                                  SelectedItem="{Binding SelectedOwnerResult, Mode=TwoWay}"
+                                                  MouseDoubleClick="OwnerResultsGrid_MouseDoubleClick"
+                                                  Style="{StaticResource ResultsDataGridStyle}"
+                                                  ColumnHeaderStyle="{StaticResource ResultsColumnHeaderStyle}"
+                                                  RowStyle="{StaticResource ResultsRowStyle}"
+                                                  CellStyle="{StaticResource ResultsCellStyle}"
+                                                  MinHeight="225" Height="315"
+                                                  CanUserSortColumns="True">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Dossier" Binding="{Binding FileNumber}" Width="105"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Propriétaire" Binding="{Binding OwnerName}" Width="170"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Municipalité" Binding="{Binding Municipality}" Width="150"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Statut" Binding="{Binding Status}" Width="90"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Téléphone" Binding="{Binding Phone}" Width="130"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Cellulaire" Binding="{Binding CellPhone}" Width="130"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Chiens" Binding="{Binding DogCount}" Width="70"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                                <DataGridTextColumn Header="Adresse" Binding="{Binding Address}" Width="220"
+                                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Border>
+                                    <TextBlock Text="Aucun propriétaire ne correspond aux filtres sélectionnés."
+                                               Visibility="{Binding NoOwnerResults, Converter={StaticResource SearchBoolToVisibility}}"
+                                               Foreground="#667085" Margin="0,12" TextAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                                        <Button Content="Ouvrir la fiche du propriétaire" Command="{Binding OpenOwnerCommand}"
+                                                IsEnabled="{Binding HasSelectedOwner}"
+                                                Style="{StaticResource SearchPrimaryButtonStyle}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </TabItem>
+                        </TabControl>
                     </StackPanel>
-
-
-                    <!-- Tableau -->
-                    <Border Background="White"
-                            BorderBrush="#E4E7EC"
-                            BorderThickness="1"
-                            CornerRadius="14"
-                            Padding="1"
-                            ClipToBounds="True">
-
-                        <DataGrid ItemsSource="{Binding Results}"
-                                  Style="{StaticResource ResultsDataGridStyle}"
-                                  ColumnHeaderStyle="{StaticResource ResultsColumnHeaderStyle}"
-                                  RowStyle="{StaticResource ResultsRowStyle}"
-                                  CellStyle="{StaticResource ResultsCellStyle}"
-                                  MaxHeight="340">
-
-                            <DataGrid.Columns>
-
-
-                                <DataGridTextColumn Header="Chien"
-                                                    Binding="{Binding DogName}"
-                                                    Width="1.1*"
-                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
-
-
-                                <DataGridTextColumn Header="Propriétaire"
-                                                    Binding="{Binding OwnerName}"
-                                                    Width="1.5*"
-                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
-
-
-                                <DataGridTextColumn Header="Race"
-                                                    Binding="{Binding Breed}"
-                                                    Width="1.2*"
-                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
-
-
-                                <DataGridTextColumn Header="Âge"
-                                                    Binding="{Binding Age}"
-                                                    Width="0.8*"
-                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
-
-
-                                <DataGridTextColumn Header="Poids"
-                                                    Binding="{Binding Weight}"
-                                                    Width="0.9*"
-                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
-
-
-                                <DataGridTextColumn Header="Couleur"
-                                                    Binding="{Binding Color}"
-                                                    Width="1*"
-                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
-
-
-                                <DataGridTextColumn Header="Sexe"
-                                                    Binding="{Binding Sex}"
-                                                    Width="0.7*"
-                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
-
-
-                                <DataGridTextColumn Header="Statut"
-                                                    Binding="{Binding Status}"
-                                                    Width="0.8*"
-                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
-
-
-                                <DataGridTextColumn Header="Stérilisé"
-                                                    Binding="{Binding Sterilized}"
-                                                    Width="0.9*"
-                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
-
-
-                                <DataGridTextColumn Header="Licence"
-                                                    Binding="{Binding LicenseNumber}"
-                                                    Width="0.9*"
-                                                    ElementStyle="{StaticResource ResultsTextStyle}"/>
-
-
-                            </DataGrid.Columns>
-
-                        </DataGrid>
-
-                    </Border>
-
-                </StackPanel>
-
+                </Border>
             </StackPanel>
-
         </ScrollViewer>
-
     </Grid>
-
 </UserControl>
