@@ -1,4 +1,4 @@
-using MuniChien.App.Navigation;
+﻿using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -1326,111 +1326,76 @@ public class DogsViewModel : ViewModelBase
     private void RenewLicense()
     {
         if (!HasSelectedDog)
-        {
             return;
-        }
-
-
-        ValidationMessage =
-            string.Empty;
-
+        ValidationMessage = string.Empty;
 
         if (LicenseNumber == "—")
         {
-            ValidationMessage =
-                "Ce chien ne possède aucune licence à renouveler.";
-
+            ValidationMessage = "Ce chien ne possède aucune licence à renouveler.";
             return;
         }
 
-
-        LicenseListItemViewModel? currentLicense =
-            _licenseService.GetCurrentLicense(
-                LicenseNumber);
-
-
-        if (currentLicense is null)
+        try
         {
-            ValidationMessage =
-                "Impossible de trouver les informations de cette licence.";
+            LicenseListItemViewModel? currentLicense =
+                _licenseService.GetCurrentLicense(LicenseNumber);
+            if (currentLicense is null)
+            {
+                ValidationMessage = "Impossible de trouver les informations de cette licence.";
+                return;
+            }
 
-            return;
+            DateTime renewalDate = DateTime.Today;
+            if (currentLicense.IssueDate.Date == renewalDate.Date)
+            {
+                ValidationMessage = "Cette licence a déjà été créée ou renouvelée aujourd'hui.";
+                return;
+            }
+
+            // Pour une licence déjà valide, avancer après son expiration.
+            // Pour une licence expirée, retenir au minimum l'année courante.
+            int coverageYear = Math.Max(renewalDate.Year, currentLicense.ExpirationDate.Year + 1);
+            if (coverageYear > 9998)
+            {
+                ValidationMessage = "L'année de renouvellement est invalide.";
+                return;
+            }
+            DateTime nextExpirationDate = new(coverageYear, 12, 31);
+
+            bool confirmed = LicenseRenewalDialogService.Show(
+                DogName, OwnerName, LicenseNumber, currentLicense.Status,
+                currentLicense.ExpirationDate, renewalDate, nextExpirationDate,
+                coverageYear, out bool extendToNextYear, out decimal amountToBill);
+            if (!confirmed)
+                return;
+
+            LicenseListItemViewModel? renewedLicense = _licenseService.RenewLicense(
+                LicenseNumber, renewalDate, coverageYear, amountToBill, extendToNextYear);
+            if (renewedLicense is null)
+            {
+                ValidationMessage = "Le renouvellement de la licence a échoué.";
+                return;
+            }
+
+            _licenseStatus = renewedLicense.Status;
+            _licenseIssueDate = renewedLicense.IssueDate;
+            _licenseExpirationDate = renewedLicense.ExpirationDate;
+            OnPropertyChanged(nameof(LicenseStatus));
+            OnPropertyChanged(nameof(LicenseIssueDate));
+            OnPropertyChanged(nameof(LicenseExpirationDate));
+            RefreshLicenseHistory();
+
+            System.Windows.MessageBox.Show(
+                $"Licence {LicenseNumber} renouvelée pour {coverageYear}.\n" +
+                $"Montant ajouté au compte du propriétaire : {amountToBill:N2} $.\n" +
+                "Les données sont locales et temporaires.",
+                "Renouvellement enregistré", System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Information);
         }
-
-
-        DateTime renewalDate =
-            DateTime.Today;
-
-
-        // Protection contre le double renouvellement
-        // effectué la même journée.
-
-        if (currentLicense.IssueDate.Date ==
-            renewalDate.Date)
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or OverflowException)
         {
-            ValidationMessage =
-                "Cette licence a déjà été renouvelée aujourd'hui.";
-
-            return;
+            ValidationMessage = ex.Message;
         }
-
-
-        DateTime newExpirationDate =
-            _licenseService.CalculateExpiration(
-                renewalDate);
-
-
-        bool confirmed =
-            LicenseRenewalDialogService.Show(
-                DogName,
-                OwnerName,
-                LicenseNumber,
-                currentLicense.Status,
-                currentLicense.ExpirationDate,
-                renewalDate,
-                newExpirationDate,
-                out bool extendToNextYear);
-        if (!confirmed)
-        {
-            return;
-        }
-
-
-        LicenseListItemViewModel? renewedLicense =
-            _licenseService.RenewLicense(
-                LicenseNumber,
-                renewalDate,
-                extendToNextYear);
-        if (renewedLicense is null)
-        {
-            ValidationMessage =
-                "Le renouvellement de la licence a échoué.";
-
-            return;
-        }
-
-
-        _licenseStatus =
-            renewedLicense.Status;
-
-        _licenseIssueDate =
-            renewedLicense.IssueDate;
-
-        _licenseExpirationDate =
-            renewedLicense.ExpirationDate;
-
-
-        OnPropertyChanged(
-            nameof(LicenseStatus));
-
-        OnPropertyChanged(
-            nameof(LicenseIssueDate));
-
-        OnPropertyChanged(
-            nameof(LicenseExpirationDate));
-
-
-        RefreshLicenseHistory();
     }
 
 

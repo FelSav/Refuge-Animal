@@ -165,120 +165,81 @@ public static class LocalLicenseStore
     // RENOUVELLEMENT
     // ==================================================
 
-    public static LicenseListItemViewModel?
-        RenewLicense(
-            string licenseNumber,
-            DateTime renewalDate,
-            bool extendToNextYear = false)
+    // Un renouvellement doit faire avancer la période de couverture.
+    // L'opération comprend UNE charge identifiée par licence + année.
+    // La prolongation exceptionnelle n'ajoute pas une seconde charge.
+    public static LicenseListItemViewModel? RenewLicense(
+        string licenseNumber, DateTime renewalDate, int coverageYear,
+        decimal amountToBill, bool extendToNextYear = false)
     {
-        LicenseListItemViewModel? license =
-            GetCurrentLicense(
-                licenseNumber);
-
-
+        LicenseListItemViewModel? license = GetCurrentLicense(licenseNumber);
         if (license is null)
-        {
             return null;
-        }
 
+        if (renewalDate.Date > DateTime.Today || renewalDate.Year < 2000)
+            throw new ArgumentException("La date de renouvellement est invalide.");
+        if (license.IssueDate.Date == renewalDate.Date)
+            throw new InvalidOperationException("Cette licence a déjà été créée ou renouvelée aujourd'hui.");
+        if (amountToBill <= 0m || amountToBill > 100000m || decimal.Round(amountToBill, 2) != amountToBill)
+            throw new ArgumentException("Entrez un montant positif avec au plus deux décimales.");
 
-        DateTime newExpiration =
-            CalculateExpiration(
-                renewalDate,
-                extendToNextYear);
-        // ----------------------------------------------
-        // ARCHIVER L'ANCIENNE PÉRIODE
-        // ----------------------------------------------
+        // Une année à la fois : pour une licence expirée, reprendre à l'année courante.
+        // Pour une licence valide, avancer après sa dernière année couverte.
+        int expectedYear = Math.Max(renewalDate.Year, license.ExpirationDate.Year + 1);
+        if (coverageYear != expectedYear)
+            throw new InvalidOperationException(
+                $"Le renouvellement doit viser l'année {expectedYear} pour éviter une période en double.");
+        if (coverageYear > 9998 || (extendToNextYear && coverageYear > 9998))
+            throw new ArgumentOutOfRangeException(nameof(coverageYear));
 
-        if (!_history.TryGetValue(
-                license.LicenseNumber,
-                out List<DogLicenseHistoryViewModel>? history))
+        int expirationYear = checked(coverageYear + (extendToNextYear ? 1 : 0));
+        DateTime newExpiration = new(expirationYear, 12, 31);
+        if (newExpiration <= license.ExpirationDate)
+            throw new InvalidOperationException("La nouvelle période doit prolonger la licence.");
+
+        // Facturer avant de modifier la licence : une clé identique est refusée
+        // et l'historique reste inchangé en cas d'échec de facturation.
+        LocalPaymentStore.AddLicenseRenewalCharge(
+            license.OwnerId, license.LicenseNumber, coverageYear, amountToBill);
+
+        if (!_history.TryGetValue(license.LicenseNumber, out var history))
         {
-            history =
-                [];
-
-            _history[license.LicenseNumber] =
-                history;
+            history = [];
+            _history[license.LicenseNumber] = history;
         }
-
 
         if (history.Count > 0)
         {
-            DogLicenseHistoryViewModel previous =
-                history[^1];
-
-
-            history[^1] =
-                new DogLicenseHistoryViewModel
-                {
-                    LicenseNumber =
-                        previous.LicenseNumber,
-
-                    IssueDate =
-                        previous.IssueDate,
-
-                    ExpirationDate =
-                        previous.ExpirationDate,
-
-                    Status =
-                        "Renouvelée"
-                };
+            DogLicenseHistoryViewModel previous = history[^1];
+            history[^1] = new DogLicenseHistoryViewModel
+            {
+                LicenseNumber = previous.LicenseNumber,
+                IssueDate = previous.IssueDate,
+                ExpirationDate = previous.ExpirationDate,
+                Status = "Renouvelée"
+            };
         }
         else
         {
-            history.Add(
-                new DogLicenseHistoryViewModel
-                {
-                    LicenseNumber =
-                        license.LicenseNumber,
-
-                    IssueDate =
-                        license.IssueDate.ToString(
-                            "yyyy-MM-dd"),
-
-                    ExpirationDate =
-                        license.ExpirationDate.ToString(
-                            "yyyy-MM-dd"),
-
-                    Status =
-                        "Renouvelée"
-                });
+            history.Add(new DogLicenseHistoryViewModel
+            {
+                LicenseNumber = license.LicenseNumber,
+                IssueDate = license.IssueDate.ToString("yyyy-MM-dd"),
+                ExpirationDate = license.ExpirationDate.ToString("yyyy-MM-dd"),
+                Status = "Renouvelée"
+            });
         }
 
-
-        // ----------------------------------------------
-        // NOUVELLE PÉRIODE
-        // ----------------------------------------------
-
-        license.IssueDate =
-            renewalDate.Date;
-
-        license.ExpirationDate =
-            newExpiration;
-
-        license.Status =
-            "Valide";
-
-
-        history.Add(
-            new DogLicenseHistoryViewModel
-            {
-                LicenseNumber =
-                    license.LicenseNumber,
-
-                IssueDate =
-                    license.IssueDate.ToString(
-                        "yyyy-MM-dd"),
-
-                ExpirationDate =
-                    license.ExpirationDate.ToString(
-                        "yyyy-MM-dd"),
-
-                Status =
-                    "Valide"
-            });
-
-
+        license.IssueDate = renewalDate.Date;
+        license.ExpirationDate = newExpiration;
+        license.Status = "Valide";
+        history.Add(new DogLicenseHistoryViewModel
+        {
+            LicenseNumber = license.LicenseNumber,
+            IssueDate = license.IssueDate.ToString("yyyy-MM-dd"),
+            ExpirationDate = license.ExpirationDate.ToString("yyyy-MM-dd"),
+            Status = "Valide"
+        });
         return license;
     }
 

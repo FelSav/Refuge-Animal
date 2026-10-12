@@ -39,13 +39,10 @@ public class LocalLicenseService : ILicenseService
     }
 
     public LicenseListItemViewModel? RenewLicense(
-        string licenseNumber,
-        DateTime renewalDate,
-        bool extendToNextYear = false)
+        string licenseNumber, DateTime renewalDate, int coverageYear,
+        decimal amountToBill, bool extendToNextYear = false)
     {
         return LocalLicenseStore.RenewLicense(
-            licenseNumber,
-            renewalDate,
-            extendToNextYear);
+            licenseNumber, renewalDate, coverageYear, amountToBill, extendToNextYear);
     }
 }

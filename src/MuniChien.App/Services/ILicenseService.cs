@@ -19,8 +19,12 @@ public interface ILicenseService
         DateTime renewalDate,
         bool extendToNextYear = false);
 
+    // Renouvellement payé pour une nouvelle année de couverture.
+    // Le montant est fourni explicitement (aucun tarif officiel inféré).
     LicenseListItemViewModel? RenewLicense(
         string licenseNumber,
         DateTime renewalDate,
+        int coverageYear,
+        decimal amountToBill,
         bool extendToNextYear = false);
 }

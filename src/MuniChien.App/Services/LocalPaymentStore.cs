@@ -207,6 +207,34 @@ public static class LocalPaymentStore
 
 
     // ==================================================
+    // FACTURATION D'UN RENOUVELLEMENT
+    // ==================================================
+
+    public static void AddLicenseRenewalCharge(
+        int ownerId, string licenseNumber, int coverageYear, decimal amount)
+    {
+        if (LocalAnimalDirectoryStore.GetOwner(ownerId) is null)
+            throw new InvalidOperationException("Propriétaire introuvable.");
+        if (string.IsNullOrWhiteSpace(licenseNumber))
+            throw new ArgumentException("Numéro de licence requis.");
+        if (coverageYear < 2000 || coverageYear > 9999)
+            throw new ArgumentOutOfRangeException(nameof(coverageYear));
+        if (amount <= 0m || amount > 100000m || decimal.Round(amount, 2) != amount)
+            throw new ArgumentException("Montant de renouvellement invalide.");
+
+        // Une clé distincte par licence et année de couverture :
+        // ni le bouton double-cliqué ni un deuxième essai ne facturent à nouveau.
+        string billingKey = $"RENOUVELLEMENT|{licenseNumber.Trim()}|{coverageYear}";
+        if (!_billedLicenseNumbers.Add(billingKey))
+            throw new InvalidOperationException(
+                "Ce renouvellement a déjà été facturé pour cette année.");
+
+        _amountDueByOwner[ownerId] =
+            _amountDueByOwner.GetValueOrDefault(ownerId, 0m) + amount;
+    }
+
+
+    // ==================================================
     // AJOUTER UN PAIEMENT
     // ==================================================
 
