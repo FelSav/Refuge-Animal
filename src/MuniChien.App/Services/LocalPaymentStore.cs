@@ -68,6 +68,10 @@ public static class LocalPaymentStore
         [];
 
 
+    // Pour éviter toute double facturation de la même licence locale.
+    private static readonly HashSet<string> _billedLicenseNumbers =
+        new(StringComparer.OrdinalIgnoreCase);
+
     private static int _nextReceiptNumber =
         1843;
 
@@ -91,39 +95,17 @@ public static class LocalPaymentStore
     public static IReadOnlyList<PaymentOwnerOption>
         GetOwnerOptions()
     {
-        return LocalLicenseStore.Licenses
-            .GroupBy(
-                license =>
-                    new
-                    {
-                        license.OwnerId,
-                        license.OwnerName
-                    })
-            .Select(
-                group =>
-                    new PaymentOwnerOption
-                    {
-                        OwnerId =
-                            group.Key.OwnerId,
-
-                        FileNumber =
-                            BuildFileNumber(
-                                group.Key.OwnerId),
-
-                        OwnerName =
-                            group.Key.OwnerName,
-
-                        Municipality =
-                            group
-                                .Select(
-                                    license =>
-                                        license.Municipality)
-                                .FirstOrDefault()
-                            ?? "—"
-                    })
-            .OrderBy(
-                owner =>
-                    owner.OwnerName)
+        // Source unique : le même répertoire que Recherche et Propriétaires.
+        // Les nouveaux propriétaires sans licence disposent d'un compte à zéro.
+        return LocalAnimalDirectoryStore.GetOwners()
+            .Select(owner => new PaymentOwnerOption
+            {
+                OwnerId = owner.OwnerId,
+                FileNumber = owner.FileNumber,
+                OwnerName = owner.FullName,
+                Municipality = owner.Municipality
+            })
+            .OrderBy(owner => owner.OwnerName)
             .ToList();
     }
 
@@ -202,6 +184,25 @@ public static class LocalPaymentStore
             Balance =
                 balance
         };
+    }
+
+
+    // ==================================================
+    // FACTURATION EXPLICITE D'UNE NOUVELLE LICENCE
+    // ==================================================
+
+    public static void AddLicenseCharge(int ownerId, string licenseNumber, decimal amount)
+    {
+        if (LocalAnimalDirectoryStore.GetOwner(ownerId) is null)
+            throw new InvalidOperationException("Propriétaire introuvable.");
+        if (string.IsNullOrWhiteSpace(licenseNumber))
+            throw new ArgumentException("Numéro de licence requis.");
+        if (amount <= 0m || amount > 100000m)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+        if (!_billedLicenseNumbers.Add(licenseNumber))
+            throw new InvalidOperationException("Cette licence a déjà été facturée.");
+        _amountDueByOwner[ownerId] =
+            _amountDueByOwner.GetValueOrDefault(ownerId, 0m) + amount;
     }
 
 

@@ -1,4 +1,4 @@
-using MuniChien.App.Navigation;
+﻿using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -114,6 +114,22 @@ public class LicensesViewModel : ViewModelBase
     // ==================================================
     // OPTIONS
     // ==================================================
+
+    // Les chiens nouvellement créés dans Propriétaires sont proposés ici.
+    public IReadOnlyList<OwnerDogViewModel> GetDogsWithoutLicense() =>
+        new LocalAnimalDirectoryService().GetDogs()
+            .Where(d => !_licenseService.GetLicenses().Any(l => l.DogId == d.DogId))
+            .OrderBy(d => d.OwnerName)
+            .ThenBy(d => d.DogName)
+            .ToList();
+
+    public LicenseListItemViewModel CreateLicense(int dogId, DateTime issueDate, decimal amount)
+    {
+        LicenseListItemViewModel license = _licenseService.CreateLicense(dogId, issueDate, amount);
+        ResetFilters();
+        ReloadLicenses();
+        return license;
+    }
 
     public DataLoadState LoadState { get; } = new();
     public ICommand ReloadCommand { get; }

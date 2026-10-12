@@ -1,9 +1,12 @@
-using MuniChien.App.ViewModels;
+﻿using MuniChien.App.ViewModels;
 
 namespace MuniChien.App.Services;
 
 public class LocalLicenseService : ILicenseService
 {
+    public LicenseListItemViewModel CreateLicense(int dogId, DateTime issueDate, decimal amountToBill)
+        => LocalLicenseStore.CreateLicense(dogId, issueDate, amountToBill);
+
     public IReadOnlyList<LicenseListItemViewModel> GetLicenses()
     {
         return LocalLicenseStore.Licenses;

@@ -15,6 +15,37 @@ public partial class LicensesView : UserControl
     }
 
 
+    private void CreateLicense_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not LicensesViewModel vm) return;
+        var dogs = vm.GetDogsWithoutLicense();
+        if (dogs.Count == 0)
+        {
+            MessageBox.Show("Tous les chiens du répertoire possèdent déjà une licence. " +
+                            "Ajoutez d'abord un nouveau chien dans Propriétaires.",
+                "Nouvelle licence", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+        var dialog = new CreateLicenseDialog(dogs);
+        if (Window.GetWindow(this) is Window ownerWindow) dialog.Owner = ownerWindow;
+        if (dialog.ShowDialog() != true) return;
+        try
+        {
+            var license = vm.CreateLicense(dialog.DogId, dialog.IssueDate, dialog.Amount);
+            MessageBox.Show(
+                $"Licence locale {license.LicenseNumber} créée pour {license.DogName}.\n" +
+                $"Montant ajouté au compte : {dialog.Amount:N2} $.\n" +
+                "Ouvrez Paiements pour sélectionner le propriétaire et enregistrer le paiement.",
+                "Licence créée (démo)", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Création impossible", MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
+    }
+
+
     // ==================================================
     // ENTRÉE = RECHERCHER
     // ==================================================

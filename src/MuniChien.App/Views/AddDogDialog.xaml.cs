@@ -247,7 +247,7 @@ public partial class AddDogDialog : Window
                         SterilizedComboBox),
 
                 LicenseNumber =
-                    LicenseTextBox.Text.Trim()
+                    string.Empty
             };
 
 

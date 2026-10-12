@@ -1,4 +1,4 @@
-using MuniChien.App.ViewModels;
+﻿using MuniChien.App.ViewModels;
 
 namespace MuniChien.App.Services;
 
@@ -31,6 +31,76 @@ public static class LocalLicenseStore
     public static IReadOnlyList<LicenseListItemViewModel>
         Licenses =>
         _licenses;
+
+    // Une seule licence initiale par chien, avec numéro provisoire non officiel.
+    // La facturation est effectuée une fois, au moment de la création.
+    private static int _nextDemoLicenseNumber = 1;
+
+    public static LicenseListItemViewModel CreateLicense(
+        int dogId, DateTime issueDate, decimal amountToBill)
+    {
+        if (issueDate.Date > DateTime.Today)
+            throw new ArgumentException("La date d'émission ne peut pas être dans le futur.");
+        if (issueDate.Year < 2000)
+            throw new ArgumentException("La date d'émission est invalide.");
+        if (amountToBill <= 0 || amountToBill > 100000m)
+            throw new ArgumentException("Saisissez un montant de licence positif et raisonnable.");
+
+        OwnerDogViewModel dog = LocalAnimalDirectoryStore.GetDog(dogId)
+            ?? throw new InvalidOperationException("Le chien n'existe plus dans le répertoire.");
+        OwnerDirectoryItem owner = LocalAnimalDirectoryStore.GetOwner(dog.OwnerId)
+            ?? throw new InvalidOperationException("Le propriétaire n'existe plus dans le répertoire.");
+        if (_licenses.Any(x => x.DogId == dogId) ||
+            (!string.IsNullOrWhiteSpace(dog.LicenseNumber) &&
+             GetCurrentLicense(dog.LicenseNumber) is not null))
+            throw new InvalidOperationException("Ce chien possède déjà une licence.");
+
+        string number;
+        do
+        {
+            number = $"DEMO-{_nextDemoLicenseNumber++:D5}";
+        } while (GetCurrentLicense(number) is not null);
+
+        DateTime expiration = CalculateExpiration(issueDate.Date);
+        string status = expiration < DateTime.Today ? "Expirée" : "Valide";
+        var license = new LicenseListItemViewModel
+        {
+            DogId = dog.DogId, OwnerId = owner.OwnerId,
+            LicenseNumber = number,
+            DogName = dog.DogName, OwnerName = owner.FullName,
+            Municipality = owner.Municipality,
+            IssueDate = issueDate.Date,
+            ExpirationDate = expiration,
+            Status = status, Breed = dog.Breed, AgeMonths = dog.AgeMonths,
+            WeightKg = dog.WeightKg, Color = dog.Color, Sex = dog.Sex,
+            Sterilized = dog.Sterilized
+        };
+
+        // Le paiement est un montant explicitement saisi, jamais un tarif inféré.
+        // Validation des références en amont : aucun changement sur les exemples existants.
+        LocalPaymentStore.AddLicenseCharge(owner.OwnerId, number, amountToBill);
+        _licenses.Add(license);
+        _history[number] =
+        [
+            new DogLicenseHistoryViewModel
+            {
+                LicenseNumber = number,
+                IssueDate = issueDate.Date.ToString("yyyy-MM-dd"),
+                ExpirationDate = license.ExpirationDate.ToString("yyyy-MM-dd"),
+                Status = status
+            }
+        ];
+        LocalAnimalDirectoryStore.SaveDog(new OwnerDogViewModel
+        {
+            DogId = dog.DogId, OwnerId = dog.OwnerId,
+            DogName = dog.DogName, OwnerName = dog.OwnerName,
+            Breed = dog.Breed, AgeMonths = dog.AgeMonths,
+            WeightKg = dog.WeightKg, Color = dog.Color, Sex = dog.Sex,
+            Status = dog.Status, Sterilized = dog.Sterilized,
+            LicenseNumber = number
+        }, LocalAnimalDirectoryStore.GetDogDetails(dogId) ?? new DogDirectoryDetails());
+        return license;
+    }
 
 
     public static LicenseListItemViewModel?

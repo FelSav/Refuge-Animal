@@ -832,6 +832,15 @@
                                FontSize="13"
                                Foreground="#667085"/>
 
+                    <Button Grid.Column="2" Content="+ Nouvelle licence"
+                            Click="CreateLicense_Click"
+                            Style="{StaticResource PrimaryActionButtonStyle}"
+                            HorizontalAlignment="Right"
+                            Foreground="White"
+                            FontSize="14" FontWeight="SemiBold"
+                            Height="46" MinWidth="180"
+                            Padding="18,8"/>
+
                 </Grid>
 
 

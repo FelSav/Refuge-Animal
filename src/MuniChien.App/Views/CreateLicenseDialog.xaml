@@ -1,0 +1,46 @@
+﻿<Window x:Class="MuniChien.App.Views.CreateLicenseDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Nouvelle licence — MuniChien" Width="610" Height="510"
+        MinWidth="550" MinHeight="470" WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize" Background="#F5F6F9">
+    <Grid Margin="28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Créer une licence" FontSize="26"
+                       FontWeight="SemiBold" Foreground="#242B38"/>
+            <TextBlock Text="Nouvelle licence locale pour un chien sans licence."
+                       FontSize="13" Foreground="#667085" Margin="0,8,0,0"/>
+        </StackPanel>
+        <Border Grid.Row="1" CornerRadius="16" BorderBrush="#E4E7EC"
+                BorderThickness="1" Background="White" Padding="22">
+            <StackPanel>
+                <TextBlock Text="Chien et propriétaire" FontWeight="SemiBold"/>
+                <ComboBox x:Name="DogCombo" Height="44" Margin="0,8,0,16"
+                          DisplayMemberPath="Display" SelectedValuePath="DogId"/>
+                <TextBlock Text="Date d'émission" FontWeight="SemiBold"/>
+                <DatePicker x:Name="IssueDatePicker" Height="38" Margin="0,8,0,16"/>
+                <TextBlock Text="Montant à facturer ($ CAD)" FontWeight="SemiBold"/>
+                <TextBox x:Name="AmountTextBox" Height="42" Margin="0,8,0,8"
+                         Padding="12,8" VerticalContentAlignment="Center"/>
+                <TextBlock Text="Montant saisi manuellement, à confirmer auprès du refuge. Aucun tarif officiel n'est appliqué automatiquement."
+                           TextWrapping="Wrap" Foreground="#667085" FontSize="12"/>
+            </StackPanel>
+        </Border>
+        <DockPanel Grid.Row="2" Margin="0,20,0,0" LastChildFill="False">
+            <Button Content="Annuler" Width="110" Height="46" DockPanel.Dock="Right"
+                    Click="Cancel_Click"
+                    Style="{StaticResource SecondaryActionButtonStyle}"
+                    FontSize="14" Padding="12,8"/>
+            <Button Content="Créer et facturer" Width="190" Height="46" DockPanel.Dock="Right"
+                    Margin="0,0,12,0" Click="Save_Click"
+                    Style="{StaticResource PrimaryActionButtonStyle}"
+                    Foreground="White" FontSize="14" FontWeight="SemiBold"
+                    Padding="12,8"/>
+        </DockPanel>
+    </Grid>
+</Window>

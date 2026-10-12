@@ -263,11 +263,13 @@
                     <!-- Licence -->
                     <StackPanel Grid.Column="2">
 
-                        <TextBlock Text="Licence"
+                        <TextBlock Text="Licence (à créer ensuite)"
                                    Style="{StaticResource DialogLabelStyle}"/>
 
                         <TextBox x:Name="LicenseTextBox"
-                                 Style="{StaticResource DialogTextBoxStyle}"/>
+                                 Style="{StaticResource DialogTextBoxStyle}"
+                                 Text="Via la page Licences"
+                                 IsReadOnly="True" IsEnabled="False"/>
 
                     </StackPanel>
 

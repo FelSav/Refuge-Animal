@@ -170,10 +170,14 @@
                 <TextBlock Grid.Column="0" Text="Mode démo · Données non persistantes au redémarrage"
                            FontSize="12" Foreground="#667085" VerticalAlignment="Center"/>
                 <Button Grid.Column="1" Content="Annuler" Click="Cancel_Click"
-                        Margin="0,0,12,0" MinWidth="110" Height="42"
+                        Margin="0,0,12,0" MinWidth="110" Height="46"
+                        Padding="16,7" FontSize="14" FontWeight="SemiBold"
+                        VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                         Style="{StaticResource SecondaryActionButtonStyle}"/>
                 <Button Grid.Column="2" Content="Créer le propriétaire" Click="Save_Click"
-                        MinWidth="180" Height="42"
+                        MinWidth="190" Height="46"
+                        Padding="16,7" FontSize="14" FontWeight="SemiBold"
+                        VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                         Style="{StaticResource PrimaryActionButtonStyle}"/>
             </Grid>
         </Border>
