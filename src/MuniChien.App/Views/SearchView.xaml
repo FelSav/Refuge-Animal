@@ -527,7 +527,52 @@
                         </DockPanel>
                         <TextBlock Text="Double-cliquez sur une ligne ou sélectionnez-la puis ouvrez sa fiche."
                                    Foreground="#667085" FontSize="13" Margin="0,0,0,16"/>
+                        <!-- États de chargement, d'erreur et d'absence de données :
+                             réutilisables quand Recherche passera à l'API. -->
+                        <Border Background="#F1F5F9" BorderBrush="#DFE7EF" BorderThickness="1"
+                                CornerRadius="12" Padding="18" Margin="0,0,0,15"
+                                Visibility="{Binding LoadState.IsLoading, Converter={StaticResource SearchBoolToVisibility}}">
+                            <StackPanel>
+                                <TextBlock Text="Chargement des dossiers…" FontSize="14" FontWeight="SemiBold"
+                                           Foreground="#344054" Margin="0,0,0,9"/>
+                                <ProgressBar IsIndeterminate="True" Height="5" Foreground="#EF7B22"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#FFF3F1" BorderBrush="#F7C7BF" BorderThickness="1"
+                                CornerRadius="12" Padding="18" Margin="0,0,0,15"
+                                Visibility="{Binding LoadState.HasError, Converter={StaticResource SearchBoolToVisibility}}">
+                            <DockPanel LastChildFill="True">
+                                <Button DockPanel.Dock="Right" Content="Réessayer"
+                                        Command="{Binding SearchCommand}"
+                                        Style="{StaticResource SearchSecondaryButtonStyle}" Margin="14,0,0,0"
+                                        VerticalAlignment="Center"/>
+                                <StackPanel>
+                                    <TextBlock Text="Données indisponibles" FontSize="15"
+                                               FontWeight="SemiBold" Foreground="#9F2B20"/>
+                                    <TextBlock Text="{Binding LoadState.ErrorMessage}" TextWrapping="Wrap"
+                                               FontSize="13" Foreground="#8D3B34" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+
+                        <Border Background="#F8FAFC" BorderBrush="#E4E7EC" BorderThickness="1"
+                                CornerRadius="12" Padding="25" Margin="0,0,0,15"
+                                Visibility="{Binding LoadState.IsEmpty, Converter={StaticResource SearchBoolToVisibility}}">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="Aucun dossier trouvé" FontWeight="SemiBold" FontSize="16"
+                                           Foreground="#344054" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding LoadState.EmptyMessage}" TextWrapping="Wrap"
+                                           Foreground="#667085" FontSize="13" TextAlignment="Center"
+                                           Margin="0,8,0,0"/>
+                                <Button Content="Effacer les filtres" Command="{Binding ClearFiltersCommand}"
+                                        Style="{StaticResource SearchSecondaryButtonStyle}"
+                                        HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                            </StackPanel>
+                        </Border>
+
                         <TabControl SelectedIndex="{Binding SelectedResultsTabIndex, Mode=TwoWay}"
+                                    Visibility="{Binding LoadState.HasResults, Converter={StaticResource SearchBoolToVisibility}}"
                                     BorderThickness="0" Background="Transparent">
                             <TabItem Style="{StaticResource SearchTabStyle}">
                                 <TabItem.Header>

@@ -65,6 +65,8 @@ public sealed class SearchViewModel : ViewModelBase
         ApplyFilters();
     }
 
+    public DataLoadState LoadState { get; } = new();
+
     public ObservableCollection<SearchResultViewModel> Results { get; } = [];
     public ObservableCollection<SearchOwnerResultViewModel> OwnerResults { get; } = [];
     public ObservableCollection<string> BreedOptions { get; }
@@ -124,11 +126,13 @@ public sealed class SearchViewModel : ViewModelBase
     public bool HasSelectedOwner => SelectedOwnerResult is not null;
     public int ResultCount => Results.Count;
     public int OwnerResultCount => OwnerResults.Count;
-    public bool NoDogResults => Results.Count == 0;
-    public bool NoOwnerResults => OwnerResults.Count == 0;
-    public string LastUpdatedText => _lastRefreshedAt is null
-        ? "Données locales de démonstration"
-        : $"Données locales de démonstration · Actualisé à {_lastRefreshedAt:HH:mm}";
+    public bool NoDogResults => LoadState.HasResults && Results.Count == 0;
+    public bool NoOwnerResults => LoadState.HasResults && OwnerResults.Count == 0;
+    public string LastUpdatedText => LoadState.HasError
+        ? "Lecture des dossiers indisponible"
+        : _lastRefreshedAt is null
+            ? "Données locales de démonstration"
+            : $"Données locales de démonstration · Actualisé à {_lastRefreshedAt:HH:mm}";
 
     public int SelectedResultsTabIndex
     {
@@ -151,10 +155,48 @@ public sealed class SearchViewModel : ViewModelBase
 
     private void ApplyFilters()
     {
+        // Les services locaux répondent immédiatement. Cet état sera visible pendant
+        // l'attente réelle des futures requêtes API, sans délai artificiel en démo.
+        LoadState.Begin();
+        try
+        {
+            LoadLocalResults();
+            var allEmpty = ResultCount == 0 && OwnerResultCount == 0;
+            LoadState.Complete(!allEmpty,
+                _lastQuerySourceEmpty
+                    ? "Aucun dossier n'est disponible dans le répertoire local."
+                    : "Aucun dossier ne correspond aux filtres. Essayez de les effacer.");
+            _lastRefreshedAt = DateTime.Now;
+        }
+        catch (Exception ex)
+        {
+            // Ne jamais présenter d'anciens résultats comme une lecture réussie.
+            Results.Clear();
+            OwnerResults.Clear();
+            SelectedDogResult = null;
+            SelectedOwnerResult = null;
+            System.Diagnostics.Debug.WriteLine($"Échec de la recherche locale : {ex.GetType().Name}");
+            LoadState.Fail("Impossible de charger les dossiers pour le moment. Réessayez; aucune donnée n'a été modifiée.");
+        }
+        finally
+        {
+            OnPropertyChanged(nameof(ResultCount));
+            OnPropertyChanged(nameof(OwnerResultCount));
+            OnPropertyChanged(nameof(NoDogResults));
+            OnPropertyChanged(nameof(NoOwnerResults));
+            OnPropertyChanged(nameof(LastUpdatedText));
+        }
+    }
+
+    private bool _lastQuerySourceEmpty;
+
+    private void LoadLocalResults()
+    {
         // Relire les données : une modification sur une autre page devient visible
         // en rouvrant Recherche ou en cliquant « Actualiser la recherche ».
         var owners = _directory.GetOwners();
         var dogs = _directory.GetDogs();
+        _lastQuerySourceEmpty = owners.Count == 0 && dogs.Count == 0;
         var dogsByOwner = dogs.ToLookup(x => x.OwnerId);
         var ownersById = owners.ToDictionary(x => x.OwnerId);
 
@@ -224,12 +266,6 @@ public sealed class SearchViewModel : ViewModelBase
 
         SelectedDogResult = null;
         SelectedOwnerResult = null;
-        _lastRefreshedAt = DateTime.Now;
-        OnPropertyChanged(nameof(ResultCount));
-        OnPropertyChanged(nameof(OwnerResultCount));
-        OnPropertyChanged(nameof(NoDogResults));
-        OnPropertyChanged(nameof(NoOwnerResults));
-        OnPropertyChanged(nameof(LastUpdatedText));
     }
 
     private bool MatchesOwnerFields(OwnerDirectoryItem owner) =>
