@@ -1,4 +1,5 @@
 using MuniChien.App.Navigation;
+using MuniChien.App.Services;
 using System.Windows;
 using System.Windows.Input;
 using MuniChien.App.Views;
@@ -12,6 +13,9 @@ public class MainWindowViewModel : ViewModelBase
     // ==================================================
 
     private ViewModelBase _currentViewModel;
+
+    // Une seule source de services par fenêtre ; fournie au futur bootstrap API.
+    private readonly IApplicationServices _services;
 
     // Connexion de démonstration : état conservé uniquement en mémoire.
     // N'accorde aucun droit côté API / serveur.
@@ -49,10 +53,12 @@ public class MainWindowViewModel : ViewModelBase
     // CONSTRUCTEUR
     // ==================================================
 
-    public MainWindowViewModel()
+    public MainWindowViewModel(IApplicationServices? services = null)
     {
+        _services = services ?? new LocalApplicationServices();
+
         _currentViewModel =
-            new HomeViewModel(NavigateFromHome);
+            new HomeViewModel(NavigateFromHome, _services.Dashboard);
 
 
         ShowHomeCommand =
@@ -334,7 +340,7 @@ public class MainWindowViewModel : ViewModelBase
     private void ShowHome()
     {
         NavigateTo(
-            new HomeViewModel(NavigateFromHome),
+            new HomeViewModel(NavigateFromHome, _services.Dashboard),
             "Accueil");
     }
 
@@ -351,7 +357,8 @@ public class MainWindowViewModel : ViewModelBase
     {
         NavigateTo(
             new OwnersViewModel(
-                OpenDog),
+                OpenDog,
+                directoryService: _services.Animals),
             "Propriétaires");
     }
 
@@ -361,7 +368,9 @@ public class MainWindowViewModel : ViewModelBase
         NavigateTo(
             new DogsViewModel(
                 null,
-                OpenOwner),
+                OpenOwner,
+                _services.Licenses,
+                _services.Animals),
             "Chiens");
     }
 
@@ -370,7 +379,8 @@ public class MainWindowViewModel : ViewModelBase
     {
         NavigateTo(
             new LicensesViewModel(
-                OpenDog),
+                OpenDog,
+                _services.Licenses),
             "Licences");
     }
 
@@ -378,14 +388,14 @@ public class MainWindowViewModel : ViewModelBase
     private void ShowPayments()
     {
         NavigateTo(
-            new PaymentsViewModel(),
+            new PaymentsViewModel(_services.Payments),
             "Paiements");
     }
 
 
     private void ShowNotices()
     {
-        NavigateTo(new NoticesViewModel(), "Avis");
+        NavigateTo(new NoticesViewModel(_services.Notices), "Avis");
     }
 
     private void ShowReports()
@@ -494,7 +504,9 @@ public class MainWindowViewModel : ViewModelBase
         NavigateTo(
             new DogsViewModel(
                 dog,
-                OpenOwner),
+                OpenOwner,
+                _services.Licenses,
+                _services.Animals),
             "Chiens");
     }
 
@@ -509,7 +521,8 @@ public class MainWindowViewModel : ViewModelBase
         NavigateTo(
             new OwnersViewModel(
                 OpenDog,
-                ownerId),
+                ownerId,
+                _services.Animals),
             "Propriétaires");
     }
 
