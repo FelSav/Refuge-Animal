@@ -14,6 +14,7 @@ public class DogsViewModel : ViewModelBase
 
     private OwnerDogViewModel? _sourceDog;
     private OwnerDogViewModel? _selectedDogOption;
+    private int? _preferredDogId;
     private readonly Action<int>? _openOwnerAction;
     private readonly ILicenseService _licenseService;
     private readonly IAnimalDirectoryService _directoryService;
@@ -229,14 +230,9 @@ public class DogsViewModel : ViewModelBase
             new RelayCommand(OpenOwner);
 
 
-        foreach (var option in _directoryService.GetDogs())
-            DogOptions.Add(option);
-
-        // Si la fiche provient de Licences/Propriétaires, conserver le chien demandé.
-        // Sinon, ouvrir directement le premier chien au lieu d'une page vide.
-        SelectedDogOption = DogOptions.FirstOrDefault(x => x.DogId == dog?.DogId)
-                            ?? DogOptions.FirstOrDefault(x => x.DogId == 1)
-                            ?? DogOptions.FirstOrDefault();
+        ReloadCommand = new RelayCommand(ReloadDogs);
+        _preferredDogId = dog?.DogId;
+        ReloadDogs();
     }
 
 
@@ -257,6 +253,8 @@ public class DogsViewModel : ViewModelBase
     public IReadOnlyList<string> AgeUnitOptions { get; }
 
     // Sélection directe d'un chien, sans obligation de passer par Propriétaires.
+    public DataLoadState LoadState { get; } = new();
+    public ICommand ReloadCommand { get; }
     public ObservableCollection<OwnerDogViewModel> DogOptions { get; } = [];
 
     public OwnerDogViewModel? SelectedDogOption
@@ -278,8 +276,7 @@ public class DogsViewModel : ViewModelBase
             IsEditing = false;
             IsEditingComments = false;
             ValidationMessage = string.Empty;
-            LoadDog();
-            LoadLicense();
+            LoadSelectedDogSafely();
             OnPropertyChanged(nameof(AgeDisplay));
             OnPropertyChanged(nameof(WeightDisplay));
             OnPropertyChanged(nameof(LicenseStatus));
@@ -773,6 +770,68 @@ public class DogsViewModel : ViewModelBase
     // ==================================================
     // CHARGEMENT DU CHIEN
     // ==================================================
+
+    private void ReloadDogs()
+    {
+        if (IsEditing || IsEditingComments) return;
+        int? targetId = SelectedDogOption?.DogId ?? _preferredDogId;
+        LoadState.Begin();
+        try
+        {
+            var available = _directoryService.GetDogs();
+            DogOptions.Clear();
+            foreach (var dog in available) DogOptions.Add(dog);
+            _selectedDogOption = null;
+            SelectedDogOption = DogOptions.FirstOrDefault(d => d.DogId == targetId)
+                ?? DogOptions.FirstOrDefault(d => d.DogId == 1)
+                ?? DogOptions.FirstOrDefault();
+            if (SelectedDogOption is null)
+            {
+                _sourceDog = null;
+                LoadDog();
+                LoadLicense();
+            }
+            if (!LoadState.HasError)
+                LoadState.Complete(SelectedDogOption is not null, "Aucun chien dans le répertoire local.");
+        }
+        catch (Exception ex) { ShowDogLoadError(ex); }
+    }
+
+    private void LoadSelectedDogSafely()
+    {
+        LoadState.Begin();
+        try
+        {
+            LoadDog();
+            LoadLicense();
+            LoadState.Complete(HasSelectedDog, "Aucun chien sélectionné.");
+        }
+        catch (Exception ex) { ShowDogLoadError(ex); }
+    }
+
+    private void ShowDogLoadError(Exception ex)
+    {
+        System.Diagnostics.Debug.WriteLine($"Lecture des chiens/licences : {ex.GetType().Name}");
+        DogOptions.Clear();
+        _selectedDogOption = null;
+        _sourceDog = null;
+        OnPropertyChanged(nameof(SelectedDogOption));
+        OnPropertyChanged(nameof(HasSelectedDog));
+        OnPropertyChanged(nameof(DogId));
+        OnPropertyChanged(nameof(OwnerId));
+        OnPropertyChanged(nameof(OwnerName));
+        OnPropertyChanged(nameof(OwnerFileNumber));
+        OnPropertyChanged(nameof(OwnerAddress));
+        OnPropertyChanged(nameof(LicenseNumber));
+        LoadDog();
+        LoadLicense();
+        OnPropertyChanged(nameof(AgeDisplay));
+        OnPropertyChanged(nameof(WeightDisplay));
+        OnPropertyChanged(nameof(LicenseStatus));
+        OnPropertyChanged(nameof(LicenseIssueDate));
+        OnPropertyChanged(nameof(LicenseExpirationDate));
+        LoadState.Fail("Impossible de charger les chiens ou leurs licences. Veuillez réessayer.");
+    }
 
     private void LoadDog()
     {

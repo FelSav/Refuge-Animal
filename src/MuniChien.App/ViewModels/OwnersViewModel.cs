@@ -10,6 +10,7 @@ public class OwnersViewModel : ViewModelBase
     private readonly Action<OwnerDogViewModel>? _openDogAction;
     private readonly IAnimalDirectoryService _directoryService;
     private OwnerDirectoryItem? _selectedOwner;
+    private int _preferredOwnerId;
     private OwnerDogViewModel? _selectedDog;
     private bool _isEditing;
     private bool _isEditingComments;
@@ -49,12 +50,13 @@ public class OwnersViewModel : ViewModelBase
         CancelCommentsCommand = new RelayCommand(CancelCommentChanges);
         PrintCommentsCommand = new RelayCommand(PrintComments);
 
-        foreach (var owner in _directoryService.GetOwners())
-            OwnerOptions.Add(owner);
-        SelectedOwner = OwnerOptions.FirstOrDefault(x => x.OwnerId == ownerId)
-                        ?? OwnerOptions.FirstOrDefault();
+        ReloadCommand = new RelayCommand(ReloadOwners);
+        _preferredOwnerId = ownerId;
+        ReloadOwners();
     }
 
+    public DataLoadState LoadState { get; } = new();
+    public ICommand ReloadCommand { get; }
     public ObservableCollection<OwnerDirectoryItem> OwnerOptions { get; } = [];
     public OwnerDirectoryItem? SelectedOwner
     {
@@ -68,7 +70,7 @@ public class OwnersViewModel : ViewModelBase
             OnPropertyChanged(nameof(FileNumber));
             IsEditing = false;
             IsEditingComments = false;
-            LoadOwner();
+            LoadSelectedOwnerSafely();
         }
     }
 
@@ -165,6 +167,52 @@ public class OwnersViewModel : ViewModelBase
     {
         _directoryService.AddDog(dog);
         RefreshDogs();
+    }
+
+    private void ReloadOwners()
+    {
+        if (IsEditing || IsEditingComments) return;
+        int targetId = OwnerId > 0 ? OwnerId : _preferredOwnerId;
+        LoadState.Begin();
+        try
+        {
+            var available = _directoryService.GetOwners();
+            OwnerOptions.Clear();
+            foreach (var owner in available) OwnerOptions.Add(owner);
+            _selectedOwner = null;
+            SelectedOwner = OwnerOptions.FirstOrDefault(o => o.OwnerId == targetId)
+                ?? OwnerOptions.FirstOrDefault();
+            if (SelectedOwner is null) LoadOwner();
+            if (!LoadState.HasError)
+                LoadState.Complete(SelectedOwner is not null, "Aucun propriétaire dans le répertoire local.");
+        }
+        catch (Exception ex) { ShowOwnerLoadError(ex); }
+    }
+
+    private void LoadSelectedOwnerSafely()
+    {
+        LoadState.Begin();
+        try
+        {
+            LoadOwner();
+            LoadState.Complete(SelectedOwner is not null, "Aucun propriétaire sélectionné.");
+        }
+        catch (Exception ex) { ShowOwnerLoadError(ex); }
+    }
+
+    private void ShowOwnerLoadError(Exception ex)
+    {
+        System.Diagnostics.Debug.WriteLine($"Lecture des propriétaires : {ex.GetType().Name}");
+        OwnerOptions.Clear();
+        _selectedOwner = null;
+        OnPropertyChanged(nameof(SelectedOwner));
+        OnPropertyChanged(nameof(OwnerId));
+        OnPropertyChanged(nameof(FileNumber));
+        FirstName = LastName = Status = Phone = CellPhone = Email = Address = Comments = string.Empty;
+        _selectedDog = null;
+        OnPropertyChanged(nameof(SelectedDog));
+        Dogs.Clear();
+        LoadState.Fail("Impossible de charger les propriétaires. Veuillez réessayer.");
     }
 
     private void LoadOwner()

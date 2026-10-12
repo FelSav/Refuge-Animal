@@ -1,4 +1,4 @@
-﻿using MuniChien.App.Navigation;
+using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -69,11 +69,6 @@ public class PaymentsViewModel : ViewModelBase
             paymentService ?? new LocalPaymentService();
 
 
-        OwnerOptions =
-            _paymentService
-                .GetOwnerOptions();
-
-
         RegisterPaymentCommand =
             new RelayCommand(
                 RegisterPayment);
@@ -83,13 +78,8 @@ public class PaymentsViewModel : ViewModelBase
                 ResetPaymentForm);
 
 
-        SelectedOwner =
-            OwnerOptions
-                .FirstOrDefault(
-                    owner =>
-                        owner.OwnerId == 1)
-            ?? OwnerOptions
-                .FirstOrDefault();
+        ReloadCommand = new RelayCommand(ReloadAccounts);
+        ReloadAccounts();
     }
 
 
@@ -97,9 +87,12 @@ public class PaymentsViewModel : ViewModelBase
     // OPTIONS PROPRIÉTAIRES
     // ==================================================
 
-    public IReadOnlyList<PaymentOwnerOption>
+    public DataLoadState LoadState { get; } = new();
+    public ICommand ReloadCommand { get; }
+
+    public ObservableCollection<PaymentOwnerOption>
         OwnerOptions
-    { get; }
+    { get; } = [];
 
 
     public PaymentOwnerOption?
@@ -139,7 +132,7 @@ public class PaymentsViewModel : ViewModelBase
                 string.Empty;
 
 
-            RefreshCurrentOwner();
+            LoadSelectedAccountSafely();
         }
     }
 
@@ -363,18 +356,23 @@ public class PaymentsViewModel : ViewModelBase
         }
 
 
-        _paymentService.AddPayment(
-            SelectedOwner.OwnerId,
-            NewPaymentDate.Value,
-            amount,
-            IsMunicipalityPayment,
-            IsCheque);
-
-
-        RefreshCurrentOwner();
-
-
-        ResetPaymentForm();
+        try
+        {
+            _paymentService.AddPayment(
+                SelectedOwner.OwnerId,
+                NewPaymentDate.Value,
+                amount,
+                IsMunicipalityPayment,
+                IsCheque);
+            LoadSelectedAccountSafely();
+            if (!LoadState.HasError) ResetPaymentForm();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Saisie paiement : {ex.GetType().Name}");
+            ValidationMessage = "Le paiement n'a pas pu être confirmé. Vérifiez le dossier avant de réessayer.";
+            LoadState.Fail("Impossible de confirmer l'état du compte. Actualisez avant une nouvelle saisie.");
+        }
     }
 
 
@@ -405,6 +403,53 @@ public class PaymentsViewModel : ViewModelBase
     // RAFRAÎCHIR PROPRIÉTAIRE
     // ==================================================
 
+    private void ReloadAccounts()
+    {
+        int targetId = SelectedOwner?.OwnerId ?? 1;
+        LoadState.Begin();
+        try
+        {
+            var available = _paymentService.GetOwnerOptions();
+            OwnerOptions.Clear();
+            foreach (var owner in available) OwnerOptions.Add(owner);
+            _selectedOwner = null;
+            SelectedOwner = OwnerOptions.FirstOrDefault(o => o.OwnerId == targetId)
+                ?? OwnerOptions.FirstOrDefault();
+            if (SelectedOwner is null) RefreshCurrentOwner();
+            if (!LoadState.HasError)
+                LoadState.Complete(SelectedOwner is not null, "Aucun compte de paiement local disponible.");
+        }
+        catch (Exception ex) { ShowPaymentLoadError(ex); }
+    }
+
+    private void LoadSelectedAccountSafely()
+    {
+        LoadState.Begin();
+        try
+        {
+            RefreshCurrentOwner();
+            LoadState.Complete(SelectedOwner is not null, "Aucun compte sélectionné.");
+        }
+        catch (Exception ex) { ShowPaymentLoadError(ex); }
+    }
+
+    private void ShowPaymentLoadError(Exception ex)
+    {
+        System.Diagnostics.Debug.WriteLine($"Lecture des paiements : {ex.GetType().Name}");
+        OwnerOptions.Clear();
+        _selectedOwner = null;
+        OnPropertyChanged(nameof(SelectedOwner));
+        OnPropertyChanged(nameof(HasSelectedOwner));
+        OnPropertyChanged(nameof(OwnerName));
+        OnPropertyChanged(nameof(FileNumber));
+        OnPropertyChanged(nameof(Municipality));
+        PaymentHistory.Clear();
+        _amountDue = _lateFees = _totalPayments = _balance = 0m;
+        RefreshSummaryBindings();
+        OnPropertyChanged(nameof(HasPaymentHistory));
+        LoadState.Fail("Impossible de charger les comptes ou leurs paiements. Veuillez réessayer.");
+    }
+
     private void RefreshCurrentOwner()
     {
         PaymentHistory.Clear();
@@ -426,6 +471,7 @@ public class PaymentsViewModel : ViewModelBase
 
 
             RefreshSummaryBindings();
+            OnPropertyChanged(nameof(HasPaymentHistory));
 
             return;
         }

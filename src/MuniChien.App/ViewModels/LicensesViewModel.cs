@@ -1,4 +1,4 @@
-﻿using MuniChien.App.Navigation;
+using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -22,8 +22,8 @@ public class LicensesViewModel : ViewModelBase
     // DONNÉES
     // ==================================================
 
-    private readonly IReadOnlyList<LicenseListItemViewModel>
-        _allLicenses;
+    private IReadOnlyList<LicenseListItemViewModel>
+        _allLicenses = [];
 
 
     // ==================================================
@@ -72,10 +72,6 @@ public class LicensesViewModel : ViewModelBase
             licenseService ?? new LocalLicenseService();
 
 
-        _allLicenses =
-            _licenseService.GetLicenses();
-
-
         StatusOptions =
         [
             "Tous",
@@ -110,13 +106,17 @@ public class LicensesViewModel : ViewModelBase
                 OpenSelectedLicense);
 
 
-        ApplyFilters();
+        ReloadCommand = new RelayCommand(ReloadLicenses);
+        ReloadLicenses();
     }
 
 
     // ==================================================
     // OPTIONS
     // ==================================================
+
+    public DataLoadState LoadState { get; } = new();
+    public ICommand ReloadCommand { get; }
 
     public IReadOnlyList<string>
         StatusOptions
@@ -379,7 +379,41 @@ public class LicensesViewModel : ViewModelBase
     // RECHERCHE
     // ==================================================
 
+    private void ReloadLicenses()
+    {
+        LoadState.Begin();
+        try
+        {
+            _allLicenses = _licenseService.GetLicenses();
+            ApplyFilters();
+        }
+        catch (Exception ex) { ShowLicenseLoadError(ex); }
+    }
+
     private void ApplyFilters()
+    {
+        LoadState.Begin();
+        try
+        {
+            ApplyFiltersCore();
+            LoadState.Complete(Licenses.Count != 0,
+                _allLicenses.Count == 0 ? "Aucune licence enregistrée."
+                                        : "Aucune licence ne correspond à vos critères.");
+        }
+        catch (Exception ex) { ShowLicenseLoadError(ex); }
+    }
+
+    private void ShowLicenseLoadError(Exception ex)
+    {
+        System.Diagnostics.Debug.WriteLine($"Lecture des licences : {ex.GetType().Name}");
+        _allLicenses = [];
+        Licenses.Clear();
+        SelectedLicense = null;
+        RefreshSummary();
+        LoadState.Fail("Impossible de charger les licences. Veuillez réessayer.");
+    }
+
+    private void ApplyFiltersCore()
     {
         IEnumerable<LicenseListItemViewModel>
             filtered =

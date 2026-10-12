@@ -1,6 +1,7 @@
 ﻿<UserControl x:Class="MuniChien.App.Views.PaymentsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:feedback="clr-namespace:MuniChien.App.Views.Controls">
 
     <UserControl.Resources>
 
@@ -258,6 +259,9 @@
                       HorizontalScrollBarVisibility="Disabled">
 
             <StackPanel Margin="52,36,52,44">
+
+                <!-- États de lecture et réessai (services locaux / future API). -->
+                <feedback:DataLoadStatusView Margin="0,0,0,16"/>
 
 
                 <!-- ==================================================

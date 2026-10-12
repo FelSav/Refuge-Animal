@@ -1,0 +1,62 @@
+<UserControl x:Class="MuniChien.App.Views.Controls.DataLoadStatusView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinHeight="43">
+    <UserControl.Resources>
+        <Style x:Key="ShowWhenLoading" TargetType="Border">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding LoadState.IsLoading}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ShowWhenEmpty" TargetType="Border">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding LoadState.IsEmpty}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ShowWhenError" TargetType="Border">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding LoadState.HasError}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+            <Border Style="{StaticResource ShowWhenLoading}" Background="#EFF5FC"
+                    CornerRadius="9" Padding="12,9" BorderBrush="#D9E7F5" BorderThickness="1">
+                <TextBlock Text="Chargement des données…" Foreground="#305B84" FontSize="13"/>
+            </Border>
+            <Border Style="{StaticResource ShowWhenEmpty}" Background="#FFF8F0"
+                    CornerRadius="9" Padding="12,9" BorderBrush="#FFE2C5" BorderThickness="1">
+                <TextBlock Text="{Binding LoadState.EmptyMessage}" TextWrapping="Wrap"
+                           Foreground="#87511D" FontSize="13"/>
+            </Border>
+            <Border Style="{StaticResource ShowWhenError}" Background="#FFF3F2"
+                    CornerRadius="9" Padding="12,9" BorderBrush="#F7C6C1" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="Données indisponibles" FontSize="13"
+                               Foreground="#9B2C24" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding LoadState.ErrorMessage}" Foreground="#9B2C24"
+                               TextWrapping="Wrap" FontSize="12" Margin="0,3,0,0"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+        <Button Grid.Column="1" Content="Actualiser / Réessayer"
+                Command="{Binding ReloadCommand}" VerticalAlignment="Top"
+                Background="White" Foreground="#344054" BorderBrush="#CBD5E1"
+                BorderThickness="1" Padding="15,9" FontSize="12"
+                Cursor="Hand" MinHeight="36"/>
+    </Grid>
+</UserControl>
