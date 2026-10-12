@@ -8,6 +8,7 @@ public interface IAnimalDirectoryService
     IReadOnlyList<OwnerDirectoryItem> GetOwners();
     OwnerDirectoryItem? GetOwner(int ownerId);
     void SaveOwner(OwnerDirectoryItem owner);
+    OwnerDirectoryItem AddOwner(OwnerDirectoryItem owner);
     IReadOnlyList<OwnerDogViewModel> GetDogs();
     IReadOnlyList<OwnerDogViewModel> GetDogsForOwner(int ownerId);
     OwnerDogViewModel? GetDog(int dogId);

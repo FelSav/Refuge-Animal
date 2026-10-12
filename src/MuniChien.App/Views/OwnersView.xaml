@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="MuniChien.App.Views.OwnersView"
+<UserControl x:Class="MuniChien.App.Views.OwnersView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:feedback="clr-namespace:MuniChien.App.Views.Controls">
@@ -486,6 +486,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="200"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Choisir un propriétaire" FontSize="15" FontWeight="SemiBold"
@@ -501,6 +502,13 @@
                                   TextSearch.TextPath="SelectionDisplay"
                                   IsEnabled="{Binding CanChangeSelection}"
                                   Style="{StaticResource RoundedComboBoxStyle}"/>
+                        <Button Grid.Column="2"
+                                Content="+ Nouveau propriétaire"
+                                Click="AddOwner_Click"
+                                IsEnabled="{Binding CanChangeSelection}"
+                                MinWidth="205" Height="44" Margin="14,0,0,0"
+                                Padding="18,6" FontSize="14" FontWeight="SemiBold"
+                                Style="{StaticResource PrimaryActionButtonStyle}"/>
                     </Grid>
                 </Border>
 

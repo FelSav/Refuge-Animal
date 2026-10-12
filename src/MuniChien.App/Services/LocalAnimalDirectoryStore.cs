@@ -50,6 +50,45 @@ internal static class LocalAnimalDirectoryStore
     public static OwnerDirectoryItem? GetOwner(int ownerId) =>
         Owners.TryGetValue(ownerId, out var owner) ? CloneOwner(owner) : null;
 
+    // Identifiants provisoires de démonstration : l'API générera les vrais identifiants.
+    // Le même magasin alimente les fiches et la Recherche, sans doublon de répertoire.
+    public static OwnerDirectoryItem AddOwner(OwnerDirectoryItem owner)
+    {
+        ArgumentNullException.ThrowIfNull(owner);
+        if (string.IsNullOrWhiteSpace(owner.FirstName) || string.IsNullOrWhiteSpace(owner.LastName))
+            throw new ArgumentException("Le prénom et le nom du propriétaire sont obligatoires.");
+        if (!MunicipalityCatalog.All.Contains(owner.Municipality))
+            throw new ArgumentException("Veuillez sélectionner une municipalité du catalogue.");
+
+        lock (Owners)
+        {
+            int ownerId = checked(Owners.Keys.DefaultIfEmpty(0).Max() + 1);
+            int lastFileNumber = Owners.Values
+                .Select(x => int.TryParse(x.FileNumber, out int value) ? value : 0)
+                .DefaultIfEmpty(12344)
+                .Max();
+            int nextFileNumber = checked(Math.Max(lastFileNumber, 12344) + 1);
+            string fileNumber = nextFileNumber.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+            var created = new OwnerDirectoryItem
+            {
+                OwnerId = ownerId,
+                FileNumber = fileNumber,
+                Municipality = owner.Municipality,
+                FirstName = owner.FirstName.Trim(),
+                LastName = owner.LastName.Trim(),
+                Status = owner.Status == "Inactif" ? "Inactif" : "Actif",
+                Phone = owner.Phone.Trim(),
+                CellPhone = owner.CellPhone.Trim(),
+                Email = owner.Email.Trim(),
+                Address = owner.Address.Trim(),
+                Comments = owner.Comments.Trim()
+            };
+            Owners.Add(ownerId, CloneOwner(created));
+            return CloneOwner(created);
+        }
+    }
+
     public static void SaveOwner(OwnerDirectoryItem owner)
     {
         if (!Owners.ContainsKey(owner.OwnerId))

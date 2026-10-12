@@ -162,6 +162,19 @@ public class OwnersViewModel : ViewModelBase
 
     public int NextDogId => Math.Max(0, _directoryService.GetDogs().Select(x => x.DogId).DefaultIfEmpty(0).Max()) + 1;
 
+    // Après création, sélectionner immédiatement le dossier nouvellement ajouté.
+    public OwnerDirectoryItem AddOwner(OwnerDirectoryItem proposedOwner)
+    {
+        if (IsEditing || IsEditingComments)
+            throw new InvalidOperationException("Terminez les modifications en cours avant de créer un propriétaire.");
+
+        OwnerDirectoryItem created = _directoryService.AddOwner(proposedOwner);
+        _preferredOwnerId = created.OwnerId;
+        _selectedOwner = null;
+        ReloadOwners();
+        return created;
+    }
+
     // Le chien ajouté reste disponible dans Propriétaires et Chiens pendant la session.
     public void AddDog(OwnerDogViewModel dog)
     {

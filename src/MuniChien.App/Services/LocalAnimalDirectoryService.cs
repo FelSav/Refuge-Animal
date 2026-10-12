@@ -7,6 +7,7 @@ public sealed class LocalAnimalDirectoryService : IAnimalDirectoryService
     public IReadOnlyList<OwnerDirectoryItem> GetOwners() => LocalAnimalDirectoryStore.GetOwners();
     public OwnerDirectoryItem? GetOwner(int ownerId) => LocalAnimalDirectoryStore.GetOwner(ownerId);
     public void SaveOwner(OwnerDirectoryItem owner) => LocalAnimalDirectoryStore.SaveOwner(owner);
+    public OwnerDirectoryItem AddOwner(OwnerDirectoryItem owner) => LocalAnimalDirectoryStore.AddOwner(owner);
     public IReadOnlyList<OwnerDogViewModel> GetDogs() => LocalAnimalDirectoryStore.GetDogs();
     public IReadOnlyList<OwnerDogViewModel> GetDogsForOwner(int ownerId) => LocalAnimalDirectoryStore.GetDogsForOwner(ownerId);
     public OwnerDogViewModel? GetDog(int dogId) => LocalAnimalDirectoryStore.GetDog(dogId);
