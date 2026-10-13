@@ -61,7 +61,7 @@ public class HomeViewModel : ViewModelBase
         _statisticsService = statisticsService ?? new LocalDashboardStatisticsService();
 
         OpenSearchQuickCommand = new RelayCommand(() => _navigate?.Invoke("Recherche"));
-        OpenOwnersQuickCommand = new RelayCommand(() => _navigate?.Invoke("Propriétaires"));
+        OpenOwnersQuickCommand = new RelayCommand(() => _navigate?.Invoke("Clients"));
         OpenDogsQuickCommand = new RelayCommand(() => _navigate?.Invoke("Chiens"));
         OpenLicensesQuickCommand = new RelayCommand(() => _navigate?.Invoke("Licences"));
         OpenPaymentsQuickCommand = new RelayCommand(() => _navigate?.Invoke("Paiements"));
@@ -400,8 +400,8 @@ public class HomeViewModel : ViewModelBase
             new("noticesToSend", "Avis à envoyer"),
             new("paymentsThisMonth", "Paiements ce mois-ci"),
 
-            new("activeOwners", "Propriétaires actifs"),
-            new("inactiveOwners", "Propriétaires inactifs"),
+            new("activeOwners", "Clients actifs"),
+            new("inactiveOwners", "Clients inactifs"),
             new("expiredLicenses", "Licences expirées"),
             new("monthlyRevenue", "Revenus du mois")
         ];

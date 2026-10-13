@@ -22,7 +22,7 @@ public partial class LicensesView : UserControl
         if (dogs.Count == 0)
         {
             MessageBox.Show("Tous les chiens du répertoire possèdent déjà une licence. " +
-                            "Ajoutez d'abord un nouveau chien dans Propriétaires.",
+                            "Ajoutez d'abord un nouveau chien dans Clients.",
                 "Nouvelle licence", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }

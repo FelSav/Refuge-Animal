@@ -1,4 +1,4 @@
-using MuniChien.App.Services;
+﻿using MuniChien.App.Services;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -9,7 +9,8 @@ public partial class AddOwnerDialog : Window
     public AddOwnerDialog()
     {
         InitializeComponent();
-        MunicipalityBox.ItemsSource = MunicipalityCatalog.All;
+        MunicipalityBox.ItemsSource = new[] { string.Empty }.Concat(MunicipalityCatalog.All).ToList();
+        MunicipalityBox.SelectedIndex = 0;
         FirstNameBox.Focus();
     }
 
@@ -21,19 +22,20 @@ public partial class AddOwnerDialog : Window
         string lastName = LastNameBox.Text.Trim();
         if (firstName.Length == 0)
         {
-            ShowError("Le prénom du propriétaire est obligatoire.", FirstNameBox);
+            ShowError("Le prénom du client est obligatoire.", FirstNameBox);
             return;
         }
         if (lastName.Length == 0)
         {
-            ShowError("Le nom du propriétaire est obligatoire.", LastNameBox);
+            ShowError("Le nom du client est obligatoire.", LastNameBox);
             return;
         }
 
-        if (MunicipalityBox.SelectedItem is not string municipality ||
-            !MunicipalityCatalog.All.Contains(municipality))
+        // Une fiche de fidélité peut exister sans chien et sans municipalité.
+        string municipality = MunicipalityBox.SelectedItem as string ?? string.Empty;
+        if (!string.IsNullOrEmpty(municipality) && !MunicipalityCatalog.All.Contains(municipality))
         {
-            ShowError("Veuillez sélectionner une municipalité dans la liste.", MunicipalityBox);
+            ShowError("La municipalité sélectionnée n'est pas reconnue.", MunicipalityBox);
             return;
         }
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -102,7 +102,7 @@ public static class LocalLoyaltyService
     // doublon est désormais interdite, y compris pour les programmes par défaut.
     public static LoyaltyCardRecord CreateCard(int ownerId, string programId)
     {
-        if (ownerId <= 0) throw new ArgumentException("Un propriétaire doit être sélectionné.");
+        if (ownerId <= 0) throw new ArgumentException("Un client doit être sélectionné.");
         lock (Sync)
         {
             var cards = EnsureInitialCardsLocked(ownerId);
@@ -110,7 +110,7 @@ public static class LocalLoyaltyService
             if (program is null)
                 throw new ArgumentException("Programme de fidélité invalide.");
             if (cards.Any(c => c.ProgramId == programId))
-                throw new InvalidOperationException($"Une carte {program.Name} existe déjà pour ce propriétaire.");
+                throw new InvalidOperationException($"Une carte {program.Name} existe déjà pour ce client.");
 
             var newCard = NewCard(ownerId, program);
             cards.Add(newCard);
@@ -122,7 +122,7 @@ public static class LocalLoyaltyService
     // Le nom est comparé sans tenir compte des espaces répétés ni de la casse.
     public static LoyaltyCardRecord CreateCustomCard(int ownerId, string companyName)
     {
-        if (ownerId <= 0) throw new ArgumentException("Un propriétaire doit être sélectionné.");
+        if (ownerId <= 0) throw new ArgumentException("Un client doit être sélectionné.");
         if (string.IsNullOrWhiteSpace(companyName))
             throw new ArgumentException("Inscrivez le nom de la nouvelle compagnie.");
 

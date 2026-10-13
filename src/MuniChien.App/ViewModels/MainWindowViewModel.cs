@@ -1,4 +1,4 @@
-using MuniChien.App.Navigation;
+﻿using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using System.Windows;
 using System.Windows.Input;
@@ -359,7 +359,7 @@ public class MainWindowViewModel : ViewModelBase
             new OwnersViewModel(
                 OpenDog,
                 directoryService: _services.Animals),
-            "Propriétaires");
+            "Clients");
     }
 
 
@@ -432,6 +432,7 @@ public class MainWindowViewModel : ViewModelBase
         switch (page)
         {
             case "Recherche": ShowSearch(); break;
+            case "Clients":
             case "Propriétaires": ShowOwners(); break;
             case "Chiens": ShowDogs(); break;
             case "Licences": ShowLicenses(); break;
@@ -523,7 +524,7 @@ public class MainWindowViewModel : ViewModelBase
                 OpenDog,
                 ownerId,
                 _services.Animals),
-            "Propriétaires");
+            "Clients");
     }
 
 
@@ -560,7 +561,7 @@ public class MainWindowViewModel : ViewModelBase
             page == "Recherche";
 
         IsOwnersSelected =
-            page == "Propriétaires";
+            page == "Clients";
 
         IsDogsSelected =
             page == "Chiens";

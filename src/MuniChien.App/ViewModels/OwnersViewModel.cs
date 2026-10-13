@@ -1,4 +1,4 @@
-using MuniChien.App.Navigation;
+﻿using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -23,6 +23,7 @@ public class OwnersViewModel : ViewModelBase
     private string _cellPhone = string.Empty;
     private string _email = string.Empty;
     private string _address = string.Empty;
+    private string _municipality = string.Empty;
     private string _comments = string.Empty;
 
     private string _originalFirstName = string.Empty;
@@ -32,6 +33,7 @@ public class OwnersViewModel : ViewModelBase
     private string _originalCellPhone = string.Empty;
     private string _originalEmail = string.Empty;
     private string _originalAddress = string.Empty;
+    private string _originalMunicipality = string.Empty;
     private string _originalComments = string.Empty;
 
     public OwnersViewModel(
@@ -42,6 +44,7 @@ public class OwnersViewModel : ViewModelBase
         _openDogAction = openDogAction;
         _directoryService = directoryService ?? new LocalAnimalDirectoryService();
         StatusOptions = ["Actif", "Inactif"];
+        MunicipalityOptions = ["", .. MunicipalityCatalog.All];
         ModifyCommand = new RelayCommand(StartEditing);
         SaveCommand = new RelayCommand(SaveChanges);
         CancelCommand = new RelayCommand(CancelChanges);
@@ -77,6 +80,10 @@ public class OwnersViewModel : ViewModelBase
     public int OwnerId => SelectedOwner?.OwnerId ?? 0;
     public string FileNumber => SelectedOwner?.FileNumber ?? "—";
     public IReadOnlyList<string> StatusOptions { get; }
+    public IReadOnlyList<string> MunicipalityOptions { get; }
+    public string ClientProfileLabel => Dogs.Count == 0
+        ? "Dossier fidélité / aucun chien enregistré"
+        : $"Propriétaire de {Dogs.Count} chien(s)";
 
     public bool IsEditing
     {
@@ -126,6 +133,19 @@ public class OwnersViewModel : ViewModelBase
     public string CellPhone { get => _cellPhone; set { if (_cellPhone == value) return; _cellPhone = value; OnPropertyChanged(); } }
     public string Email { get => _email; set { if (_email == value) return; _email = value; OnPropertyChanged(); } }
     public string Address { get => _address; set { if (_address == value) return; _address = value; OnPropertyChanged(); } }
+    public string Municipality
+    {
+        get => _municipality;
+        set
+        {
+            if (_municipality == value) return;
+            _municipality = value ?? string.Empty;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(MunicipalityDisplay));
+        }
+    }
+    public string MunicipalityDisplay => string.IsNullOrWhiteSpace(Municipality)
+        ? "Non renseignée (fidélité seulement)" : Municipality;
     public string Comments
     {
         get => _comments;
@@ -143,7 +163,7 @@ public class OwnersViewModel : ViewModelBase
     public ObservableCollection<LoyaltySummaryStamp> LoyaltySummaryStamps { get; } = [];
     public string LoyaltySummaryProgram { get; private set; } = "Aucune carte active";
     public string LoyaltySummaryProgress { get; private set; } = "0/12";
-    public string LoyaltySummaryDetail { get; private set; } = "Ajoutez une carte de fidélité pour ce propriétaire.";
+    public string LoyaltySummaryDetail { get; private set; } = "Ajoutez une carte de fidélité pour ce client.";
     public double LoyaltySummaryPercent { get; private set; }
 
     public void RefreshLoyalty()
@@ -204,7 +224,7 @@ public class OwnersViewModel : ViewModelBase
     public OwnerDirectoryItem AddOwner(OwnerDirectoryItem proposedOwner)
     {
         if (IsEditing || IsEditingComments)
-            throw new InvalidOperationException("Terminez les modifications en cours avant de créer un propriétaire.");
+            throw new InvalidOperationException("Terminez les modifications en cours avant de créer un client.");
 
         OwnerDirectoryItem created = _directoryService.AddOwner(proposedOwner);
         _preferredOwnerId = created.OwnerId;
@@ -235,7 +255,7 @@ public class OwnersViewModel : ViewModelBase
                 ?? OwnerOptions.FirstOrDefault();
             if (SelectedOwner is null) LoadOwner();
             if (!LoadState.HasError)
-                LoadState.Complete(SelectedOwner is not null, "Aucun propriétaire dans le répertoire local.");
+                LoadState.Complete(SelectedOwner is not null, "Aucun client dans le répertoire local.");
         }
         catch (Exception ex) { ShowOwnerLoadError(ex); }
     }
@@ -246,7 +266,7 @@ public class OwnersViewModel : ViewModelBase
         try
         {
             LoadOwner();
-            LoadState.Complete(SelectedOwner is not null, "Aucun propriétaire sélectionné.");
+            LoadState.Complete(SelectedOwner is not null, "Aucun client sélectionné.");
         }
         catch (Exception ex) { ShowOwnerLoadError(ex); }
     }
@@ -259,19 +279,19 @@ public class OwnersViewModel : ViewModelBase
         OnPropertyChanged(nameof(SelectedOwner));
         OnPropertyChanged(nameof(OwnerId));
         OnPropertyChanged(nameof(FileNumber));
-        FirstName = LastName = Status = Phone = CellPhone = Email = Address = Comments = string.Empty;
+        FirstName = LastName = Status = Phone = CellPhone = Email = Address = Municipality = Comments = string.Empty;
         _selectedDog = null;
         OnPropertyChanged(nameof(SelectedDog));
         Dogs.Clear();
         RefreshLoyalty();
-        LoadState.Fail("Impossible de charger les propriétaires. Veuillez réessayer.");
+        LoadState.Fail("Impossible de charger les clients. Veuillez réessayer.");
     }
 
     private void LoadOwner()
     {
         if (_selectedOwner is null)
         {
-            FirstName = LastName = Status = Phone = CellPhone = Email = Address = Comments = string.Empty;
+            FirstName = LastName = Status = Phone = CellPhone = Email = Address = Municipality = Comments = string.Empty;
         }
         else
         {
@@ -283,6 +303,7 @@ public class OwnersViewModel : ViewModelBase
             CellPhone = owner.CellPhone;
             Email = owner.Email;
             Address = owner.Address;
+            Municipality = owner.Municipality;
             Comments = owner.Comments;
         }
         RefreshDogs();
@@ -297,6 +318,7 @@ public class OwnersViewModel : ViewModelBase
         if (OwnerId == 0) return;
         foreach (var dog in _directoryService.GetDogsForOwner(OwnerId))
             Dogs.Add(dog);
+        OnPropertyChanged(nameof(ClientProfileLabel));
     }
 
     private void StartEditing()
@@ -311,7 +333,7 @@ public class OwnersViewModel : ViewModelBase
         if (_selectedOwner is null) return;
         var saved = new OwnerDirectoryItem
         {
-            OwnerId = OwnerId, FileNumber = FileNumber, Municipality = _selectedOwner.Municipality,
+            OwnerId = OwnerId, FileNumber = FileNumber, Municipality = Municipality,
             FirstName = FirstName.Trim(), LastName = LastName.Trim(), Status = Status,
             Phone = Phone, CellPhone = CellPhone, Email = Email,
             Address = Address, Comments = Comments
@@ -335,6 +357,7 @@ public class OwnersViewModel : ViewModelBase
         CellPhone = _originalCellPhone;
         Email = _originalEmail;
         Address = _originalAddress;
+        Municipality = _originalMunicipality;
         Comments = _originalComments;
         IsEditing = false;
     }
@@ -348,6 +371,7 @@ public class OwnersViewModel : ViewModelBase
         _originalCellPhone = CellPhone;
         _originalEmail = Email;
         _originalAddress = Address;
+        _originalMunicipality = Municipality;
         _originalComments = Comments;
     }
     // Édition rapide des commentaires, indépendante de la fiche complète.
@@ -398,9 +422,9 @@ public class OwnersViewModel : ViewModelBase
         if (owner is null) return;
 
         CommentPrintService.Print(
-            "Commentaires du propriétaire",
+            "Commentaires du client",
             [
-                ("Propriétaire", owner.FullName),
+                ("Client", owner.FullName),
                 ("Dossier", $"#{owner.FileNumber}"),
                 ("Municipalité", owner.Municipality)
             ],

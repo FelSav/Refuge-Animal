@@ -274,7 +274,7 @@
                            Foreground="#242B38"/>
 
 
-                <TextBlock Text="Enregistrez et consultez les paiements d’un propriétaire."
+                <TextBlock Text="Enregistrez et consultez les paiements d’un client."
                            Margin="0,7,0,24"
                            FontSize="14"
                            Foreground="#667085"/>
@@ -346,7 +346,7 @@
 
                         <StackPanel Grid.Column="2">
 
-                            <TextBlock Text="Changer de propriétaire"
+                            <TextBlock Text="Changer de client"
                                        Style="{StaticResource PaymentLabelStyle}"/>
 
 
@@ -513,7 +513,7 @@
                                        Style="{StaticResource PaymentSectionTitleStyle}"/>
 
 
-                            <TextBlock Text="Enregistrez un paiement pour le propriétaire sélectionné."
+                            <TextBlock Text="Enregistrez un paiement pour le client sélectionné."
                                        FontSize="12"
                                        Foreground="#98A2B3"
                                        Margin="0,5,0,20"
@@ -671,7 +671,7 @@
                                            Style="{StaticResource PaymentSectionTitleStyle}"/>
 
 
-                                <TextBlock Text="Tous les paiements enregistrés pour ce propriétaire."
+                                <TextBlock Text="Tous les paiements enregistrés pour ce client."
                                            FontSize="12"
                                            Foreground="#98A2B3"
                                            Margin="0,5,0,0"/>

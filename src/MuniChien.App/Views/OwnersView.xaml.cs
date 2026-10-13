@@ -1,4 +1,4 @@
-using MuniChien.App.ViewModels;
+﻿using MuniChien.App.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -27,12 +27,12 @@ public partial class OwnersView : UserControl
             var created = viewModel.AddOwner(dialog.CreatedOwner);
             MessageBox.Show(
                 $"Le dossier de {created.FullName} (#{created.FileNumber}) a été créé en démonstration.",
-                "Propriétaire ajouté", MessageBoxButton.OK, MessageBoxImage.Information);
+                "Client ajouté", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception)
         {
             MessageBox.Show(
-                "Impossible d'ajouter ce propriétaire au répertoire local. Vérifiez les champs et réessayez.",
+                "Impossible d'ajouter ce client au répertoire local. Vérifiez les champs et réessayez.",
                 "Création impossible", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }

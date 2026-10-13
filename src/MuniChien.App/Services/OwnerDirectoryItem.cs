@@ -1,4 +1,4 @@
-namespace MuniChien.App.Services;
+﻿namespace MuniChien.App.Services;
 
 // Données de démonstration. Le service API remplacera cette source locale.
 public sealed class OwnerDirectoryItem
@@ -16,7 +16,9 @@ public sealed class OwnerDirectoryItem
     public string Comments { get; init; } = string.Empty;
 
     public string FullName => $"{FirstName} {LastName}".Trim();
-    public string SelectionDisplay => $"{FullName} — {Municipality} (#{FileNumber})";
+    public string SelectionDisplay => string.IsNullOrWhiteSpace(Municipality)
+        ? $"{FullName} — fidélité / municipalité non renseignée (#{FileNumber})"
+        : $"{FullName} — {Municipality} (#{FileNumber})";
     public override string ToString() => SelectionDisplay;
 }
 

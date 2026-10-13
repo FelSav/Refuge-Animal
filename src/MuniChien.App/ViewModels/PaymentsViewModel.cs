@@ -1,4 +1,4 @@
-using MuniChien.App.Navigation;
+﻿using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -143,7 +143,7 @@ public class PaymentsViewModel : ViewModelBase
 
     public string OwnerName =>
         SelectedOwner?.OwnerName
-        ?? "Aucun propriétaire sélectionné";
+        ?? "Aucun client sélectionné";
 
 
     public string FileNumber =>
@@ -329,7 +329,7 @@ public class PaymentsViewModel : ViewModelBase
         if (SelectedOwner is null)
         {
             ValidationMessage =
-                "Veuillez sélectionner un propriétaire.";
+                "Veuillez sélectionner un client.";
 
             return;
         }

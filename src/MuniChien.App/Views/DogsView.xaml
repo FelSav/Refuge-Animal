@@ -870,7 +870,7 @@
                             </Border>
 
 
-                            <Button Content="Voir le propriétaire"
+                            <Button Content="Voir le client"
                                     Command="{Binding OpenOwnerCommand}"
                                     IsEnabled="{Binding HasSelectedDog}"
                                     Style="{StaticResource SecondaryActionButtonStyle}"

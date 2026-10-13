@@ -50,6 +50,10 @@ public static class LocalLicenseStore
             ?? throw new InvalidOperationException("Le chien n'existe plus dans le répertoire.");
         OwnerDirectoryItem owner = LocalAnimalDirectoryStore.GetOwner(dog.OwnerId)
             ?? throw new InvalidOperationException("Le propriétaire n'existe plus dans le répertoire.");
+        if (!MunicipalityCatalog.All.Contains(owner.Municipality))
+            throw new InvalidOperationException(
+                "Une municipalité valide est nécessaire pour créer une licence canine. " +
+                "Complétez-la dans la fiche Client avant de réessayer.");
         if (_licenses.Any(x => x.DogId == dogId) ||
             (!string.IsNullOrWhiteSpace(dog.LicenseNumber) &&
              GetCurrentLicense(dog.LicenseNumber) is not null))

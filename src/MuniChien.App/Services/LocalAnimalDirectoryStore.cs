@@ -1,4 +1,4 @@
-using MuniChien.App.ViewModels;
+﻿using MuniChien.App.ViewModels;
 
 namespace MuniChien.App.Services;
 
@@ -56,9 +56,10 @@ internal static class LocalAnimalDirectoryStore
     {
         ArgumentNullException.ThrowIfNull(owner);
         if (string.IsNullOrWhiteSpace(owner.FirstName) || string.IsNullOrWhiteSpace(owner.LastName))
-            throw new ArgumentException("Le prénom et le nom du propriétaire sont obligatoires.");
-        if (!MunicipalityCatalog.All.Contains(owner.Municipality))
-            throw new ArgumentException("Veuillez sélectionner une municipalité du catalogue.");
+            throw new ArgumentException("Le prénom et le nom du client sont obligatoires.");
+        if (!string.IsNullOrWhiteSpace(owner.Municipality) &&
+            !MunicipalityCatalog.All.Contains(owner.Municipality))
+            throw new ArgumentException("La municipalité choisie ne figure pas au catalogue.");
 
         lock (Owners)
         {
@@ -92,7 +93,10 @@ internal static class LocalAnimalDirectoryStore
     public static void SaveOwner(OwnerDirectoryItem owner)
     {
         if (!Owners.ContainsKey(owner.OwnerId))
-            throw new InvalidOperationException("Le propriétaire sélectionné n'existe pas.");
+            throw new InvalidOperationException("Le client sélectionné n'existe pas.");
+        if (!string.IsNullOrWhiteSpace(owner.Municipality) &&
+            !MunicipalityCatalog.All.Contains(owner.Municipality))
+            throw new ArgumentException("La municipalité choisie ne figure pas au catalogue.");
 
         Owners[owner.OwnerId] = CloneOwner(owner);
         foreach (var dog in Dogs.Values.Where(x => x.OwnerId == owner.OwnerId).ToList())

@@ -101,9 +101,9 @@
                                  Style="{StaticResource SidebarNavigationItemStyle}"/>
 
 
-                    <!-- Propriétaires -->
+                    <!-- Clients -->
 
-                    <RadioButton Content="Propriétaires"
+                    <RadioButton Content="Clients"
                                  GroupName="MainNavigation"
                                  Command="{Binding ShowOwnersCommand}"
                                  IsChecked="{Binding IsOwnersSelected,
@@ -223,9 +223,7 @@
                 <!-- Connexion admin -->
 
                 <Button Grid.Column="2"
-                        Content="{Binding AdminButtonText, Mode=OneWay}"
-                        Command="{Binding ToggleAdminLoginCommand}"
-                        ToolTip="Accès administrateur de démonstration"
+                        Content="Connexion admin"
                         Style="{StaticResource AdminLoginButtonStyle}"
                         VerticalAlignment="Center"/>
 

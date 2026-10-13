@@ -1,4 +1,4 @@
-<Window x:Class="MuniChien.App.Views.LoyaltyCardsDialog"
+﻿<Window x:Class="MuniChien.App.Views.LoyaltyCardsDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Cartes de fidélité — MuniChien"
@@ -217,7 +217,7 @@
                                VerticalAlignment="Center" Foreground="#667085"/>
                 </Grid>
                 <TextBlock x:Name="EmptyActiveText"
-                           Text="Aucune carte active pour ce propriétaire."
+                           Text="Aucune carte active pour ce client."
                            Foreground="#667085" Padding="10"
                            Margin="0,0,0,14"/>
                 <ItemsControl x:Name="ActiveCardsList"
