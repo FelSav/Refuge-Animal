@@ -875,6 +875,105 @@
 
 
                 <!-- ==================================================
+                     FIDÉLITÉ — CARTE ACTIVE LA PLUS AVANCÉE
+                     ================================================== -->
+
+                <Border Style="{StaticResource OwnerCardStyle}"
+                        Margin="0,24,0,0">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Fidélité"
+                                           Style="{StaticResource OwnerSectionTitleStyle}"/>
+                                <TextBlock Text="Carte active la plus avancée du propriétaire."
+                                           FontSize="12" Foreground="#667085" Margin="0,5,0,0"/>
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Content="Voir les fidélités"
+                                    Click="OpenLoyalty_Click"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
+                                    MinHeight="43" Padding="16,8"
+                                    Margin="12,0,0,0"/>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{Binding LoyaltySummaryProgram}"
+                                           FontSize="16" FontWeight="SemiBold"
+                                           Foreground="#242B38"/>
+                                <TextBlock Text="{Binding LoyaltySummaryDetail}"
+                                           FontSize="12" Foreground="#667085"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding LoyaltySummaryProgress}"
+                                       FontSize="22" FontWeight="Bold"
+                                       Foreground="#C45A0F"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding LoyaltySummaryStamps}"
+                                      HorizontalAlignment="Left" Margin="0,0,0,16">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Width="42" Height="42" CornerRadius="7"
+                                            BorderThickness="1" Margin="0,0,6,0">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#F8FAFC"/>
+                                                <Setter Property="BorderBrush" Value="#CBD5E1"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                        <Setter Property="Background" Value="#EA7B22"/>
+                                                        <Setter Property="BorderBrush" Value="#EA7B22"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding Display}" FontSize="13"
+                                                   FontWeight="SemiBold" HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#667085"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <ProgressBar Value="{Binding LoyaltySummaryPercent, Mode=OneWay}"
+                                     Minimum="0" Maximum="100"
+                                     Height="8" Background="#EEF1F5"
+                                     Foreground="#EA7B22" BorderThickness="0"/>
+                        <TextBlock Text="Les cases sont modifiables dans « Voir les fidélités ». Mode local de démonstration."
+                                   FontSize="11" Foreground="#667085"
+                                   TextWrapping="Wrap" Margin="0,12,0,0"/>
+                    </StackPanel>
+                </Border>
+
+
+                <!-- ==================================================
                      CHIENS ASSOCIÉS
                      ================================================== -->
 

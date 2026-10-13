@@ -138,6 +138,44 @@ public class OwnersViewModel : ViewModelBase
         }
     }
 
+
+    // Résumé fidélité : la carte active qui possède le plus de coches.
+    public ObservableCollection<LoyaltySummaryStamp> LoyaltySummaryStamps { get; } = [];
+    public string LoyaltySummaryProgram { get; private set; } = "Aucune carte active";
+    public string LoyaltySummaryProgress { get; private set; } = "0/12";
+    public string LoyaltySummaryDetail { get; private set; } = "Ajoutez une carte de fidélité pour ce propriétaire.";
+    public double LoyaltySummaryPercent { get; private set; }
+
+    public void RefreshLoyalty()
+    {
+        var best = OwnerId > 0
+            ? LocalLoyaltyService.GetCards(OwnerId)
+                .Where(c => !c.IsArchived)
+                .OrderByDescending(c => c.CompletedPurchases)
+                .ThenByDescending(c => c.LastActivity)
+                .FirstOrDefault()
+            : null;
+
+        LoyaltySummaryProgram = best?.ProgramName ?? "Aucune carte active";
+        LoyaltySummaryProgress = $"{best?.CompletedPurchases ?? 0}/12";
+        LoyaltySummaryPercent = (best?.CompletedPurchases ?? 0) * 100.0 / LocalLoyaltyService.PurchaseCount;
+        LoyaltySummaryDetail = best is null
+            ? "Consultez les fidélités pour créer une première carte."
+            : $"Carte n° {best.CardNumber} · {best.CompletedPurchases} achat(s) sur 12";
+
+        LoyaltySummaryStamps.Clear();
+        for (int i = 0; i < LocalLoyaltyService.PurchaseCount; i++)
+        {
+            bool marked = best?.PurchaseDates[i].HasValue == true;
+            LoyaltySummaryStamps.Add(new LoyaltySummaryStamp(i + 1, marked));
+        }
+
+        OnPropertyChanged(nameof(LoyaltySummaryProgram));
+        OnPropertyChanged(nameof(LoyaltySummaryProgress));
+        OnPropertyChanged(nameof(LoyaltySummaryDetail));
+        OnPropertyChanged(nameof(LoyaltySummaryPercent));
+    }
+
     public ObservableCollection<OwnerDogViewModel> Dogs { get; } = [];
     public OwnerDogViewModel? SelectedDog
     {
@@ -225,6 +263,7 @@ public class OwnersViewModel : ViewModelBase
         _selectedDog = null;
         OnPropertyChanged(nameof(SelectedDog));
         Dogs.Clear();
+        RefreshLoyalty();
         LoadState.Fail("Impossible de charger les propriétaires. Veuillez réessayer.");
     }
 
@@ -247,6 +286,7 @@ public class OwnersViewModel : ViewModelBase
             Comments = owner.Comments;
         }
         RefreshDogs();
+        RefreshLoyalty();
     }
 
     private void RefreshDogs()
@@ -366,4 +406,10 @@ public class OwnersViewModel : ViewModelBase
             ],
             owner.Comments);
     }
+}
+
+// Cases du résumé, en lecture seule dans la fiche Propriétaire.
+public sealed record LoyaltySummaryStamp(int Number, bool IsChecked)
+{
+    public string Display => IsChecked ? "✓" : Number.ToString();
 }

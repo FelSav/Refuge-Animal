@@ -37,6 +37,22 @@ public partial class OwnersView : UserControl
         }
     }
 
+
+    private void OpenLoyalty_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not OwnersViewModel viewModel || viewModel.OwnerId <= 0) return;
+
+        var dialog = new LoyaltyCardsDialog(
+            viewModel.OwnerId,
+            $"{viewModel.FirstName} {viewModel.LastName}".Trim());
+
+        if (Window.GetWindow(this) is Window ownerWindow)
+            dialog.Owner = ownerWindow;
+
+        dialog.ShowDialog();
+        viewModel.RefreshLoyalty();
+    }
+
     private void AddDog_Click(
         object sender,
         RoutedEventArgs e)
