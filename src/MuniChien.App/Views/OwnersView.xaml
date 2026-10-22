@@ -462,7 +462,61 @@
 
         </Style>
 
-    </UserControl.Resources>
+        <!-- Répertoire : colonnes lisibles et survol discret des lignes. -->
+        <Style x:Key="ClientDirectoryGridStyle" TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="RowHeight" Value="47"/>
+            <Setter Property="ColumnHeaderHeight" Value="44"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#EDF0F3"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="AlternatingRowBackground" Value="#FAFBFD"/>
+            <Setter Property="AlternationCount" Value="2"/>
+            <Setter Property="CanUserSortColumns" Value="True"/>
+            <Setter Property="CanUserResizeColumns" Value="True"/>
+            <Setter Property="EnableRowVirtualization" Value="False"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled"/>
+        
+            <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
+            <Setter Property="RowBackground" Value="White"/>
+</Style>
+        <Style x:Key="ClientListTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#263243"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+    <Style x:Key="ClientDirectoryRowStyle" TargetType="DataGridRow">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#EDF0F3"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFF7EF"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#FFEAD9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ClientDirectoryGridStyleHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="#4E5A6B"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="BorderBrush" Value="#E4E7EC"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        </Style>
+</UserControl.Resources>
 
 
     <!-- ==================================================
@@ -470,8 +524,166 @@
          ================================================== -->
 
     <Grid Background="#F6F7F9">
-
+        <!-- VUE LISTE : tableau à hauteur naturelle, un seul défilement vertical pour toute la page. -->
         <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly">
+            <ScrollViewer.Style>
+                <Style TargetType="ScrollViewer">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <!-- Hidden (et non Collapsed) conserve la position de la liste pendant l'ouverture d'une fiche. -->
+                        <DataTrigger Binding="{Binding IsDetailView}" Value="True">
+                            <Setter Property="Visibility" Value="Hidden"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ScrollViewer.Style>
+            <StackPanel Margin="30,26,30,42">
+                <!-- Actions et titre -->
+                <Grid Margin="0,0,0,17">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Clients" FontSize="29" FontWeight="SemiBold" Foreground="#252D3B"/>
+                        <TextBlock Text="Consultez les dossiers clients, avec ou sans chien." FontSize="13" Margin="0,5,0,0" Foreground="#697587"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="Actualiser" Command="{Binding ReloadCommand}" Height="43" Padding="15,5" Style="{StaticResource SecondaryActionButtonStyle}"/>
+<Button Content="+ Nouveau client" Click="AddOwner_Click" Margin="10,0,0,0" Height="43" Padding="15,5" Style="{StaticResource PrimaryActionButtonStyle}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Recherche en permanence visible; filtres avancés repliables pour dégager le tableau. -->
+                <Border Background="White" BorderBrush="#E4E7EC" BorderThickness="1"
+                        CornerRadius="14" Padding="18,15" Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="Recherche rapide" FontWeight="SemiBold" FontSize="13"
+                                   Foreground="#344054" Margin="0,0,0,7"/>
+                        <TextBox Height="43" Text="{Binding ClientSearch, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="Nom, téléphone, numéro de dossier, adresse ou courriel" Padding="12,7" FontSize="14"
+                                 BorderBrush="#D7DDE5" Background="#FCFCFD"/>
+                        <Expander Margin="0,12,0,0" IsExpanded="False">
+                            <Expander.Header>
+                                <TextBlock Text="Filtres avancés" FontSize="13" FontWeight="SemiBold" Foreground="#B35716"/>
+                            </Expander.Header>
+                            <StackPanel Margin="0,12,0,0">
+                                <WrapPanel>
+                                    <StackPanel Width="182" Margin="0,0,14,8">
+                    <TextBlock Text="Municipalité" FontSize="12" Foreground="#697587" Margin="0,0,0,6"/>
+                    <ComboBox Height="40" ItemsSource="{Binding ClientMunicipalityFilters}"
+                              SelectedItem="{Binding ClientMunicipalityFilter, Mode=TwoWay}"
+                              Style="{StaticResource RoundedComboBoxStyle}"/>
+                </StackPanel>
+<StackPanel Width="152" Margin="0,0,14,8">
+                    <TextBlock Text="Statut" FontSize="12" Foreground="#697587" Margin="0,0,0,6"/>
+                    <ComboBox Height="40" ItemsSource="{Binding ClientStatusFilters}"
+                              SelectedItem="{Binding ClientStatusFilter, Mode=TwoWay}"
+                              Style="{StaticResource RoundedComboBoxStyle}"/>
+                </StackPanel>
+<StackPanel Width="152" Margin="0,0,14,8">
+                    <TextBlock Text="Fidélité" FontSize="12" Foreground="#697587" Margin="0,0,0,6"/>
+                    <ComboBox Height="40" ItemsSource="{Binding ClientLoyaltyFilters}"
+                              SelectedItem="{Binding ClientLoyaltyFilter, Mode=TwoWay}"
+                              Style="{StaticResource RoundedComboBoxStyle}"/>
+                </StackPanel>
+<StackPanel Width="152" Margin="0,0,14,8">
+                    <TextBlock Text="Chiens" FontSize="12" Foreground="#697587" Margin="0,0,0,6"/>
+                    <ComboBox Height="40" ItemsSource="{Binding ClientDogFilters}"
+                              SelectedItem="{Binding ClientDogFilter, Mode=TwoWay}"
+                              Style="{StaticResource RoundedComboBoxStyle}"/>
+                </StackPanel>
+                                </WrapPanel>
+                                <Button Content="Effacer les filtres" Command="{Binding ClearClientFiltersCommand}"
+                                        HorizontalAlignment="Right" Margin="0,2,0,0"
+                                        Height="36" Padding="12,4" Style="{StaticResource SecondaryActionButtonStyle}"/>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </Border>
+
+                <!-- Résultats : tableau complet, sans petite zone verticale limitée. -->
+                <Border Background="White" BorderBrush="#E4E7EC" BorderThickness="1"
+                        CornerRadius="14" Padding="0,0,0,8">
+                    <StackPanel>
+                        <Grid Margin="20,18,20,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Tous les dossiers" FontSize="17" FontWeight="SemiBold" Foreground="#263243"/>
+                                <Border Margin="12,0,0,0" Padding="10,5" Background="#FFF3E8" CornerRadius="12">
+                                    <TextBlock Text="{Binding ClientResultLabel}" FontSize="12"
+                                               Foreground="#9B531B" FontWeight="SemiBold"/>
+                                </Border>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="Cliquez sur une ligne pour ouvrir sa fiche"
+                                       FontSize="12" Foreground="#7C8898" VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Le DataGrid grandit avec ses lignes; la molette est redirigée vers le ScrollViewer parent. -->
+                        <DataGrid Margin="2,0,2,0" Style="{StaticResource ClientDirectoryGridStyle}"
+                                  ColumnHeaderStyle="{StaticResource ClientDirectoryGridStyleHeaderStyle}"
+                                  RowStyle="{StaticResource ClientDirectoryRowStyle}"
+                                  feedback:DirectoryScrollBehavior.ForwardMouseWheel="True"
+                                  ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  ScrollViewer.CanContentScroll="False"
+                                  EnableRowVirtualization="False"
+                                  ItemsSource="{Binding ClientList}"
+                                  SelectedItem="{Binding SelectedListClient, Mode=TwoWay}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Dossier" Binding="{Binding FileNumber}" Width="90" ElementStyle="{StaticResource ClientListTextStyle}"/>
+<DataGridTextColumn Header="Client" Binding="{Binding Name}" Width="2*" ElementStyle="{StaticResource ClientListTextStyle}"/>
+<DataGridTextColumn Header="Téléphone" Binding="{Binding Phone}" Width="150" ElementStyle="{StaticResource ClientListTextStyle}"/>
+<DataGridTextColumn Header="Municipalité" Binding="{Binding Municipality}" Width="1.3*" ElementStyle="{StaticResource ClientListTextStyle}"/>
+<DataGridTextColumn Header="Chiens" Binding="{Binding DogCount}" Width="72" ElementStyle="{StaticResource ClientListTextStyle}"/>
+<DataGridTextColumn Header="Fidélité" Binding="{Binding Loyalty}" Width="115" ElementStyle="{StaticResource ClientListTextStyle}"/>
+<DataGridTextColumn Header="Statut" Binding="{Binding Status}" Width="90" ElementStyle="{StaticResource ClientListTextStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock Text="Aucun dossier ne correspond aux filtres."
+                                   Margin="20,24,20,26" TextAlignment="Center"
+                                   FontSize="14" Foreground="#667085" IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ClientResultLabel}" Value="0 client(s)">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+                <TextBlock Text="Les résultats sont issus des dossiers locaux de démonstration."
+                           FontSize="12" Foreground="#8A95A5" Margin="6,14,0,0"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- VUE FICHE : intégralité de l'écran existant, sans perte de fonctionnalités. -->
+        <Grid>
+            <Grid.Style><Style TargetType="Grid">
+                <Setter Property="Visibility" Value="Collapsed"/>
+                <Style.Triggers><DataTrigger Binding="{Binding IsDetailView}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger></Style.Triggers>
+            </Style></Grid.Style>
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <Border Grid.Row="0" Background="White" BorderBrush="#E4E7EC" BorderThickness="0,0,0,1" Padding="40,14">
+                <Button HorizontalAlignment="Left" Content="← Retour à la liste" Height="40" Padding="14,5"
+                        Command="{Binding BackToListCommand}" IsEnabled="{Binding CanChangeSelection}"
+                        Style="{StaticResource SecondaryActionButtonStyle}"/>
+            </Border>
+
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
 
             <StackPanel Margin="52,38,52,42">
@@ -1201,6 +1413,7 @@
 
         </ScrollViewer>
 
+        </Grid>
     </Grid>
 
 </UserControl>

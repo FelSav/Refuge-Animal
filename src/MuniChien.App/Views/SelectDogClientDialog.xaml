@@ -1,0 +1,40 @@
+﻿<Window x:Class="MuniChien.App.Views.SelectDogClientDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Choisir un client — MuniChien" Width="610" Height="350"
+        MinWidth="540" MinHeight="320" ResizeMode="CanResize"
+        WindowStartupLocation="CenterOwner" Background="#F5F6F8">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Background="White" BorderBrush="#E4E7EC" BorderThickness="0,0,0,1" Padding="30,22">
+            <StackPanel>
+                <TextBlock Text="À quel client appartient le chien ?" FontSize="23" FontWeight="SemiBold" Foreground="#242B38"/>
+                <TextBlock Text="Choisissez un dossier client avant de compléter la fiche du chien."
+                           Margin="0,7,0,0" Foreground="#667085" FontSize="13" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+        <Border Grid.Row="1" Margin="24" Padding="20" CornerRadius="14" BorderThickness="1"
+                BorderBrush="#E4E7EC" Background="White">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Client" FontSize="13" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,9"/>
+                <ComboBox x:Name="ClientComboBox" Height="45" IsTextSearchEnabled="True"
+                          TextSearch.TextPath="SelectionDisplay" DisplayMemberPath="SelectionDisplay"
+                          Style="{StaticResource RoundedComboBoxStyle}"/>
+                <TextBlock Text="Les clients sans municipalité peuvent avoir un chien. Une municipalité sera nécessaire pour sa licence."
+                           Margin="0,13,0,0" Foreground="#667085" FontSize="12" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+        <Border Grid.Row="2" Background="White" BorderBrush="#E4E7EC" BorderThickness="0,1,0,0" Padding="24,14">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Annuler" Click="Cancel_Click" Margin="0,0,12,0"
+                        MinWidth="115" Height="43" Style="{StaticResource SecondaryActionButtonStyle}"/>
+                <Button Content="Continuer" Click="Continue_Click" MinWidth="130" Height="43"
+                        Style="{StaticResource PrimaryActionButtonStyle}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

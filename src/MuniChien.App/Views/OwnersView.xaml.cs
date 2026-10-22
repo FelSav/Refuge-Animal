@@ -51,6 +51,7 @@ public partial class OwnersView : UserControl
 
         dialog.ShowDialog();
         viewModel.RefreshLoyalty();
+        viewModel.RefreshClientList();
     }
 
     private void AddDog_Click(

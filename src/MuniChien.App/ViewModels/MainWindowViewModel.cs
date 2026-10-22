@@ -523,7 +523,8 @@ public class MainWindowViewModel : ViewModelBase
             new OwnersViewModel(
                 OpenDog,
                 ownerId,
-                _services.Animals),
+                _services.Animals,
+                openDetail: true),
             "Clients");
     }
 

@@ -3,6 +3,8 @@ using MuniChien.App.Services;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows.Input;
+using System.Windows;
+using MuniChien.App.Views;
 
 namespace MuniChien.App.ViewModels;
 
@@ -230,9 +232,13 @@ public class DogsViewModel : ViewModelBase
             new RelayCommand(OpenOwner);
 
 
+        AddNewDogCommand = new RelayCommand(AddNewDog);
         ReloadCommand = new RelayCommand(ReloadDogs);
+        BackToListCommand = new RelayCommand(BackToList);
+        ClearDogFiltersCommand = new RelayCommand(ClearDogFilters);
         _preferredDogId = dog?.DogId;
         ReloadDogs();
+        IsDetailView = dog is not null;
     }
 
 
@@ -254,8 +260,137 @@ public class DogsViewModel : ViewModelBase
 
     // Sélection directe d'un chien, sans obligation de passer par Propriétaires.
     public DataLoadState LoadState { get; } = new();
+    public ICommand AddNewDogCommand { get; }
     public ICommand ReloadCommand { get; }
     public ObservableCollection<OwnerDogViewModel> DogOptions { get; } = [];
+    // Tableau des chiens et filtres spécialisés (conservés au retour à la liste).
+    private bool _isDetailView;
+    public bool IsDetailView
+    {
+        get => _isDetailView;
+        private set { if (_isDetailView == value) return; _isDetailView = value; OnPropertyChanged(); }
+    }
+    public ICommand BackToListCommand { get; }
+    public ICommand ClearDogFiltersCommand { get; }
+    public ObservableCollection<DogListRow> DogList { get; } = [];
+    private DogListRow? _selectedListDog;
+    public DogListRow? SelectedListDog
+    {
+        get => _selectedListDog;
+        set
+        {
+            if (ReferenceEquals(_selectedListDog, value)) return;
+            _selectedListDog = value;
+            OnPropertyChanged();
+            if (value is null || !CanChangeSelection) return;
+            SelectedDogOption = DogOptions.FirstOrDefault(d => d.DogId == value.DogId);
+            IsDetailView = HasSelectedDog;
+        }
+    }
+
+    private string _dogSearch = string.Empty;
+    public string DogSearch
+    {
+        get => _dogSearch;
+        set { if (_dogSearch == value) return; _dogSearch = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+    }
+    private string _dogMunicipalityFilter = "Toutes les municipalités";
+    public string DogMunicipalityFilter
+    {
+        get => _dogMunicipalityFilter;
+        set { if (_dogMunicipalityFilter == value) return; _dogMunicipalityFilter = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+    }
+    private string _dogBreedFilter = "Toutes les races";
+    public string DogBreedFilter
+    {
+        get => _dogBreedFilter;
+        set { if (_dogBreedFilter == value) return; _dogBreedFilter = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+    }
+    private string _dogStatusFilter = "Tous les statuts";
+    public string DogStatusFilter
+    {
+        get => _dogStatusFilter;
+        set { if (_dogStatusFilter == value) return; _dogStatusFilter = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+    }
+    private string _dogLicenseFilter = "Toutes les licences";
+    public string DogLicenseFilter
+    {
+        get => _dogLicenseFilter;
+        set { if (_dogLicenseFilter == value) return; _dogLicenseFilter = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+    }
+    private string _dogSexFilter = "Tous les sexes";
+    public string DogSexFilter
+    {
+        get => _dogSexFilter;
+        set { if (_dogSexFilter == value) return; _dogSexFilter = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+    }
+    public IReadOnlyList<string> DogSexFilters { get; } = ["Tous les sexes", "Mâle", "Femelle"];
+    public IReadOnlyList<string> DogMunicipalityFilters { get; } = ["Toutes les municipalités", .. MunicipalityCatalog.All];
+    public ObservableCollection<string> DogBreedFilters { get; } = ["Toutes les races"];
+    public IReadOnlyList<string> DogStatusFilters { get; } = ["Tous les statuts", "Actif", "Inactif"];
+    public IReadOnlyList<string> DogLicenseFilters { get; } = ["Toutes les licences", "Avec licence", "Sans licence"];
+    public int DogResultCount => DogList.Count;
+    public string DogResultLabel => $"{DogResultCount} chien(s)";
+
+    private void ClearDogFilters()
+    {
+        DogSearch = string.Empty;
+        DogMunicipalityFilter = "Toutes les municipalités";
+        DogBreedFilter = "Toutes les races";
+        DogStatusFilter = "Tous les statuts";
+        DogLicenseFilter = "Toutes les licences";
+        DogSexFilter = "Tous les sexes";
+    }
+
+    private void BackToList()
+    {
+        if (!CanChangeSelection) return;
+        _selectedListDog = null;
+        OnPropertyChanged(nameof(SelectedListDog));
+        // Ne pas reconstruire la liste ici : conserver défilement et filtres.
+        IsDetailView = false;
+    }
+
+    private void ApplyDogFilters()
+    {
+        if (IsEditing || IsEditingComments) return;
+        var term = DogSearch.Trim();
+        var rows = DogOptions.Select(d => new DogListRow
+        {
+            Dog = d,
+            Municipality = _directoryService.GetOwner(d.OwnerId)?.Municipality ?? string.Empty
+        });
+        DogList.Clear();
+        foreach (var row in rows.Where(row =>
+            (string.IsNullOrEmpty(term) ||
+             row.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+             row.Owner.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+             row.Breed.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+             row.License.Contains(term, StringComparison.OrdinalIgnoreCase)) &&
+            (DogMunicipalityFilter == "Toutes les municipalités" || row.Municipality == DogMunicipalityFilter) &&
+            (DogBreedFilter == "Toutes les races" || row.Breed == DogBreedFilter) &&
+            (DogStatusFilter == "Tous les statuts" || row.Status == DogStatusFilter) &&
+            (DogSexFilter == "Tous les sexes" || row.Sex == DogSexFilter) &&
+            (DogLicenseFilter == "Toutes les licences" ||
+                (DogLicenseFilter == "Avec licence" && row.HasLicense) ||
+                (DogLicenseFilter == "Sans licence" && !row.HasLicense)))
+            .OrderBy(row => row.Name).ThenBy(row => row.Owner))
+            DogList.Add(row);
+        OnPropertyChanged(nameof(DogResultCount));
+        OnPropertyChanged(nameof(DogResultLabel));
+    }
+
+    private void RefreshBreedFilters()
+    {
+        var selected = DogBreedFilter;
+        DogBreedFilters.Clear();
+        DogBreedFilters.Add("Toutes les races");
+        foreach (var breed in DogOptions.Select(d => d.Breed).Where(s => !string.IsNullOrWhiteSpace(s))
+                     .Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(s => s))
+            DogBreedFilters.Add(breed);
+        if (!DogBreedFilters.Contains(selected)) DogBreedFilter = "Toutes les races";
+    }
+
 
     public OwnerDogViewModel? SelectedDogOption
     {
@@ -771,6 +906,54 @@ public class DogsViewModel : ViewModelBase
     // CHARGEMENT DU CHIEN
     // ==================================================
 
+    // Création depuis le répertoire Chiens : choisir le client puis réutiliser le formulaire existant.
+    private void AddNewDog()
+    {
+        if (!CanChangeSelection) return;
+
+        try
+        {
+            var owners = _directoryService.GetOwners();
+            if (owners.Count == 0)
+            {
+                MessageBox.Show("Créez d'abord un dossier dans la page Clients.",
+                    "Aucun client", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var picker = new SelectDogClientDialog(owners);
+            if (Application.Current?.MainWindow is Window window)
+                picker.Owner = window;
+            if (picker.ShowDialog() != true || picker.SelectedClient is not { } client)
+                return;
+
+            int newDogId = _directoryService.GetDogs().Select(d => d.DogId).DefaultIfEmpty(0).Max() + 1;
+            var dialog = new AddDogDialog(client.FullName, newDogId, client.OwnerId);
+            if (Application.Current?.MainWindow is Window host)
+                dialog.Owner = host;
+            if (dialog.ShowDialog() != true || dialog.CreatedDog is not { } createdDog)
+                return;
+
+            _directoryService.AddDog(createdDog);
+            _preferredDogId = createdDog.DogId;
+            // Efface les filtres éventuellement restrictifs pour pouvoir retrouver le nouveau chien.
+            ClearDogFilters();
+            ReloadDogs();
+            SelectedDogOption = DogOptions.FirstOrDefault(d => d.DogId == createdDog.DogId);
+            IsDetailView = HasSelectedDog;
+            MessageBox.Show($"{createdDog.DogName} a été ajouté au dossier de {client.FullName}. " +
+                "La licence pourra être créée dans le module Licences.",
+                "Chien ajouté", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Création du chien : {ex.GetType().Name}");
+            MessageBox.Show("Impossible d'ajouter le chien au répertoire local. " +
+                "Vérifiez les données et réessayez.",
+                "Ajout impossible", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
     private void ReloadDogs()
     {
         if (IsEditing || IsEditingComments) return;
@@ -793,6 +976,8 @@ public class DogsViewModel : ViewModelBase
             }
             if (!LoadState.HasError)
                 LoadState.Complete(SelectedDogOption is not null, "Aucun chien dans le répertoire local.");
+            RefreshBreedFilters();
+            ApplyDogFilters();
         }
         catch (Exception ex) { ShowDogLoadError(ex); }
     }
@@ -813,6 +998,8 @@ public class DogsViewModel : ViewModelBase
     {
         System.Diagnostics.Debug.WriteLine($"Lecture des chiens/licences : {ex.GetType().Name}");
         DogOptions.Clear();
+        DogList.Clear();
+        OnPropertyChanged(nameof(DogResultLabel));
         _selectedDogOption = null;
         _sourceDog = null;
         OnPropertyChanged(nameof(SelectedDogOption));
@@ -1214,6 +1401,8 @@ public class DogsViewModel : ViewModelBase
         foreach (var option in _directoryService.GetDogs()) DogOptions.Add(option);
         _selectedDogOption = null;
         SelectedDogOption = DogOptions.FirstOrDefault(x => x.DogId == savedDogId);
+        RefreshBreedFilters();
+        ApplyDogFilters();
     }
 
 

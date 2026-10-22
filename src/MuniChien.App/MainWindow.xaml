@@ -91,16 +91,6 @@
                                  Style="{StaticResource SidebarNavigationItemStyle}"/>
 
 
-                    <!-- Recherche -->
-
-                    <RadioButton Content="Recherche"
-                                 GroupName="MainNavigation"
-                                 Command="{Binding ShowSearchCommand}"
-                                 IsChecked="{Binding IsSearchSelected,
-                                                    Mode=OneWay}"
-                                 Style="{StaticResource SidebarNavigationItemStyle}"/>
-
-
                     <!-- Clients -->
 
                     <RadioButton Content="Clients"

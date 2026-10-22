@@ -368,23 +368,6 @@
 
                 <UniformGrid Columns="3" Rows="2">
 
-                    <!-- RECHERCHE -->
-                    <Button Style="{StaticResource QuickActionTileStyle}"
-                            Command="{Binding OpenSearchQuickCommand}"
-                            Margin="0,0,12,12" MinHeight="128"
-                            ToolTip="Rechercher des dossiers, chiens et licences">
-                        <StackPanel>
-                            <Border Width="36" Height="36" CornerRadius="9"
-                                    Background="#FFF0E2" HorizontalAlignment="Left" Margin="0,0,0,11">
-                                <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets"
-                                           FontSize="17" Foreground="#C85C16"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock Text="Recherche" FontSize="15" FontWeight="SemiBold" Foreground="#242B38"/>
-                            <TextBlock Text="Trouver un dossier" FontSize="12" Foreground="#667085" Margin="0,4,0,0"/>
-                        </StackPanel>
-                    </Button>
-
                     <!-- PROPRIÉTAIRES -->
                     <Button Style="{StaticResource QuickActionTileStyle}"
                             Command="{Binding OpenOwnersQuickCommand}"

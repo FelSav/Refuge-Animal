@@ -287,6 +287,7 @@ public static class LocalPaymentStore
     // Plus tard, il viendra directement de l'API.
     // ==================================================
 
+
     private static string BuildFileNumber(
         int ownerId)
     {

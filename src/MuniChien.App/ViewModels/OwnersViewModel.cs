@@ -39,7 +39,8 @@ public class OwnersViewModel : ViewModelBase
     public OwnersViewModel(
         Action<OwnerDogViewModel>? openDogAction = null,
         int ownerId = 1,
-        IAnimalDirectoryService? directoryService = null)
+        IAnimalDirectoryService? directoryService = null,
+        bool openDetail = false)
     {
         _openDogAction = openDogAction;
         _directoryService = directoryService ?? new LocalAnimalDirectoryService();
@@ -54,13 +55,146 @@ public class OwnersViewModel : ViewModelBase
         PrintCommentsCommand = new RelayCommand(PrintComments);
 
         ReloadCommand = new RelayCommand(ReloadOwners);
+        BackToListCommand = new RelayCommand(BackToList);
+        ClearClientFiltersCommand = new RelayCommand(ClearClientFilters);
         _preferredOwnerId = ownerId;
         ReloadOwners();
+        IsDetailView = openDetail;
     }
 
     public DataLoadState LoadState { get; } = new();
     public ICommand ReloadCommand { get; }
     public ObservableCollection<OwnerDirectoryItem> OwnerOptions { get; } = [];
+    // Navigation Liste → Fiche : la barre latérale affiche la liste,
+    // les liens issus de Recherche ou Chiens peuvent ouvrir directement la fiche.
+    private bool _isDetailView;
+    public bool IsDetailView
+    {
+        get => _isDetailView;
+        private set { if (_isDetailView == value) return; _isDetailView = value; OnPropertyChanged(); }
+    }
+    public ICommand BackToListCommand { get; }
+    public ICommand ClearClientFiltersCommand { get; }
+
+    public ObservableCollection<ClientListRow> ClientList { get; } = [];
+    private ClientListRow? _selectedListClient;
+    public ClientListRow? SelectedListClient
+    {
+        get => _selectedListClient;
+        set
+        {
+            if (ReferenceEquals(_selectedListClient, value)) return;
+            _selectedListClient = value;
+            OnPropertyChanged();
+            if (value is null || !CanChangeSelection) return;
+            SelectedOwner = OwnerOptions.FirstOrDefault(x => x.OwnerId == value.Client.OwnerId);
+            IsDetailView = SelectedOwner is not null;
+        }
+    }
+
+    private string _clientSearch = string.Empty;
+    public string ClientSearch
+    {
+        get => _clientSearch;
+        set { if (_clientSearch == value) return; _clientSearch = value ?? string.Empty; OnPropertyChanged(); ApplyClientFilters(); }
+    }
+    private string _clientMunicipalityFilter = "Toutes les municipalités";
+    public string ClientMunicipalityFilter
+    {
+        get => _clientMunicipalityFilter;
+        set { if (_clientMunicipalityFilter == value) return; _clientMunicipalityFilter = value ?? string.Empty; OnPropertyChanged(); ApplyClientFilters(); }
+    }
+    private string _clientStatusFilter = "Tous les statuts";
+    public string ClientStatusFilter
+    {
+        get => _clientStatusFilter;
+        set { if (_clientStatusFilter == value) return; _clientStatusFilter = value ?? string.Empty; OnPropertyChanged(); ApplyClientFilters(); }
+    }
+    private string _clientLoyaltyFilter = "Toutes les fidélités";
+    public string ClientLoyaltyFilter
+    {
+        get => _clientLoyaltyFilter;
+        set { if (_clientLoyaltyFilter == value) return; _clientLoyaltyFilter = value ?? string.Empty; OnPropertyChanged(); ApplyClientFilters(); }
+    }
+    private string _clientDogFilter = "Tous les clients";
+    public string ClientDogFilter
+    {
+        get => _clientDogFilter;
+        set { if (_clientDogFilter == value) return; _clientDogFilter = value ?? string.Empty; OnPropertyChanged(); ApplyClientFilters(); }
+    }
+    public IReadOnlyList<string> ClientDogFilters { get; } = ["Tous les clients", "Avec chien", "Sans chien"];
+    public IReadOnlyList<string> ClientMunicipalityFilters { get; } = ["Toutes les municipalités", .. MunicipalityCatalog.All];
+    public IReadOnlyList<string> ClientStatusFilters { get; } = ["Tous les statuts", "Actif", "Inactif"];
+    public IReadOnlyList<string> ClientLoyaltyFilters { get; } = ["Toutes les fidélités", "Avec achats", "Sans achats"];
+    public int ClientResultCount => ClientList.Count;
+    public string ClientResultLabel => $"{ClientResultCount} client(s)";
+
+    private void ClearClientFilters()
+    {
+        ClientSearch = string.Empty;
+        ClientMunicipalityFilter = "Toutes les municipalités";
+        ClientStatusFilter = "Tous les statuts";
+        ClientLoyaltyFilter = "Toutes les fidélités";
+        ClientDogFilter = "Tous les clients";
+    }
+
+    private void BackToList()
+    {
+        if (!CanChangeSelection) return; // Ne pas perdre des modifications non enregistrées.
+        _selectedListClient = null;
+        OnPropertyChanged(nameof(SelectedListClient));
+        // Ne pas reconstruire la liste ici : conserver défilement et filtres.
+        IsDetailView = false;
+    }
+
+    private static string NormalizePhone(string? value) =>
+        new((value ?? string.Empty).Where(char.IsDigit).ToArray());
+
+    private void ApplyClientFilters()
+    {
+        if (IsEditing || IsEditingComments) return;
+        var currentSearch = ClientSearch.Trim();
+        var phoneSearch = NormalizePhone(currentSearch);
+        var entries = OwnerOptions.Where(c =>
+            (string.IsNullOrEmpty(currentSearch) ||
+             c.FullName.Contains(currentSearch, StringComparison.OrdinalIgnoreCase) ||
+             c.FileNumber.Contains(currentSearch, StringComparison.OrdinalIgnoreCase) ||
+             c.Email.Contains(currentSearch, StringComparison.OrdinalIgnoreCase) ||
+             c.Address.Contains(currentSearch, StringComparison.OrdinalIgnoreCase) ||
+             (!string.IsNullOrEmpty(phoneSearch) &&
+               (NormalizePhone(c.Phone).Contains(phoneSearch) || NormalizePhone(c.CellPhone).Contains(phoneSearch)))) &&
+            (ClientMunicipalityFilter == "Toutes les municipalités" || c.Municipality == ClientMunicipalityFilter) &&
+            (ClientStatusFilter == "Tous les statuts" || c.Status == ClientStatusFilter));
+        ClientList.Clear();
+        foreach (var client in entries.OrderBy(c => c.FullName))
+        {
+            bool hasPurchases = LocalLoyaltyService.GetCards(client.OwnerId)
+                .Any(c => !c.IsArchived && c.CompletedPurchases > 0);
+            int dogs = _directoryService.GetDogsForOwner(client.OwnerId).Count;
+            if (ClientDogFilter == "Avec chien" && dogs == 0) continue;
+            if (ClientDogFilter == "Sans chien" && dogs != 0) continue;
+            if (ClientLoyaltyFilter == "Avec achats" && !hasPurchases) continue;
+            if (ClientLoyaltyFilter == "Sans achats" && hasPurchases) continue;
+            ClientList.Add(new ClientListRow
+            {
+                Client = client,
+                DogCount = dogs,
+                HasLoyaltyPurchases = hasPurchases
+            });
+        }
+        OnPropertyChanged(nameof(ClientResultCount));
+        OnPropertyChanged(nameof(ClientResultLabel));
+    }
+
+    // Après modification de la fidélité, réévaluer le filtre et la colonne du tableau.
+    public void RefreshClientList() => ApplyClientFilters();
+
+    public void ShowNewClient()
+    {
+        // Après création d'un dossier, la fiche courante s'ouvre automatiquement.
+        IsDetailView = true;
+    }
+
     public OwnerDirectoryItem? SelectedOwner
     {
         get => _selectedOwner;
@@ -230,6 +364,7 @@ public class OwnersViewModel : ViewModelBase
         _preferredOwnerId = created.OwnerId;
         _selectedOwner = null;
         ReloadOwners();
+        ShowNewClient();
         return created;
     }
 
@@ -238,6 +373,7 @@ public class OwnersViewModel : ViewModelBase
     {
         _directoryService.AddDog(dog);
         RefreshDogs();
+        ApplyClientFilters();
     }
 
     private void ReloadOwners()
@@ -256,6 +392,7 @@ public class OwnersViewModel : ViewModelBase
             if (SelectedOwner is null) LoadOwner();
             if (!LoadState.HasError)
                 LoadState.Complete(SelectedOwner is not null, "Aucun client dans le répertoire local.");
+            ApplyClientFilters();
         }
         catch (Exception ex) { ShowOwnerLoadError(ex); }
     }
@@ -275,6 +412,8 @@ public class OwnersViewModel : ViewModelBase
     {
         System.Diagnostics.Debug.WriteLine($"Lecture des propriétaires : {ex.GetType().Name}");
         OwnerOptions.Clear();
+        ClientList.Clear();
+        OnPropertyChanged(nameof(ClientResultLabel));
         _selectedOwner = null;
         OnPropertyChanged(nameof(SelectedOwner));
         OnPropertyChanged(nameof(OwnerId));
@@ -346,6 +485,7 @@ public class OwnersViewModel : ViewModelBase
         // Met à jour le ComboBox même si le nom du propriétaire a changé.
         _selectedOwner = null;
         SelectedOwner = OwnerOptions.FirstOrDefault(x => x.OwnerId == ownerId);
+        ApplyClientFilters();
     }
 
     private void CancelChanges()
