@@ -387,7 +387,7 @@
                     <!-- CHIENS -->
                     <Button Style="{StaticResource QuickActionTileStyle}"
                             Command="{Binding OpenDogsQuickCommand}"
-                            Margin="0,0,0,12" MinHeight="128">
+                            Margin="0,0,12,12" MinHeight="128">
                         <StackPanel>
                             <Border Width="36" Height="36" CornerRadius="9"
                                     Background="#FFF0E2" HorizontalAlignment="Left" Margin="0,0,0,11">
@@ -403,7 +403,7 @@
                     <!-- LICENCES -->
                     <Button Style="{StaticResource QuickActionTileStyle}"
                             Command="{Binding OpenLicensesQuickCommand}"
-                            Margin="0,0,12,0" MinHeight="128">
+                            Margin="0,0,0,12" MinHeight="128">
                         <StackPanel>
                             <Border Width="36" Height="36" CornerRadius="9"
                                     Background="#FFF0E2" HorizontalAlignment="Left" Margin="0,0,0,11">
@@ -435,7 +435,7 @@
                     <!-- AVIS -->
                     <Button Style="{StaticResource QuickActionTileStyle}"
                             Command="{Binding OpenNoticesQuickCommand}"
-                            Margin="0,0,0,0" MinHeight="128">
+                            Margin="0,0,12,0" MinHeight="128">
                         <StackPanel>
                             <Border Width="36" Height="36" CornerRadius="9"
                                     Background="#FFF0E2" HorizontalAlignment="Left" Margin="0,0,0,11">
@@ -445,6 +445,22 @@
                             </Border>
                             <TextBlock Text="Avis" FontSize="15" FontWeight="SemiBold" Foreground="#242B38"/>
                             <TextBlock Text="Préparer les rappels" FontSize="12" Foreground="#667085" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- RAPPORTS : sixième raccourci pour une grille équilibrée -->
+                    <Button Style="{StaticResource QuickActionTileStyle}"
+                            Command="{Binding OpenReportsQuickCommand}"
+                            Margin="0" MinHeight="128">
+                        <StackPanel>
+                            <Border Width="36" Height="36" CornerRadius="9"
+                                    Background="#FFF0E2" HorizontalAlignment="Left" Margin="0,0,0,11">
+                                <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="17" Foreground="#C85C16"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Rapports" FontSize="15" FontWeight="SemiBold" Foreground="#242B38"/>
+                            <TextBlock Text="Consulter les statistiques" FontSize="12" Foreground="#667085" Margin="0,4,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Button>
 

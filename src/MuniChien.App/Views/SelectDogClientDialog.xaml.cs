@@ -10,17 +10,17 @@ public partial class SelectDogClientDialog : Window
     public SelectDogClientDialog(IReadOnlyList<OwnerDirectoryItem> clients)
     {
         InitializeComponent();
-        ClientComboBox.ItemsSource = clients.OrderBy(x => x.FullName).ThenBy(x => x.FileNumber).ToList();
-        ClientComboBox.SelectedIndex = -1;
+        ClientPicker.ItemsSource = clients.OrderBy(x => x.FullName).ThenBy(x => x.FileNumber).ToList();
+        ClientPicker.SelectedItem = null;
     }
 
     private void Continue_Click(object sender, RoutedEventArgs e)
     {
-        if (ClientComboBox.SelectedItem is not OwnerDirectoryItem client)
+        if (ClientPicker.SelectedItem is not OwnerDirectoryItem client)
         {
             MessageBox.Show(this, "Choisissez un client avant de continuer.",
                 "Client requis", MessageBoxButton.OK, MessageBoxImage.Warning);
-            ClientComboBox.Focus();
+            ClientPicker.Focus();
             return;
         }
 

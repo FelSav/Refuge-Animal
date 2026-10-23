@@ -20,6 +20,10 @@ public class PaymentOwnerOption
     public string Municipality { get; init; } =
         string.Empty;
 
+    // Recherche de dossiers dans les sélecteurs (nom, téléphone ou numéro).
+    public string Phone { get; init; } = string.Empty;
+    public string CellPhone { get; init; } = string.Empty;
+
 
     public string DisplayName =>
         $"{OwnerName} — {Municipality}";
@@ -103,7 +107,9 @@ public static class LocalPaymentStore
                 OwnerId = owner.OwnerId,
                 FileNumber = owner.FileNumber,
                 OwnerName = owner.FullName,
-                Municipality = owner.Municipality
+                Municipality = owner.Municipality,
+                Phone = owner.Phone,
+                CellPhone = owner.CellPhone
             })
             .OrderBy(owner => owner.OwnerName)
             .ToList();
@@ -197,8 +203,7 @@ public static class LocalPaymentStore
             throw new InvalidOperationException("Propriétaire introuvable.");
         if (string.IsNullOrWhiteSpace(licenseNumber))
             throw new ArgumentException("Numéro de licence requis.");
-        if (amount <= 0m || amount > 100000m)
-            throw new ArgumentOutOfRangeException(nameof(amount));
+        LocalMoneyRules.ValidatePositiveAmount(amount);
         if (!_billedLicenseNumbers.Add(licenseNumber))
             throw new InvalidOperationException("Cette licence a déjà été facturée.");
         _amountDueByOwner[ownerId] =
@@ -219,8 +224,7 @@ public static class LocalPaymentStore
             throw new ArgumentException("Numéro de licence requis.");
         if (coverageYear < 2000 || coverageYear > 9999)
             throw new ArgumentOutOfRangeException(nameof(coverageYear));
-        if (amount <= 0m || amount > 100000m || decimal.Round(amount, 2) != amount)
-            throw new ArgumentException("Montant de renouvellement invalide.");
+        LocalMoneyRules.ValidatePositiveAmount(amount);
 
         // Une clé distincte par licence et année de couverture :
         // ni le bouton double-cliqué ni un deuxième essai ne facturent à nouveau.
@@ -247,6 +251,11 @@ public static class LocalPaymentStore
             bool isCheque,
             string licenseNumber = "")
     {
+        if (LocalAnimalDirectoryStore.GetOwner(ownerId) is null)
+            throw new InvalidOperationException("Le client sélectionné n'existe pas.");
+        LocalMoneyRules.ValidatePaymentDate(paymentDate);
+        LocalMoneyRules.ValidatePositiveAmount(amount);
+
         PaymentListItemViewModel payment =
             new()
             {

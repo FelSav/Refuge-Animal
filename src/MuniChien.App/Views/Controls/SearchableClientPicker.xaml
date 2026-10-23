@@ -1,0 +1,68 @@
+﻿<UserControl x:Class="MuniChien.App.Views.Controls.SearchableClientPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="160" MinHeight="40">
+    <Grid x:Name="PickerRoot">
+        <Border x:Name="InputBorder" Height="42" Background="White"
+                BorderBrush="#CFD6E0" BorderThickness="1" CornerRadius="9">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="36"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="SearchInput" BorderThickness="0" Background="Transparent"
+                         VerticalContentAlignment="Center" FontSize="13" Foreground="#263243"
+                         Padding="12,0,6,0" MinWidth="70"
+                         TextChanged="SearchInput_TextChanged"
+                         GotKeyboardFocus="SearchInput_GotKeyboardFocus"
+                         PreviewKeyDown="SearchInput_PreviewKeyDown"
+                         ToolTip="Écrivez un nom, un téléphone ou un numéro de dossier (2 caractères minimum)."/>
+                <TextBlock x:Name="HintText" Grid.Column="0" Text="Nom, téléphone ou dossier..."
+                           VerticalAlignment="Center" Margin="12,0,0,0"
+                           FontSize="13" Foreground="#98A2B3" IsHitTestVisible="False"/>
+                <TextBlock Grid.Column="1" Text="⌕" VerticalAlignment="Center"
+                           HorizontalAlignment="Center" FontSize="20" Foreground="#8A95A5"
+                           IsHitTestVisible="False"/>
+            </Grid>
+        </Border>
+        <Popup x:Name="ResultsPopup" Placement="Bottom" PlacementTarget="{Binding ElementName=InputBorder}"
+               StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade"
+               Closed="ResultsPopup_Closed">
+            <Border MinWidth="260" Width="{Binding ElementName=PickerRoot, Path=ActualWidth}"
+                    Background="White" BorderBrush="#D8DEE8" BorderThickness="1"
+                    CornerRadius="8" Padding="3" Margin="0,3,3,5">
+                <StackPanel>
+                    <TextBlock x:Name="ResultsHint" Text="Cliquez sur un dossier pour le sélectionner"
+                               Margin="10,7,10,7" FontSize="11" Foreground="#778395"/>
+                    <ListBox x:Name="ResultsList" MaxHeight="290" BorderThickness="0"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             SelectionChanged="ResultsList_SelectionChanged">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="10,7"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFF0E4"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="#263243"/>
+                                    <TextBlock Text="{Binding Details}" FontSize="11" Foreground="#687587"
+                                               TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock x:Name="NoResults" Text="Aucun client correspondant."
+                               Padding="10,12" FontSize="12" Foreground="#687587"
+                               Visibility="Collapsed"/>
+                </StackPanel>
+            </Border>
+        </Popup>
+    </Grid>
+</UserControl>

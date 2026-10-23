@@ -493,6 +493,8 @@
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="Margin" Value="12,0"/>
+            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text}"/>
         </Style>
     <Style x:Key="ClientDirectoryRowStyle" TargetType="DataGridRow">
             <Setter Property="Cursor" Value="Hand"/>
@@ -706,14 +708,10 @@
                             <TextBlock Text="Sélectionnez le dossier à consulter" Margin="0,4,0,0"
                                        FontSize="12" Foreground="#667085"/>
                         </StackPanel>
-                        <ComboBox Grid.Column="1" Height="42" Margin="12,0,0,0"
+                        <feedback:SearchableClientPicker Grid.Column="1" Height="42" Margin="12,0,0,0"
                                   ItemsSource="{Binding OwnerOptions}"
                                   SelectedItem="{Binding SelectedOwner, Mode=TwoWay}"
-                                  DisplayMemberPath="SelectionDisplay"
-                                  IsTextSearchEnabled="True"
-                                  TextSearch.TextPath="SelectionDisplay"
-                                  IsEnabled="{Binding CanChangeSelection}"
-                                  Style="{StaticResource RoundedComboBoxStyle}"/>
+                                  IsEnabled="{Binding CanChangeSelection}"/>
                         <Button Grid.Column="2"
                                 Content="+ Nouveau client"
                                 Click="AddOwner_Click"
@@ -791,6 +789,22 @@
 
                 </Grid>
 
+
+                <!-- Erreurs de validation : restent visibles tant que le formulaire est en édition. -->
+                <TextBlock Text="{Binding ValidationMessage}"
+                           Foreground="#AE3E20" FontWeight="SemiBold"
+                           FontSize="13" TextWrapping="Wrap" Margin="0,0,0,16">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ValidationMessage}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
 
                 <!-- ==================================================
                      INFORMATIONS + COORDONNÉES

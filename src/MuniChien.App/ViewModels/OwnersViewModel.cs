@@ -15,6 +15,17 @@ public class OwnersViewModel : ViewModelBase
     private bool _isEditing;
     private bool _isEditingComments;
     private string _commentsBeforeQuickEdit = string.Empty;
+    private string _validationMessage = string.Empty;
+    public string ValidationMessage
+    {
+        get => _validationMessage;
+        private set
+        {
+            if (_validationMessage == value) return;
+            _validationMessage = value;
+            OnPropertyChanged();
+        }
+    }
 
     private string _firstName = string.Empty;
     private string _lastName = string.Empty;
@@ -92,35 +103,43 @@ public class OwnersViewModel : ViewModelBase
         }
     }
 
-    private string _clientSearch = string.Empty;
+    // Recherche conservée uniquement pendant la session de l'application.
+    // Le menu recrée les ViewModels; ces valeurs évitent de perdre les filtres.
+    private static string _lastClientSearch = string.Empty;
+    private static string _lastClientMunicipality = "Toutes les municipalités";
+    private static string _lastClientStatus = "Tous les statuts";
+    private static string _lastClientLoyalty = "Toutes les fidélités";
+    private static string _lastClientDogs = "Tous les clients";
+
+    private string _clientSearch = _lastClientSearch;
     public string ClientSearch
     {
         get => _clientSearch;
-        set { if (_clientSearch == value) return; _clientSearch = value ?? string.Empty; OnPropertyChanged(); ApplyClientFilters(); }
+        set { if (_clientSearch == value) return; _clientSearch = value ?? string.Empty; _lastClientSearch = _clientSearch; OnPropertyChanged(); ApplyClientFilters(); }
     }
-    private string _clientMunicipalityFilter = "Toutes les municipalités";
+    private string _clientMunicipalityFilter = _lastClientMunicipality;
     public string ClientMunicipalityFilter
     {
         get => _clientMunicipalityFilter;
-        set { if (_clientMunicipalityFilter == value) return; _clientMunicipalityFilter = value ?? string.Empty; OnPropertyChanged(); ApplyClientFilters(); }
+        set { if (_clientMunicipalityFilter == value) return; _clientMunicipalityFilter = value ?? string.Empty; _lastClientMunicipality = _clientMunicipalityFilter; OnPropertyChanged(); ApplyClientFilters(); }
     }
-    private string _clientStatusFilter = "Tous les statuts";
+    private string _clientStatusFilter = _lastClientStatus;
     public string ClientStatusFilter
     {
         get => _clientStatusFilter;
-        set { if (_clientStatusFilter == value) return; _clientStatusFilter = value ?? string.Empty; OnPropertyChanged(); ApplyClientFilters(); }
+        set { if (_clientStatusFilter == value) return; _clientStatusFilter = value ?? string.Empty; _lastClientStatus = _clientStatusFilter; OnPropertyChanged(); ApplyClientFilters(); }
     }
-    private string _clientLoyaltyFilter = "Toutes les fidélités";
+    private string _clientLoyaltyFilter = _lastClientLoyalty;
     public string ClientLoyaltyFilter
     {
         get => _clientLoyaltyFilter;
-        set { if (_clientLoyaltyFilter == value) return; _clientLoyaltyFilter = value ?? string.Empty; OnPropertyChanged(); ApplyClientFilters(); }
+        set { if (_clientLoyaltyFilter == value) return; _clientLoyaltyFilter = value ?? string.Empty; _lastClientLoyalty = _clientLoyaltyFilter; OnPropertyChanged(); ApplyClientFilters(); }
     }
-    private string _clientDogFilter = "Tous les clients";
+    private string _clientDogFilter = _lastClientDogs;
     public string ClientDogFilter
     {
         get => _clientDogFilter;
-        set { if (_clientDogFilter == value) return; _clientDogFilter = value ?? string.Empty; OnPropertyChanged(); ApplyClientFilters(); }
+        set { if (_clientDogFilter == value) return; _clientDogFilter = value ?? string.Empty; _lastClientDogs = _clientDogFilter; OnPropertyChanged(); ApplyClientFilters(); }
     }
     public IReadOnlyList<string> ClientDogFilters { get; } = ["Tous les clients", "Avec chien", "Sans chien"];
     public IReadOnlyList<string> ClientMunicipalityFilters { get; } = ["Toutes les municipalités", .. MunicipalityCatalog.All];
@@ -464,6 +483,7 @@ public class OwnersViewModel : ViewModelBase
     {
         if (_selectedOwner is null || IsEditingComments) return;
         SaveOriginalValues();
+        ValidationMessage = string.Empty;
         IsEditing = true;
     }
 
@@ -477,7 +497,27 @@ public class OwnersViewModel : ViewModelBase
             Phone = Phone, CellPhone = CellPhone, Email = Email,
             Address = Address, Comments = Comments
         };
-        _directoryService.SaveOwner(saved);
+        try
+        {
+            _directoryService.SaveOwner(saved);
+        }
+        catch (ArgumentException ex)
+        {
+            ValidationMessage = ex.Message;
+            return; // Ne pas quitter le mode édition : l'utilisateur peut corriger.
+        }
+        catch (InvalidOperationException ex)
+        {
+            ValidationMessage = ex.Message;
+            return;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Enregistrement client : {ex.GetType().Name}");
+            ValidationMessage = "Impossible d'enregistrer le client. Veuillez réessayer.";
+            return;
+        }
+        ValidationMessage = string.Empty;
         IsEditing = false;
         int ownerId = saved.OwnerId;
         OwnerOptions.Clear();
@@ -490,6 +530,7 @@ public class OwnersViewModel : ViewModelBase
 
     private void CancelChanges()
     {
+        ValidationMessage = string.Empty;
         FirstName = _originalFirstName;
         LastName = _originalLastName;
         Status = _originalStatus;

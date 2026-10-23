@@ -55,11 +55,7 @@ internal static class LocalAnimalDirectoryStore
     public static OwnerDirectoryItem AddOwner(OwnerDirectoryItem owner)
     {
         ArgumentNullException.ThrowIfNull(owner);
-        if (string.IsNullOrWhiteSpace(owner.FirstName) || string.IsNullOrWhiteSpace(owner.LastName))
-            throw new ArgumentException("Le prénom et le nom du client sont obligatoires.");
-        if (!string.IsNullOrWhiteSpace(owner.Municipality) &&
-            !MunicipalityCatalog.All.Contains(owner.Municipality))
-            throw new ArgumentException("La municipalité choisie ne figure pas au catalogue.");
+        LocalClientValidation.Validate(owner);
 
         lock (Owners)
         {
@@ -75,15 +71,15 @@ internal static class LocalAnimalDirectoryStore
             {
                 OwnerId = ownerId,
                 FileNumber = fileNumber,
-                Municipality = owner.Municipality,
+                Municipality = (owner.Municipality?.Trim() ?? string.Empty),
                 FirstName = owner.FirstName.Trim(),
                 LastName = owner.LastName.Trim(),
-                Status = owner.Status == "Inactif" ? "Inactif" : "Actif",
-                Phone = owner.Phone.Trim(),
-                CellPhone = owner.CellPhone.Trim(),
-                Email = owner.Email.Trim(),
-                Address = owner.Address.Trim(),
-                Comments = owner.Comments.Trim()
+                Status = owner.Status,
+                Phone = (owner.Phone?.Trim() ?? string.Empty),
+                CellPhone = (owner.CellPhone?.Trim() ?? string.Empty),
+                Email = (owner.Email?.Trim() ?? string.Empty),
+                Address = (owner.Address?.Trim() ?? string.Empty),
+                Comments = (owner.Comments?.Trim() ?? string.Empty)
             };
             Owners.Add(ownerId, CloneOwner(created));
             return CloneOwner(created);
@@ -92,15 +88,27 @@ internal static class LocalAnimalDirectoryStore
 
     public static void SaveOwner(OwnerDirectoryItem owner)
     {
-        if (!Owners.ContainsKey(owner.OwnerId))
+        LocalClientValidation.Validate(owner);
+        if (!Owners.TryGetValue(owner.OwnerId, out var existing))
             throw new InvalidOperationException("Le client sélectionné n'existe pas.");
-        if (!string.IsNullOrWhiteSpace(owner.Municipality) &&
-            !MunicipalityCatalog.All.Contains(owner.Municipality))
-            throw new ArgumentException("La municipalité choisie ne figure pas au catalogue.");
 
-        Owners[owner.OwnerId] = CloneOwner(owner);
+        // L'identifiant et le numéro de dossier ne sont jamais modifiés lors de l'édition.
+        var updated = new OwnerDirectoryItem
+        {
+            OwnerId = existing.OwnerId, FileNumber = existing.FileNumber,
+            FirstName = owner.FirstName.Trim(), LastName = owner.LastName.Trim(),
+            Municipality = (owner.Municipality?.Trim() ?? string.Empty), Status = owner.Status,
+            Phone = (owner.Phone?.Trim() ?? string.Empty), CellPhone = (owner.CellPhone?.Trim() ?? string.Empty),
+            Email = (owner.Email?.Trim() ?? string.Empty), Address = (owner.Address?.Trim() ?? string.Empty),
+            Comments = (owner.Comments?.Trim() ?? string.Empty)
+        };
+
+        Owners[owner.OwnerId] = updated;
         foreach (var dog in Dogs.Values.Where(x => x.OwnerId == owner.OwnerId).ToList())
-            Dogs[dog.DogId] = CloneDog(dog, owner.FullName);
+            Dogs[dog.DogId] = CloneDog(dog, updated.FullName);
+
+        // Les licences affichées et leurs filtres récupèrent le nouveau nom/municipalité.
+        LocalLicenseStore.SynchronizeOwner(owner.OwnerId, updated.FullName, updated.Municipality);
     }
 
     public static IReadOnlyList<OwnerDogViewModel> GetDogs() =>
@@ -132,6 +140,7 @@ internal static class LocalAnimalDirectoryStore
         string? ownerName = Owners.TryGetValue(dog.OwnerId, out var owner) ? owner.FullName : null;
         Dogs[dog.DogId] = CloneDog(dog, ownerName);
         DogDetails[dog.DogId] = CloneDetails(details);
+        LocalLicenseStore.SynchronizeDog(dog.DogId, dog.DogName);
     }
 
     private static OwnerDirectoryItem CloneOwner(OwnerDirectoryItem x) => new()

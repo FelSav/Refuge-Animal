@@ -1,4 +1,5 @@
 ﻿using MuniChien.App.ViewModels;
+using MuniChien.App.Services;
 using System.Globalization;
 using System.Windows;
 
@@ -40,7 +41,7 @@ public partial class CreateLicenseDialog : Window
         string text = AmountTextBox.Text.Trim();
         bool valid = decimal.TryParse(text, NumberStyles.Number, CultureInfo.GetCultureInfo("fr-CA"), out decimal amount)
             || decimal.TryParse(text, NumberStyles.Number, CultureInfo.InvariantCulture, out amount);
-        if (!valid || amount <= 0m || amount > 100000m || decimal.Round(amount, 2) != amount)
+        if (!valid || amount <= 0m || amount > 100000m || !LocalMoneyRules.HasAtMostTwoFractionalDigits(amount))
         {
             MessageBox.Show("Entrez un montant positif avec au plus deux décimales.",
                 "Montant invalide", MessageBoxButton.OK, MessageBoxImage.Warning);

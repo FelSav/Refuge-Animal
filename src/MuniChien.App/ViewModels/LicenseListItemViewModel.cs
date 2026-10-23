@@ -1,6 +1,8 @@
-﻿namespace MuniChien.App.ViewModels;
+﻿using MuniChien.App.Services;
 
-public class LicenseListItemViewModel
+namespace MuniChien.App.ViewModels;
+
+public class LicenseListItemViewModel : ViewModelBase
 {
     public int DogId { get; init; }
 
@@ -11,25 +13,87 @@ public class LicenseListItemViewModel
         string.Empty;
 
 
-    public string DogName { get; init; } =
-        string.Empty;
+    private string _dogName = string.Empty;
+    public string DogName
+    {
+        get => _dogName;
+        set
+        {
+            if (_dogName == value) return;
+            _dogName = value;
+            OnPropertyChanged();
+        }
+    }
 
 
-    public string OwnerName { get; init; } =
-        string.Empty;
+    private string _ownerName = string.Empty;
+    public string OwnerName
+    {
+        get => _ownerName;
+        set
+        {
+            if (_ownerName == value) return;
+            _ownerName = value;
+            OnPropertyChanged();
+        }
+    }
 
 
-    public string Municipality { get; init; } =
-        string.Empty;
+    private string _municipality = string.Empty;
+    public string Municipality
+    {
+        get => _municipality;
+        set
+        {
+            if (_municipality == value) return;
+            _municipality = value;
+            OnPropertyChanged();
+        }
+    }
 
 
-    public DateTime IssueDate { get; set; }
+    private DateTime _issueDate;
+    public DateTime IssueDate
+    {
+        get => _issueDate;
+        set
+        {
+            if (_issueDate == value) return;
+            _issueDate = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IssueDateDisplay));
+        }
+    }
 
-    public DateTime ExpirationDate { get; set; }
+    private DateTime _expirationDate;
+    public DateTime ExpirationDate
+    {
+        get => _expirationDate;
+        set
+        {
+            if (_expirationDate == value) return;
+            _expirationDate = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(ExpirationDateDisplay));
+            OnPropertyChanged(nameof(Status));
+        }
+    }
 
+    private string _recordedStatus = string.Empty;
+    public string Status
+    {
+        get => LocalLicenseStatusRules.Resolve(ExpirationDate, _recordedStatus, DateTime.Today);
+        set
+        {
+            string next = value ?? string.Empty;
+            if (_recordedStatus == next) return;
+            _recordedStatus = next;
+            OnPropertyChanged();
+        }
+    }
 
-    public string Status { get; set; } =
-        string.Empty;
+    // À appeler lors d'un rechargement de page (ex. après minuit).
+    public void RefreshCurrentStatus() => OnPropertyChanged(nameof(Status));
 
 
     // ==================================================

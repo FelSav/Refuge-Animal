@@ -288,41 +288,50 @@ public class DogsViewModel : ViewModelBase
         }
     }
 
-    private string _dogSearch = string.Empty;
+    // Les filtres du répertoire survivent aux changements de page
+    // mais ne sont pas conservés sur disque après fermeture de l'application.
+    private static string _lastDogSearch = string.Empty;
+    private static string _lastDogMunicipality = "Toutes les municipalités";
+    private static string _lastDogBreed = "Toutes les races";
+    private static string _lastDogStatus = "Tous les statuts";
+    private static string _lastDogLicense = "Toutes les licences";
+    private static string _lastDogSex = "Tous les sexes";
+
+    private string _dogSearch = _lastDogSearch;
     public string DogSearch
     {
         get => _dogSearch;
-        set { if (_dogSearch == value) return; _dogSearch = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+        set { if (_dogSearch == value) return; _dogSearch = value ?? string.Empty; _lastDogSearch = _dogSearch; OnPropertyChanged(); ApplyDogFilters(); }
     }
-    private string _dogMunicipalityFilter = "Toutes les municipalités";
+    private string _dogMunicipalityFilter = _lastDogMunicipality;
     public string DogMunicipalityFilter
     {
         get => _dogMunicipalityFilter;
-        set { if (_dogMunicipalityFilter == value) return; _dogMunicipalityFilter = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+        set { if (_dogMunicipalityFilter == value) return; _dogMunicipalityFilter = value ?? string.Empty; _lastDogMunicipality = _dogMunicipalityFilter; OnPropertyChanged(); ApplyDogFilters(); }
     }
-    private string _dogBreedFilter = "Toutes les races";
+    private string _dogBreedFilter = _lastDogBreed;
     public string DogBreedFilter
     {
         get => _dogBreedFilter;
-        set { if (_dogBreedFilter == value) return; _dogBreedFilter = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+        set { if (_dogBreedFilter == value) return; _dogBreedFilter = value ?? string.Empty; _lastDogBreed = _dogBreedFilter; OnPropertyChanged(); ApplyDogFilters(); }
     }
-    private string _dogStatusFilter = "Tous les statuts";
+    private string _dogStatusFilter = _lastDogStatus;
     public string DogStatusFilter
     {
         get => _dogStatusFilter;
-        set { if (_dogStatusFilter == value) return; _dogStatusFilter = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+        set { if (_dogStatusFilter == value) return; _dogStatusFilter = value ?? string.Empty; _lastDogStatus = _dogStatusFilter; OnPropertyChanged(); ApplyDogFilters(); }
     }
-    private string _dogLicenseFilter = "Toutes les licences";
+    private string _dogLicenseFilter = _lastDogLicense;
     public string DogLicenseFilter
     {
         get => _dogLicenseFilter;
-        set { if (_dogLicenseFilter == value) return; _dogLicenseFilter = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+        set { if (_dogLicenseFilter == value) return; _dogLicenseFilter = value ?? string.Empty; _lastDogLicense = _dogLicenseFilter; OnPropertyChanged(); ApplyDogFilters(); }
     }
-    private string _dogSexFilter = "Tous les sexes";
+    private string _dogSexFilter = _lastDogSex;
     public string DogSexFilter
     {
         get => _dogSexFilter;
-        set { if (_dogSexFilter == value) return; _dogSexFilter = value ?? string.Empty; OnPropertyChanged(); ApplyDogFilters(); }
+        set { if (_dogSexFilter == value) return; _dogSexFilter = value ?? string.Empty; _lastDogSex = _dogSexFilter; OnPropertyChanged(); ApplyDogFilters(); }
     }
     public IReadOnlyList<string> DogSexFilters { get; } = ["Tous les sexes", "Mâle", "Femelle"];
     public IReadOnlyList<string> DogMunicipalityFilters { get; } = ["Toutes les municipalités", .. MunicipalityCatalog.All];

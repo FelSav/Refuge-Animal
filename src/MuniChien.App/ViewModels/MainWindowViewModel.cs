@@ -438,6 +438,7 @@ public class MainWindowViewModel : ViewModelBase
             case "Licences": ShowLicenses(); break;
             case "Paiements": ShowPayments(); break;
             case "Avis": ShowNotices(); break;
+            case "Rapports": ShowReports(); break;
         }
     }
 

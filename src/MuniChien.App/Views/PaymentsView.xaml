@@ -304,7 +304,7 @@
 
                         <StackPanel>
 
-                            <TextBlock Text="Propriétaire"
+                            <TextBlock Text="Client"
                                        Style="{StaticResource PaymentSectionTitleStyle}"
                                        Margin="0,0,0,16"/>
 
@@ -350,11 +350,10 @@
                                        Style="{StaticResource PaymentLabelStyle}"/>
 
 
-                            <ComboBox ItemsSource="{Binding OwnerOptions}"
-                                      SelectedItem="{Binding SelectedOwner}"
-                                      DisplayMemberPath="DisplayName"
-                                      Style="{StaticResource RoundedComboBoxStyle}"
-                                      Height="40"/>
+                            <feedback:SearchableClientPicker
+                                ItemsSource="{Binding OwnerOptions}"
+                                SelectedItem="{Binding SelectedOwner, Mode=TwoWay}"
+                                Height="42"/>
 
                         </StackPanel>
 

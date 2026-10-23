@@ -468,6 +468,8 @@
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="Margin" Value="12,0"/>
+            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text}"/>
         </Style>
     <Style x:Key="DogDirectoryRowStyle" TargetType="DataGridRow">
             <Setter Property="Cursor" Value="Hand"/>

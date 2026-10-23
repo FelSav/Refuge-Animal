@@ -29,8 +29,34 @@ public static class LocalLicenseStore
     // ==================================================
 
     public static IReadOnlyList<LicenseListItemViewModel>
-        Licenses =>
-        _licenses;
+        Licenses
+    {
+        get
+        {
+            // Relire le statut selon la date du jour lorsqu'on recharge
+            // Licences ou les indicateurs de l'Accueil.
+            foreach (var license in _licenses)
+                license.RefreshCurrentStatus();
+            return _licenses;
+        }
+    }
+
+    // Les licences ne gardent pas d'anciens noms après l'édition des fiches.
+    // Chaque affectation notifie aussi les tableaux WPF déjà visibles.
+    internal static void SynchronizeOwner(int ownerId, string fullName, string municipality)
+    {
+        foreach (var license in _licenses.Where(x => x.OwnerId == ownerId))
+        {
+            license.OwnerName = fullName;
+            license.Municipality = municipality;
+        }
+    }
+
+    internal static void SynchronizeDog(int dogId, string dogName)
+    {
+        foreach (var license in _licenses.Where(x => x.DogId == dogId))
+            license.DogName = dogName;
+    }
 
     // Une seule licence initiale par chien, avec numéro provisoire non officiel.
     // La facturation est effectuée une fois, au moment de la création.
@@ -43,8 +69,7 @@ public static class LocalLicenseStore
             throw new ArgumentException("La date d'émission ne peut pas être dans le futur.");
         if (issueDate.Year < 2000)
             throw new ArgumentException("La date d'émission est invalide.");
-        if (amountToBill <= 0 || amountToBill > 100000m)
-            throw new ArgumentException("Saisissez un montant de licence positif et raisonnable.");
+        LocalMoneyRules.ValidatePositiveAmount(amountToBill);
 
         OwnerDogViewModel dog = LocalAnimalDirectoryStore.GetDog(dogId)
             ?? throw new InvalidOperationException("Le chien n'existe plus dans le répertoire.");
@@ -184,8 +209,7 @@ public static class LocalLicenseStore
             throw new ArgumentException("La date de renouvellement est invalide.");
         if (license.IssueDate.Date == renewalDate.Date)
             throw new InvalidOperationException("Cette licence a déjà été créée ou renouvelée aujourd'hui.");
-        if (amountToBill <= 0m || amountToBill > 100000m || decimal.Round(amountToBill, 2) != amountToBill)
-            throw new ArgumentException("Entrez un montant positif avec au plus deux décimales.");
+        LocalMoneyRules.ValidatePositiveAmount(amountToBill);
 
         // Une année à la fois : pour une licence expirée, reprendre à l'année courante.
         // Pour une licence valide, avancer après sa dernière année couverte.

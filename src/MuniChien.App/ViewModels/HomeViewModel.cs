@@ -66,6 +66,7 @@ public class HomeViewModel : ViewModelBase
         OpenLicensesQuickCommand = new RelayCommand(() => _navigate?.Invoke("Licences"));
         OpenPaymentsQuickCommand = new RelayCommand(() => _navigate?.Invoke("Paiements"));
         OpenNoticesQuickCommand = new RelayCommand(() => _navigate?.Invoke("Avis"));
+        OpenReportsQuickCommand = new RelayCommand(() => _navigate?.Invoke("Rapports"));
 
         AvailableMetrics = CreateAvailableMetrics();
 
@@ -105,6 +106,7 @@ public class HomeViewModel : ViewModelBase
     public ICommand OpenLicensesQuickCommand { get; }
     public ICommand OpenPaymentsQuickCommand { get; }
     public ICommand OpenNoticesQuickCommand { get; }
+    public ICommand OpenReportsQuickCommand { get; }
 
 
     // ==================================================

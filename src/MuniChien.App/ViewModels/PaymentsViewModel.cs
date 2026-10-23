@@ -344,17 +344,27 @@ public class PaymentsViewModel : ViewModelBase
         }
 
 
-        if (!TryParseAmount(
-                AmountInput,
-                out decimal amount) ||
-            amount <= 0)
+        if (NewPaymentDate.Value.Date > DateTime.Today ||
+            NewPaymentDate.Value.Date < new DateTime(2000, 1, 1))
         {
-            ValidationMessage =
-                "Le montant doit être un nombre supérieur à 0.";
-
+            ValidationMessage = "La date du paiement doit être comprise entre le 1er janvier 2000 et aujourd'hui.";
             return;
         }
 
+        if (!TryParseAmount(AmountInput, out decimal amount))
+        {
+            ValidationMessage = "Entrez un montant valide, par exemple 25,50 $.";
+            return;
+        }
+        try
+        {
+            LocalMoneyRules.ValidatePositiveAmount(amount);
+        }
+        catch (ArgumentException ex)
+        {
+            ValidationMessage = ex.Message;
+            return;
+        }
 
         try
         {
@@ -366,6 +376,14 @@ public class PaymentsViewModel : ViewModelBase
                 IsCheque);
             LoadSelectedAccountSafely();
             if (!LoadState.HasError) ResetPaymentForm();
+        }
+        catch (ArgumentException ex)
+        {
+            ValidationMessage = ex.Message;
+        }
+        catch (InvalidOperationException ex)
+        {
+            ValidationMessage = ex.Message;
         }
         catch (Exception ex)
         {

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using MuniChien.App.Services;
 using System.Windows;
 
 namespace MuniChien.App.Views;
@@ -50,7 +51,7 @@ public partial class RenewLicenseDialog : Window
                          CultureInfo.GetCultureInfo("fr-CA"), out decimal amount)
                   || decimal.TryParse(input, NumberStyles.Number,
                          CultureInfo.InvariantCulture, out amount);
-        if (!valid || amount <= 0m || amount > 100000m || decimal.Round(amount, 2) != amount)
+        if (!valid || amount <= 0m || amount > 100000m || !LocalMoneyRules.HasAtMostTwoFractionalDigits(amount))
         {
             MessageBox.Show("Saisissez un montant positif avec au plus deux décimales.",
                 "Montant invalide", MessageBoxButton.OK, MessageBoxImage.Warning);

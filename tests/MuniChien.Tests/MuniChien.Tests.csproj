@@ -18,6 +18,16 @@
     <ProjectReference Include="..\..\src\MuniChien.Core\MuniChien.Core.csproj" />
   </ItemGroup>
 
+  <!-- Les validateurs n'ont aucune dépendance WPF : on peut les tester sur toute plateforme. -->
+  <ItemGroup>
+    <Compile Include="..\..\src\MuniChien.App\Services\OwnerDirectoryItem.cs" Link="Source\OwnerDirectoryItem.cs" />
+    <Compile Include="..\..\src\MuniChien.App\Services\MunicipalityCatalog.cs" Link="Source\MunicipalityCatalog.cs" />
+    <Compile Include="..\..\src\MuniChien.App\Services\LocalClientValidation.cs" Link="Source\LocalClientValidation.cs" />
+    <Compile Include="..\..\src\MuniChien.App\Services\LocalMoneyRules.cs" Link="Source\LocalMoneyRules.cs" />
+    <Compile Include="..\..\src\MuniChien.App\Services\LocalLicenseStatusRules.cs" Link="Source\LocalLicenseStatusRules.cs" />
+    <Compile Include="..\..\src\MuniChien.App\Services\LocalClientSearchRules.cs" Link="Source\LocalClientSearchRules.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
