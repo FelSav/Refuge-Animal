@@ -67,7 +67,7 @@ public static class ReportPrintService
                 Margin = new Thickness(0, 0, 0, 10)
             });
             document.Blocks.Add(new Paragraph(new Run(
-                $"Municipalité : {municipality}    |    Période : {period}    |    Généré le : {generatedAt}"))
+                $"Municipalité : {municipality}    |    Filtres et tri : {period}    |    Généré le : {generatedAt}"))
             {
                 FontSize = 9,
                 Margin = new Thickness(0, 0, 0, 8)

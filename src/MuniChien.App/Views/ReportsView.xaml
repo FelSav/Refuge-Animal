@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="MuniChien.App.Views.ReportsView"
+<UserControl x:Class="MuniChien.App.Views.ReportsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
@@ -157,110 +157,15 @@
                            Margin="0,7,0,24"/>
 
 
-                <!-- ==================================================
-                     PARAMÈTRES
-                     ================================================== -->
-
-                <Border Background="White"
-                        BorderBrush="#E4E7EC"
-                        BorderThickness="1"
-                        CornerRadius="14"
-                        Padding="22"
-                        Margin="0,0,0,30">
-
+                <!-- Les filtres sont propres à chaque rapport : aucun réglage global ambigu. -->
+                <Border Background="#FFF7F0" BorderBrush="#F5DDCA"
+                        BorderThickness="1" CornerRadius="12" Padding="18,14" Margin="0,0,0,18">
                     <StackPanel>
-
-                        <TextBlock Text="Paramètres du rapport"
-                                   FontSize="18"
-                                   FontWeight="SemiBold"
-                                   Foreground="#242B38"/>
-
-
-                        <TextBlock Text="Ces filtres seront appliqués aux rapports qui utilisent les informations correspondantes."
-                                   FontSize="12"
-                                   Foreground="#98A2B3"
-                                   Margin="0,5,0,18"/>
-
-
-                        <Grid>
-
-                            <Grid.ColumnDefinitions>
-
-                                <ColumnDefinition Width="*"/>
-
-                                <ColumnDefinition Width="20"/>
-
-                                <ColumnDefinition Width="*"/>
-
-                            </Grid.ColumnDefinitions>
-
-
-                            <!-- MUNICIPALITÉ -->
-
-                            <StackPanel Grid.Column="0">
-
-                                <TextBlock Text="Municipalité"
-                                           FontSize="12"
-                                           FontWeight="SemiBold"
-                                           Foreground="#667085"
-                                           Margin="0,0,0,6"/>
-
-                                <ComboBox ItemsSource="{Binding MunicipalityOptions}"
-                                          SelectedItem="{Binding SelectedMunicipality}"
-                                          Style="{StaticResource RoundedComboBoxStyle}"
-                                          Height="40"/>
-
-                            </StackPanel>
-
-
-                            <!-- PÉRIODE -->
-
-                            <StackPanel Grid.Column="2">
-
-                                <TextBlock Text="Période"
-                                           FontSize="12"
-                                           FontWeight="SemiBold"
-                                           Foreground="#667085"
-                                           Margin="0,0,0,6"/>
-
-                                <ComboBox ItemsSource="{Binding PeriodOptions}"
-                                          SelectedItem="{Binding SelectedPeriod}"
-                                          Style="{StaticResource RoundedComboBoxStyle}"
-                                          Height="40"/>
-
-                                <TextBlock Text="La période est utilisée pour les rapports comportant des données datées."
-                                           FontSize="11"
-                                           Foreground="#98A2B3"
-                                           Margin="2,6,0,0"/>
-
-                            </StackPanel>
-
-                        </Grid>
-
-                        <Grid Margin="0,18,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="20"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Date du rapport journalier"
-                                           FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#667085" Margin="0,0,0,6"/>
-                                <DatePicker SelectedDate="{Binding SelectedDailyDate, Mode=TwoWay}"
-                                            Height="40"/>
-                                <TextBlock Text="Utilisée seulement pour les paiements journaliers."
-                                           FontSize="11" Foreground="#98A2B3"
-                                           Margin="2,6,0,0"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="2"
-                                       Text="Soldes impayés et frais de retard : état actuel des comptes, sans filtre de période."
-                                       TextWrapping="Wrap" VerticalAlignment="Center"
-                                       FontSize="12" Foreground="#667085"/>
-                        </Grid>
+                        <TextBlock Text="Un rapport sur mesure, en quelques clics"
+                                   FontSize="15" FontWeight="SemiBold" Foreground="#96501F"/>
+                        <TextBlock Text="Cliquez sur « Filtrer et générer » : choisissez la municipalité, les critères propres au rapport et l'ordre des résultats. Sans filtre, vous obtenez le rapport complet."
+                                   Margin="0,5,0,0" FontSize="12" Foreground="#96501F" TextWrapping="Wrap"/>
                     </StackPanel>
-
                 </Border>
 
                 <!-- ==================================================
@@ -272,7 +177,7 @@
                     <StackPanel>
                         <TextBlock Text="Données financières locales de démonstration"
                                    FontSize="14" FontWeight="SemiBold" Foreground="#90471B"/>
-                        <TextBlock Text="Totaux des comptes disponibles, toutes dates confondues. Le filtre de municipalité s’applique; pas le filtre de période."
+                        <TextBlock Text="Totaux généraux de démonstration, toutes municipalités et toutes dates. Les filtres s’appliquent aux rapports générés, pas à ces indicateurs."
                                    Foreground="#975F40" FontSize="11" TextWrapping="Wrap"
                                    Margin="0,4,0,14"/>
                         <Grid>
@@ -348,13 +253,13 @@
                                        Style="{StaticResource ReportCardTitleStyle}"/>
 
 
-                            <TextBlock Text="Liste actuelle des chiens avec leur propriétaire, leur race et leur licence."
+                            <TextBlock Text="Répertoire des chiens avec leur client, leur race et leur licence éventuelle."
                                        Style="{StaticResource ReportCardDescriptionStyle}"
                                        Margin="0,7,0,18"
                                        MinHeight="46"/>
 
 
-                            <Button Content="Générer le rapport"
+                            <Button Content="Filtrer et générer"
                                     Command="{Binding GenerateDogsReportCommand}"
                                     Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
@@ -372,17 +277,17 @@
 
                         <StackPanel>
 
-                            <TextBlock Text="Propriétaires"
+                            <TextBlock Text="Clients"
                                        Style="{StaticResource ReportCardTitleStyle}"/>
 
 
-                            <TextBlock Text="Liste des propriétaires et résumé des chiens et licences associés."
+                            <TextBlock Text="Répertoire des clients, avec ou sans chien, et leurs licences associées."
                                        Style="{StaticResource ReportCardDescriptionStyle}"
                                        Margin="0,7,0,18"
                                        MinHeight="46"/>
 
 
-                            <Button Content="Générer le rapport"
+                            <Button Content="Filtrer et générer"
                                     Command="{Binding GenerateOwnersReportCommand}"
                                     Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
@@ -410,7 +315,7 @@
                                        MinHeight="46"/>
 
 
-                            <Button Content="Générer le rapport"
+                            <Button Content="Filtrer et générer"
                                     Command="{Binding GenerateBalancesReportCommand}"
                                     Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
@@ -459,7 +364,7 @@
                                        MinHeight="46"/>
 
 
-                            <Button Content="Générer le rapport"
+                            <Button Content="Filtrer et générer"
                                     Command="{Binding GenerateLateFeesReportCommand}"
                                     Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
@@ -515,7 +420,7 @@
                                        MinHeight="46"/>
 
 
-                            <Button Content="Générer le rapport"
+                            <Button Content="Filtrer et générer"
                                     Command="{Binding GeneratePaymentsReportCommand}"
                                     Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
@@ -543,7 +448,7 @@
                                        MinHeight="46"/>
 
 
-                            <Button Content="Générer le rapport"
+                            <Button Content="Filtrer et générer"
                                     Command="{Binding GenerateRevenueReportCommand}"
                                     Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
@@ -571,7 +476,7 @@
                                        MinHeight="46"/>
 
 
-                            <Button Content="Générer le rapport"
+                            <Button Content="Filtrer et générer"
                                     Command="{Binding GenerateDailyPaymentsReportCommand}"
                                     Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
@@ -627,7 +532,7 @@
                                        MinHeight="46"/>
 
 
-                            <Button Content="Générer le rapport"
+                            <Button Content="Filtrer et générer"
                                     Command="{Binding GenerateBreedReportCommand}"
                                     Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"
@@ -655,7 +560,7 @@
                                        MinHeight="46"/>
 
 
-                            <Button Content="Générer le rapport"
+                            <Button Content="Filtrer et générer"
                                     Command="{Binding GenerateLicensesReportCommand}"
                                     Style="{StaticResource PrimaryActionButtonStyle}"
                                     HorizontalAlignment="Left"

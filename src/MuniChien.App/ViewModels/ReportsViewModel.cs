@@ -1,184 +1,45 @@
-﻿using MuniChien.App.Navigation;
+using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using MuniChien.App.Views;
-using System.Windows.Input;
 using System.Globalization;
+using System.Windows;
+using System.Windows.Input;
 
 namespace MuniChien.App.ViewModels;
 
+/// <summary>Chaque rapport propose ses filtres avant la génération.</summary>
 public class ReportsViewModel : ViewModelBase
 {
-    // ==================================================
-    // FILTRES
-    // ==================================================
-
-    private readonly LocalFinancialReportService _finance =
-        new(new LocalPaymentService());
-
-    private DateTime? _selectedDailyDate = DateTime.Today;
+    private readonly LocalFinancialReportService _finance = new(new LocalPaymentService());
     private string _financialReceived = "—";
     private string _financialOutstanding = "—";
     private string _financialLateFees = "—";
 
-    private string _selectedMunicipality =
-        "Toutes les municipalités";
-
-    private string _selectedPeriod =
-        "Toutes";
-
-
-    // ==================================================
-    // CONSTRUCTEUR
-    // ==================================================
-
     public ReportsViewModel()
     {
-        MunicipalityOptions =
-            BuildMunicipalityOptions();
-
-
-        PeriodOptions =
-        [
-            "Toutes",
-            "Aujourd'hui",
-            "7 derniers jours",
-            "Ce mois",
-            "Cette année"
-        ];
-
-
-        GenerateDogsReportCommand =
-            new RelayCommand(
-                GenerateDogsReport);
-
-        GenerateOwnersReportCommand =
-            new RelayCommand(
-                GenerateOwnersReport);
-
-        GenerateBreedReportCommand =
-            new RelayCommand(
-                GenerateBreedReport);
-
-        GenerateLicensesReportCommand =
-            new RelayCommand(
-                GenerateLicensesReport);
-
-        GenerateBalancesReportCommand = new RelayCommand(GenerateBalancesReport);
-        GenerateLateFeesReportCommand = new RelayCommand(GenerateLateFeesReport);
-        GeneratePaymentsReportCommand = new RelayCommand(GeneratePaymentsReport);
-        GenerateRevenueReportCommand = new RelayCommand(GenerateRevenueReport);
-        GenerateDailyPaymentsReportCommand = new RelayCommand(GenerateDailyPaymentsReport);
-
-        UpdateFinancialOverview();
-    }
-
-
-    // ==================================================
-    // OPTIONS
-    // ==================================================
-
-    public IReadOnlyList<string>
-        MunicipalityOptions
-    { get; }
-
-
-    public IReadOnlyList<string>
-        PeriodOptions
-    { get; }
-
-
-    // ==================================================
-    // FILTRES
-    // ==================================================
-
-    public string SelectedMunicipality
-    {
-        get => _selectedMunicipality;
-
-        set
-        {
-            if (_selectedMunicipality == value)
-            {
-                return;
-            }
-
-            _selectedMunicipality =
-                value;
-
-            OnPropertyChanged();
-            UpdateFinancialOverview();
-        }
-    }
-
-
-    public string SelectedPeriod
-    {
-        get => _selectedPeriod;
-
-        set
-        {
-            if (_selectedPeriod == value)
-            {
-                return;
-            }
-
-            _selectedPeriod =
-                value;
-
-            OnPropertyChanged();
-        }
-    }
-
-
-    public DateTime? SelectedDailyDate
-    {
-        get => _selectedDailyDate;
-        set
-        {
-            DateTime? normalizedDate = value?.Date ?? DateTime.Today;
-            if (_selectedDailyDate == normalizedDate) return;
-            _selectedDailyDate = normalizedDate;
-            OnPropertyChanged();
-        }
-    }
-
-    public string FinancialReceived
-    {
-        get => _financialReceived;
-        private set { _financialReceived = value; OnPropertyChanged(); }
-    }
-
-    public string FinancialOutstanding
-    {
-        get => _financialOutstanding;
-        private set { _financialOutstanding = value; OnPropertyChanged(); }
-    }
-
-    public string FinancialLateFees
-    {
-        get => _financialLateFees;
-        private set { _financialLateFees = value; OnPropertyChanged(); }
-    }
-
-    private void UpdateFinancialOverview()
-    {
-        var overview = _finance.GetOverview(SelectedMunicipality);
+        GenerateDogsReportCommand = new RelayCommand(() => Configure(ReportKind.Dogs));
+        GenerateOwnersReportCommand = new RelayCommand(() => Configure(ReportKind.Clients));
+        GenerateBreedReportCommand = new RelayCommand(() => Configure(ReportKind.Breeds));
+        GenerateLicensesReportCommand = new RelayCommand(() => Configure(ReportKind.Licenses));
+        GenerateBalancesReportCommand = new RelayCommand(() => Configure(ReportKind.UnpaidBalances));
+        GenerateLateFeesReportCommand = new RelayCommand(() => Configure(ReportKind.LateFees));
+        GeneratePaymentsReportCommand = new RelayCommand(() => Configure(ReportKind.Payments));
+        GenerateRevenueReportCommand = new RelayCommand(() => Configure(ReportKind.Revenue));
+        GenerateDailyPaymentsReportCommand = new RelayCommand(() => Configure(ReportKind.DailyPayments));
+        var overview = _finance.GetOverview(ReportFilterCriteria.AllMunicipalities);
         var culture = CultureInfo.GetCultureInfo("fr-CA");
         FinancialReceived = overview.Received.ToString("C2", culture);
         FinancialOutstanding = overview.Outstanding.ToString("C2", culture);
         FinancialLateFees = overview.LateFees.ToString("C2", culture);
     }
 
-    // ==================================================
-    // COMMANDES
-    // ==================================================
+    public string FinancialReceived { get => _financialReceived; private set { _financialReceived = value; OnPropertyChanged(); } }
+    public string FinancialOutstanding { get => _financialOutstanding; private set { _financialOutstanding = value; OnPropertyChanged(); } }
+    public string FinancialLateFees { get => _financialLateFees; private set { _financialLateFees = value; OnPropertyChanged(); } }
 
     public ICommand GenerateDogsReportCommand { get; }
-
     public ICommand GenerateOwnersReportCommand { get; }
-
     public ICommand GenerateBreedReportCommand { get; }
-
     public ICommand GenerateLicensesReportCommand { get; }
     public ICommand GenerateBalancesReportCommand { get; }
     public ICommand GenerateLateFeesReportCommand { get; }
@@ -186,485 +47,190 @@ public class ReportsViewModel : ViewModelBase
     public ICommand GenerateRevenueReportCommand { get; }
     public ICommand GenerateDailyPaymentsReportCommand { get; }
 
-    private void ShowFinancialReport(FinancialReportResult report)
+    private void Configure(ReportKind kind)
     {
-        OpenPreview(report.Title, report.Description, report.Period,
+        try
+        {
+            var window = new ReportFiltersDialog(kind);
+            if (Application.Current?.MainWindow is Window mainWindow) window.Owner = mainWindow;
+            if (window.ShowDialog() != true || window.Result is not { } criteria) return;
+            switch (kind)
+            {
+                case ReportKind.Dogs: GenerateDogs(criteria); break;
+                case ReportKind.Clients: GenerateClients(criteria); break;
+                case ReportKind.Breeds: GenerateBreeds(criteria); break;
+                case ReportKind.Licenses: GenerateLicenses(criteria); break;
+                case ReportKind.UnpaidBalances: ShowFinancial(_finance.GenerateUnpaidBalances(criteria), criteria); break;
+                case ReportKind.LateFees: ShowFinancial(_finance.GenerateLateFees(criteria), criteria); break;
+                case ReportKind.Payments: ShowFinancial(_finance.GeneratePayments(criteria), criteria); break;
+                case ReportKind.Revenue: ShowFinancial(_finance.GenerateRevenue(criteria), criteria); break;
+                case ReportKind.DailyPayments: ShowFinancial(_finance.GenerateDailyPayments(criteria), criteria); break;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Le rapport n'a pas pu être généré.\n\n{ex.Message}",
+                "Rapports", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void ShowFinancial(FinancialReportResult report, ReportFilterCriteria c) =>
+        OpenPreview(report.Title, report.Description, c.Municipality, report.Period,
             report.Headers, report.Rows, report.Summary);
+
+    // Liste source = répertoire CHIENS, y compris chiens sans licence.
+    private static IEnumerable<OwnerDogViewModel> FilterDogs(ReportFilterCriteria c)
+    {
+        var licenses = LocalLicenseStore.Licenses.GroupBy(x => x.DogId)
+            .ToDictionary(x => x.Key, x => x.First());
+        return LocalAnimalDirectoryStore.GetDogs()
+            .Where(d =>
+            {
+                var owner = LocalAnimalDirectoryStore.GetOwner(d.OwnerId);
+                licenses.TryGetValue(d.DogId, out var license);
+                return ReportFilterRules.Choice(owner?.Municipality, c.Municipality,
+                           ReportFilterCriteria.AllMunicipalities)
+                       && ReportFilterRules.Search(c.SearchText, d.DogName, d.OwnerName,
+                           d.Breed, d.LicenseNumber, owner?.FileNumber, owner?.Phone, owner?.CellPhone)
+                       && ReportFilterRules.Choice(d.Breed, c.Breed, ReportFilterCriteria.AllBreeds)
+                       && ReportFilterRules.Choice(d.Sex, c.Sex, ReportFilterCriteria.AllSexes)
+                       && ReportFilterRules.Choice(d.Sterilized, c.Sterilized, ReportFilterCriteria.AllSterilizations)
+                       && ReportFilterRules.Choice(license?.Status ?? "Sans licence", c.LicenseStatus,
+                           ReportFilterCriteria.AllStatuses);
+            });
     }
 
-    private void GenerateBalancesReport() =>
-        ShowFinancialReport(_finance.GenerateUnpaidBalances(SelectedMunicipality));
-
-    private void GenerateLateFeesReport() =>
-        ShowFinancialReport(_finance.GenerateLateFees(SelectedMunicipality));
-
-    private void GeneratePaymentsReport() =>
-        ShowFinancialReport(_finance.GeneratePayments(SelectedMunicipality, SelectedPeriod));
-
-    private void GenerateRevenueReport() =>
-        ShowFinancialReport(_finance.GenerateRevenue(SelectedMunicipality, SelectedPeriod));
-
-    private void GenerateDailyPaymentsReport() =>
-        ShowFinancialReport(_finance.GenerateDailyPayments(
-            SelectedMunicipality, SelectedDailyDate ?? DateTime.Today));
-
-
-    // ==================================================
-    // RAPPORT : CHIENS
-    // ==================================================
-
-    private void GenerateDogsReport()
+    private void GenerateDogs(ReportFilterCriteria c)
     {
-        IEnumerable<LicenseListItemViewModel> licenses =
-            FilterByMunicipality(
-                LocalLicenseStore.Licenses);
-
-
-        List<ReportPreviewRowViewModel> rows =
-            licenses
-                .OrderBy(
-                    license =>
-                        license.DogName)
-                .Select(
-                    license =>
-                        new ReportPreviewRowViewModel
-                        {
-                            Value1 =
-                                license.DogName,
-
-                            Value2 =
-                                license.OwnerName,
-
-                            Value3 =
-                                license.Breed,
-
-                            Value4 =
-                                license.Municipality,
-
-                            Value5 =
-                                license.Sterilized,
-
-                            Value6 =
-                                license.LicenseNumber
-                        })
-                .ToList();
-
-
-        OpenPreview(
-            title:
-                "Liste des chiens",
-
-            description:
-                "Liste actuelle des chiens possédant une licence dans MuniChien.",
-
-            periodDisplay:
-                "État actuel",
-
-            headers:
-            [
-                "Chien",
-                "Propriétaire",
-                "Race",
-                "Municipalité",
-                "Stérilisé",
-                "Licence"
-            ],
-
-            rows:
-                rows);
-    }
-
-
-    // ==================================================
-    // RAPPORT : PROPRIÉTAIRES
-    // ==================================================
-
-    private void GenerateOwnersReport()
-    {
-        IEnumerable<LicenseListItemViewModel> licenses =
-            FilterByMunicipality(
-                LocalLicenseStore.Licenses);
-
-
-        var owners =
-            licenses
-                .GroupBy(
-                    license =>
-                        new
-                        {
-                            license.OwnerId,
-                            license.OwnerName
-                        })
-                .OrderBy(
-                    group =>
-                        group.Key.OwnerName)
-                .ToList();
-
-
-        List<ReportPreviewRowViewModel> rows =
-            owners
-                .Select(
-                    owner =>
-                        new ReportPreviewRowViewModel
-                        {
-                            Value1 =
-                                owner.Key.OwnerName,
-
-                            Value2 =
-                                owner
-                                    .Select(x => x.Municipality)
-                                    .FirstOrDefault()
-                                ?? "—",
-
-                            Value3 =
-                                owner.Count().ToString(),
-
-                            Value4 =
-                                string.Join(
-                                    ", ",
-                                    owner
-                                        .Select(x => x.DogName)
-                                        .OrderBy(x => x)),
-
-                            Value5 =
-                                owner.Count(
-                                        x =>
-                                            x.Status == "Valide")
-                                    .ToString(),
-
-                            Value6 =
-                                owner.Count(
-                                        x =>
-                                            x.Status == "Expirée")
-                                    .ToString()
-                        })
-                .ToList();
-
-
-        OpenPreview(
-            title:
-                "Liste des propriétaires",
-
-            description:
-                "Vue actuelle des propriétaires présents dans les données de licences.",
-
-            periodDisplay:
-                "État actuel",
-
-            headers:
-            [
-                "Propriétaire",
-                "Municipalité",
-                "Chiens",
-                "Noms des chiens",
-                "Licences valides",
-                "Expirées"
-            ],
-
-            rows:
-                rows);
-    }
-
-
-    // ==================================================
-    // RAPPORT : CHIENS PAR RACE
-    // ==================================================
-
-    private void GenerateBreedReport()
-    {
-        IEnumerable<LicenseListItemViewModel> licenses =
-            FilterByMunicipality(
-                LocalLicenseStore.Licenses);
-
-
-        int totalDogs =
-            licenses.Count();
-
-
-        List<ReportPreviewRowViewModel> rows =
-            licenses
-                .GroupBy(
-                    license =>
-                        license.Breed)
-                .OrderByDescending(
-                    group =>
-                        group.Count())
-                .ThenBy(
-                    group =>
-                        group.Key)
-                .Select(
-                    group =>
-                    {
-                        double percentage =
-                            totalDogs == 0
-                                ? 0
-                                : group.Count() * 100.0 / totalDogs;
-
-
-                        return new ReportPreviewRowViewModel
-                        {
-                            Value1 =
-                                group.Key,
-
-                            Value2 =
-                                group.Count().ToString(),
-
-                            Value3 =
-                                $"{percentage:0.#} %",
-
-                            Value4 =
-                                string.Join(
-                                    ", ",
-                                    group
-                                        .Select(x => x.DogName)
-                                        .OrderBy(x => x)),
-
-                            Value5 =
-                                string.Empty,
-
-                            Value6 =
-                                string.Empty
-                        };
-                    })
-                .ToList();
-
-
-        OpenPreview(
-            title:
-                "Chiens par race",
-
-            description:
-                "Répartition actuelle des chiens selon leur race.",
-
-            periodDisplay:
-                "État actuel",
-
-            headers:
-            [
-                "Race",
-                "Nombre",
-                "Pourcentage",
-                "Chiens",
-                "",
-                ""
-            ],
-
-            rows:
-                rows);
-    }
-
-
-    // ==================================================
-    // RAPPORT : LICENCES
-    // ==================================================
-
-    private void GenerateLicensesReport()
-    {
-        IEnumerable<LicenseListItemViewModel> licenses =
-            FilterByMunicipality(
-                LocalLicenseStore.Licenses);
-
-
-        licenses =
-            FilterLicensesByPeriod(
-                licenses);
-
-
-        List<ReportPreviewRowViewModel> rows =
-            licenses
-                .OrderBy(
-                    license =>
-                        license.ExpirationDate)
-                .Select(
-                    license =>
-                        new ReportPreviewRowViewModel
-                        {
-                            Value1 =
-                                license.LicenseNumber,
-
-                            Value2 =
-                                license.DogName,
-
-                            Value3 =
-                                license.OwnerName,
-
-                            Value4 =
-                                license.Municipality,
-
-                            Value5 =
-                                license.ExpirationDate
-                                    .ToString(
-                                        "yyyy-MM-dd"),
-
-                            Value6 =
-                                license.Status
-                        })
-                .ToList();
-
-
-        OpenPreview(
-            title:
-                "Rapport des licences",
-
-            description:
-                "Licences correspondant aux paramètres sélectionnés. La période est appliquée à la date d'émission.",
-
-            periodDisplay:
-                SelectedPeriod,
-
-            headers:
-            [
-                "Licence",
-                "Chien",
-                "Propriétaire",
-                "Municipalité",
-                "Expiration",
-                "Statut"
-            ],
-
-            rows:
-                rows);
-    }
-
-
-    // ==================================================
-    // FILTRE MUNICIPALITÉ
-    // ==================================================
-
-    private IEnumerable<LicenseListItemViewModel>
-        FilterByMunicipality(
-            IEnumerable<LicenseListItemViewModel> source)
-    {
-        if (SelectedMunicipality ==
-            "Toutes les municipalités")
+        var dogs = FilterDogs(c);
+        IEnumerable<OwnerDogViewModel> sorted = c.SortBy switch
         {
-            return source;
-        }
-
-
-        return source.Where(
-            license =>
-                license.Municipality.Equals(
-                    SelectedMunicipality,
-                    StringComparison.OrdinalIgnoreCase));
-    }
-
-
-    // ==================================================
-    // FILTRE PÉRIODE
-    //
-    // Pour l'instant, la période des licences
-    // correspond à leur date d'émission.
-    // ==================================================
-
-    private IEnumerable<LicenseListItemViewModel>
-        FilterLicensesByPeriod(
-            IEnumerable<LicenseListItemViewModel> source)
-    {
-        DateTime today =
-            DateTime.Today;
-
-
-        return SelectedPeriod switch
-        {
-            "Aujourd'hui" =>
-                source.Where(
-                    license =>
-                        license.IssueDate.Date ==
-                        today),
-
-            "7 derniers jours" =>
-                source.Where(
-                    license =>
-                        license.IssueDate.Date >=
-                        today.AddDays(-6) &&
-                        license.IssueDate.Date <=
-                        today),
-
-            "Ce mois" =>
-                source.Where(
-                    license =>
-                        license.IssueDate.Year ==
-                        today.Year &&
-                        license.IssueDate.Month ==
-                        today.Month),
-
-            "Cette année" =>
-                source.Where(
-                    license =>
-                        license.IssueDate.Year ==
-                        today.Year),
-
-            _ =>
-                source
+            "Client" => Sort(dogs, x => x.OwnerName, c.Descending),
+            "Race" => Sort(dogs, x => x.Breed, c.Descending),
+            "Municipalité" => Sort(dogs, x => LocalAnimalDirectoryStore.GetOwner(x.OwnerId)?.Municipality ?? "", c.Descending),
+            "Licence" => Sort(dogs, x => x.LicenseNumber, c.Descending),
+            _ => Sort(dogs, x => x.DogName, c.Descending)
         };
-    }
-
-
-    // ==================================================
-    // MUNICIPALITÉS
-    // ==================================================
-
-    private static IReadOnlyList<string>
-        BuildMunicipalityOptions()
-    {
-        List<string> municipalities =
-            LocalLicenseStore.Licenses
-                .Select(
-                    license =>
-                        license.Municipality)
-                .Where(
-                    municipality =>
-                        !string.IsNullOrWhiteSpace(
-                            municipality))
-                .Distinct(
-                    StringComparer.OrdinalIgnoreCase)
-                .OrderBy(
-                    municipality =>
-                        municipality)
-                .ToList();
-
-
-        municipalities.Insert(
-            0,
-            "Toutes les municipalités");
-
-
-        return municipalities;
-    }
-
-
-    // ==================================================
-    // APERÇU
-    // ==================================================
-
-    private void OpenPreview(
-        string title,
-        string description,
-        string periodDisplay,
-        IReadOnlyList<string> headers,
-        IReadOnlyList<ReportPreviewRowViewModel> rows,
-        string summary = "")
-    {
-        ReportPreviewDialog dialog =
-            new(
-                title,
-                description,
-                SelectedMunicipality,
-                periodDisplay,
-                headers,
-                rows,
-                summary);
-
-
-        if (System.Windows.Application.Current?.MainWindow
-            is System.Windows.Window mainWindow)
+        var rows = sorted.Select(x => new ReportPreviewRowViewModel
         {
-            dialog.Owner =
-                mainWindow;
-        }
+            Value1 = x.DogName,
+            Value2 = LocalAnimalDirectoryStore.GetOwner(x.OwnerId)?.FullName ?? x.OwnerName,
+            Value3 = x.Breed,
+            Value4 = LocalAnimalDirectoryStore.GetOwner(x.OwnerId)?.Municipality ?? "—",
+            Value5 = x.Sterilized,
+            Value6 = string.IsNullOrWhiteSpace(x.LicenseNumber) ? "Sans licence" : x.LicenseNumber
+        }).ToList();
+        OpenPreview("Liste des chiens", "Chiens du répertoire, y compris ceux sans licence.",
+            c.Municipality, c.Describe(ReportKind.Dogs),
+            ["Chien", "Client", "Race", "Municipalité", "Stérilisé", "Licence"], rows,
+            $"{rows.Count} chien(s) dans le rapport");
+    }
 
+    private void GenerateClients(ReportFilterCriteria c)
+    {
+        // Même les clients sans chien sont inclus si aucun filtre sur les chiens n'est demandé.
+        var matchingDogs = FilterDogs(c).ToLookup(x => x.OwnerId);
+        bool dogCriteria = c.Breed != ReportFilterCriteria.AllBreeds ||
+                           c.LicenseStatus != ReportFilterCriteria.AllStatuses;
+        var owners = LocalAnimalDirectoryStore.GetOwners()
+            .Where(x => ReportFilterRules.Choice(x.Municipality, c.Municipality,
+                ReportFilterCriteria.AllMunicipalities))
+            .Where(x => ReportFilterRules.Search(c.SearchText, x.FullName, x.FileNumber,
+                x.Phone, x.CellPhone) || matchingDogs.Contains(x.OwnerId))
+            .Where(x => !dogCriteria || matchingDogs.Contains(x.OwnerId));
+        IEnumerable<OwnerDirectoryItem> sorted = c.SortBy switch
+        {
+            "Municipalité" => Sort(owners, x => x.Municipality, c.Descending),
+            "Nombre de chiens" => Sort(owners, x => matchingDogs[x.OwnerId].Count(), c.Descending),
+            _ => Sort(owners, x => x.FullName, c.Descending)
+        };
+        var statuses = LocalLicenseStore.Licenses.ToLookup(x => x.DogId);
+        var rows = sorted.Select(x => new ReportPreviewRowViewModel
+        {
+            Value1 = x.FullName,
+            Value2 = string.IsNullOrWhiteSpace(x.Municipality) ? "—" : x.Municipality,
+            Value3 = matchingDogs[x.OwnerId].Count().ToString(),
+            Value4 = string.Join(", ", matchingDogs[x.OwnerId].Select(d => d.DogName).OrderBy(n => n)),
+            Value5 = matchingDogs[x.OwnerId].Sum(d => statuses[d.DogId].Count(l => l.Status == "Valide")).ToString(),
+            Value6 = matchingDogs[x.OwnerId].Sum(d => statuses[d.DogId].Count(l => l.Status == "Expirée")).ToString()
+        }).ToList();
+        OpenPreview("Liste des clients", "Clients du répertoire; chiens correspondants aux filtres.",
+            c.Municipality, c.Describe(ReportKind.Clients),
+            ["Client", "Municipalité", "Chiens", "Noms des chiens", "Licences valides", "Expirées"], rows,
+            $"{rows.Count} client(s) dans le rapport");
+    }
 
+    private void GenerateBreeds(ReportFilterCriteria c)
+    {
+        var dogs = FilterDogs(c).ToList();
+        var groups = dogs.GroupBy(x => string.IsNullOrWhiteSpace(x.Breed) ? "Non précisée" : x.Breed).ToList();
+        IEnumerable<IGrouping<string, OwnerDogViewModel>> sorted = c.SortBy switch
+        {
+            "Nombre" or "Pourcentage" => Sort(groups, x => x.Count(), c.Descending),
+            _ => Sort(groups, x => x.Key, c.Descending)
+        };
+        var rows = sorted.Select(group => new ReportPreviewRowViewModel
+        {
+            Value1 = group.Key,
+            Value2 = group.Count().ToString(),
+            Value3 = dogs.Count == 0 ? "0 %" : $"{group.Count() * 100.0 / dogs.Count:0.#} %",
+            Value4 = string.Join(", ", group.Select(x => x.DogName).OrderBy(x => x))
+        }).ToList();
+        OpenPreview("Chiens par race", "Répartition des chiens du répertoire après filtrage.",
+            c.Municipality, c.Describe(ReportKind.Breeds),
+            ["Race", "Nombre", "Pourcentage", "Chiens", "", ""], rows,
+            $"{dogs.Count} chien(s) · {groups.Count} race(s)");
+    }
+
+    private void GenerateLicenses(ReportFilterCriteria c)
+    {
+        var selected = LocalLicenseStore.Licenses
+            .Where(l =>
+            {
+                var owner = LocalAnimalDirectoryStore.GetOwner(l.OwnerId);
+                return ReportFilterRules.Choice(l.Municipality, c.Municipality,
+                           ReportFilterCriteria.AllMunicipalities)
+                       && ReportFilterRules.Search(c.SearchText, l.LicenseNumber, l.DogName,
+                           l.OwnerName, l.Breed, owner?.FileNumber, owner?.Phone, owner?.CellPhone)
+                       && ReportFilterRules.Choice(l.Breed, c.Breed, ReportFilterCriteria.AllBreeds)
+                       && ReportFilterRules.Choice(l.Sex, c.Sex, ReportFilterCriteria.AllSexes)
+                       && ReportFilterRules.Choice(l.Sterilized, c.Sterilized, ReportFilterCriteria.AllSterilizations)
+                       && ReportFilterRules.Choice(l.Status, c.LicenseStatus, ReportFilterCriteria.AllStatuses)
+                       && ReportFilterRules.Period(l.IssueDate, c.Period, DateTime.Today);
+            });
+        IEnumerable<LicenseListItemViewModel> sorted = c.SortBy switch
+        {
+            "Date d'émission" => Sort(selected, x => x.IssueDate, c.Descending),
+            "Chien" => Sort(selected, x => x.DogName, c.Descending),
+            "Client" => Sort(selected, x => x.OwnerName, c.Descending),
+            "Statut" => Sort(selected, x => x.Status, c.Descending),
+            _ => Sort(selected, x => x.ExpirationDate, c.Descending)
+        };
+        var rows = sorted.Select(x => new ReportPreviewRowViewModel
+        {
+            Value1 = x.LicenseNumber,
+            Value2 = x.DogName,
+            Value3 = x.OwnerName,
+            Value4 = x.Municipality,
+            Value5 = x.ExpirationDate.ToString("yyyy-MM-dd"),
+            Value6 = x.Status
+        }).ToList();
+        OpenPreview("Rapport des licences", "Licences correspondant aux paramètres choisis.",
+            c.Municipality, c.Describe(ReportKind.Licenses),
+            ["Licence", "Chien", "Client", "Municipalité", "Expiration", "Statut"], rows,
+            $"{rows.Count} licence(s) dans le rapport");
+    }
+
+    private static IEnumerable<T> Sort<T, TKey>(IEnumerable<T> source, Func<T, TKey> selector,
+        bool descending) => descending ? source.OrderByDescending(selector) : source.OrderBy(selector);
+
+    private static void OpenPreview(string title, string description, string municipality,
+        string details, IReadOnlyList<string> headers,
+        IReadOnlyList<ReportPreviewRowViewModel> rows, string summary)
+    {
+        var dialog = new ReportPreviewDialog(title, description, municipality, details,
+            headers, rows, summary);
+        if (Application.Current?.MainWindow is Window mainWindow) dialog.Owner = mainWindow;
         dialog.ShowDialog();
     }
 }
