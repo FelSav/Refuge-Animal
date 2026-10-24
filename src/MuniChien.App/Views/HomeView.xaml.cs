@@ -28,6 +28,22 @@ public partial class HomeView : UserControl
         InitializeComponent();
     }
 
+    // Un champ à une ligne ne doit jamais intercepter la molette de la fenêtre.
+    // Les quatre champs de statistiques laissent défiler le panneau principal.
+    private void CustomizationTextBox_PreviewMouseWheel(
+        object sender,
+        MouseWheelEventArgs e)
+    {
+        if (CustomizationBodyScrollViewer is null)
+        {
+            return;
+        }
+
+        CustomizationBodyScrollViewer.ScrollToVerticalOffset(
+            CustomizationBodyScrollViewer.VerticalOffset - (e.Delta / 3.0));
+        e.Handled = true;
+    }
+
 
     // ==================================================
     // DÉBUT DU DRAG

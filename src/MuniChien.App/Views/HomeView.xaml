@@ -52,39 +52,34 @@
             <Setter Property="Margin" Value="0,0,0,7"/>
         </Style>
 
+        <!-- Garder le moteur natif du TextBox corrige le texte rogné en haut
+             et évite le défilement interne introduit par un template personnalisé. -->
         <Style x:Key="CustomizationInputStyle" TargetType="TextBox">
-            <Setter Property="Height" Value="42"/>
-            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Padding" Value="10,0"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Foreground" Value="#242B38"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#DBE1E8"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="InputBorder"
-                                CornerRadius="9"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="{TemplateBinding Padding}">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          VerticalScrollBarVisibility="Hidden"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#E87524"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="InputBorder" Property="Background" Value="#F4F5F7"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="AcceptsReturn" Value="False"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled"/>
+        </Style>
+
+        <!-- Le contour externe donne des coins arrondis sans remplacer le
+             moteur de saisie du TextBox : le focus garde une bordure orange. -->
+        <Style x:Key="CustomizationInputShellStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="9"/>
+            <Setter Property="BorderBrush" Value="#D6DEE8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="#E87524"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="CustomizationComboStyle" TargetType="ComboBox">
@@ -471,293 +466,317 @@
 
 
         <!-- ==================================================
-             PERSONNALISATION DU TABLEAU DE BORD
-             Deux onglets, sans modifier les commandes ni la sauvegarde.
+             PERSONNALISER MON ACCUEIL
+             Une seule zone de défilement, titre et actions toujours visibles.
+             Les commandes existantes du ViewModel ne changent pas.
              ================================================== -->
-
         <Grid Background="#9918222D"
               Visibility="{Binding IsCustomizationOpen,
                                    Converter={StaticResource BooleanToVisibilityConverter}}">
 
-            <Border Width="856"
-                    MaxHeight="700"
-                    Margin="18"
-                    Background="#FFFFFF"
+            <Border MaxWidth="900"
+                    MaxHeight="780"
+                    Margin="24"
+                    Background="White"
                     CornerRadius="18"
-                    Padding="28,24"
-                    HorizontalAlignment="Center"
+                    BorderBrush="#E5E9EF"
+                    BorderThickness="1"
+                    HorizontalAlignment="Stretch"
                     VerticalAlignment="Center">
                 <Border.Effect>
-                    <DropShadowEffect Color="#142033" BlurRadius="32"
-                                      ShadowDepth="8" Opacity="0.20"/>
+                    <DropShadowEffect Color="#182230" BlurRadius="28"
+                                      ShadowDepth="6" Opacity="0.18"/>
                 </Border.Effect>
 
-                <!-- Défilement uniquement si la taille de la fenêtre le nécessite. -->
-                <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
-                              PanningMode="VerticalOnly">
-                    <StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                        <!-- En-tête -->
-                        <Grid Margin="0,0,0,16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                    <!-- EN-TÊTE FIXE : ne se perd pas quand on fait défiler. -->
+                    <Grid Grid.Row="0" Margin="28,23,28,18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,14,0">
+                            <TextBlock Text="Personnaliser mon accueil"
+                                       FontSize="23" FontWeight="SemiBold"
+                                       Foreground="#242B38"/>
+                            <TextBlock Text="Modifiez les chiffres affichés dans vos cartes."
+                                       FontSize="13" Foreground="#667085"
+                                       Margin="0,6,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Width="38" Height="38"
+                                Content="&#xE8BB;" FontFamily="Segoe MDL2 Assets"
+                                FontSize="14" Padding="0" VerticalAlignment="Top"
+                                ToolTip="Fermer"
+                                Command="{Binding CloseCustomizationCommand}"
+                                Style="{StaticResource CustomizationSecondaryButtonStyle}"/>
+                    </Grid>
 
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Personnaliser mon accueil"
-                                           FontSize="23" FontWeight="SemiBold"
-                                           Foreground="#242B38"/>
-                                <TextBlock Text="Choisissez les chiffres qui comptent pour vous."
-                                           FontSize="13" Foreground="#667085"
-                                           Margin="0,6,0,0"/>
-                            </StackPanel>
+                    <!-- UNIQUE DÉFILEMENT : les champs n'absorbent plus la molette. -->
+                    <ScrollViewer x:Name="CustomizationBodyScrollViewer"
+                                  Grid.Row="1"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  PanningMode="VerticalOnly"
+                                  CanContentScroll="False">
+                        <StackPanel Margin="28,2,28,22">
+                            <TabControl Style="{StaticResource CustomizationTabsStyle}"
+                                        SelectedIndex="0">
 
-                            <Button Grid.Column="1"
-                                    Width="36" Height="36"
-                                    Content="&#xE8BB;"
-                                    FontFamily="Segoe MDL2 Assets"
-                                    FontSize="13"
-                                    Padding="0"
-                                    ToolTip="Fermer la personnalisation"
-                                    Command="{Binding CloseCustomizationCommand}"
-                                    Style="{StaticResource CustomizationSecondaryButtonStyle}"/>
-                        </Grid>
+                                <!-- ONGLET : REMPLACER UNE CARTE -->
+                                <TabItem Header="Remplacer une carte">
+                                    <StackPanel>
+                                        <TextBlock Text="Modifier une carte en deux étapes"
+                                                   Foreground="#242B38" FontSize="15"
+                                                   FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                        <TextBlock Text="Choisissez d'abord la carte, puis ce que vous voulez afficher à sa place."
+                                                   Foreground="#667085" FontSize="12"
+                                                   TextWrapping="Wrap" Margin="0,0,0,17"/>
 
-                        <!-- Petit conseil : décrire sans encombrer l'interface. -->
-                        <Border CornerRadius="11" Background="#FFF6EC"
-                                BorderBrush="#F8E2CA" BorderThickness="1"
-                                Padding="13,10" Margin="0,0,0,19">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets"
-                                           FontSize="15" Foreground="#C8661E"
-                                           VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <TextBlock Text="Astuce : vous pouvez aussi réorganiser les cartes directement sur l'accueil par glisser-déposer."
-                                           FontSize="12" Foreground="#895328"
-                                           VerticalAlignment="Center"
-                                           TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-
-                        <TabControl Style="{StaticResource CustomizationTabsStyle}"
-                                    SelectedIndex="0">
-
-                            <!-- ===========================================
-                                 ONGLET 1 — REMPLACER UNE CARTE
-                                 =========================================== -->
-                            <TabItem Header="Remplacer une carte">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="16"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- Carte à remplacer -->
-                                    <Border Grid.Column="0"
-                                            Background="#FAFBFC" CornerRadius="14"
-                                            BorderBrush="#E7EAF0" BorderThickness="1"
-                                            Padding="18,19">
-                                        <StackPanel>
-                                            <TextBlock Text="01  Choisir une carte"
-                                                       FontSize="16" FontWeight="SemiBold"
-                                                       Foreground="#242B38"/>
-                                            <TextBlock Text="Sélectionnez l'emplacement à modifier."
-                                                       FontSize="12" Foreground="#667085"
-                                                       Margin="0,6,0,20" TextWrapping="Wrap"/>
-
-                                            <TextBlock Text="Carte actuelle"
-                                                       Style="{StaticResource CustomizationFieldLabelStyle}"/>
-                                            <ComboBox ItemsSource="{Binding DashboardCards}"
-                                                      SelectedItem="{Binding SelectedCard}"
-                                                      DisplayMemberPath="Title"
-                                                      Style="{StaticResource CustomizationComboStyle}"
-                                                      Margin="0,0,0,18"/>
-
-                                            <Border Background="White" CornerRadius="12"
-                                                    BorderBrush="#E6E8EC" BorderThickness="1"
-                                                    Padding="16,14">
-                                                <StackPanel>
-                                                    <TextBlock Text="APERÇU ACTUEL"
-                                                               FontSize="10" FontWeight="SemiBold"
-                                                               Foreground="#9AA3B2"/>
-                                                    <TextBlock Text="{Binding SelectedCard.Title, TargetNullValue=Aucune carte sélectionnée}"
-                                                               FontSize="13" Foreground="#667085"
-                                                               HorizontalAlignment="Center"
-                                                               Margin="0,12,0,3"/>
-                                                    <TextBlock Text="{Binding SelectedCard.Value}"
-                                                               FontSize="26" FontWeight="SemiBold"
-                                                               Foreground="#242B38"
-                                                               HorizontalAlignment="Center"/>
+                                        <!-- Étape 1 -->
+                                        <Border Background="#FAFBFC" BorderBrush="#E6E9EE"
+                                                BorderThickness="1" CornerRadius="13"
+                                                Padding="20" Margin="0,0,0,12">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                                    <Border Background="#FFF0E2" CornerRadius="13"
+                                                            Width="26" Height="26" Margin="0,0,10,0">
+                                                        <TextBlock Text="1" Foreground="#B95716"
+                                                                   FontWeight="SemiBold" FontSize="13"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <TextBlock Text="Sélectionner la carte à modifier"
+                                                               Foreground="#242B38" FontSize="15"
+                                                               FontWeight="SemiBold" VerticalAlignment="Center"/>
                                                 </StackPanel>
-                                            </Border>
-                                        </StackPanel>
-                                    </Border>
+                                                <TextBlock Text="Quelle carte présente sur l'accueil voulez-vous remplacer ?"
+                                                           Foreground="#667085" FontSize="12"
+                                                           TextWrapping="Wrap" Margin="36,0,0,14"/>
+                                                <TextBlock Text="Carte actuelle"
+                                                           Style="{StaticResource CustomizationFieldLabelStyle}"/>
+                                                <ComboBox ItemsSource="{Binding DashboardCards}"
+                                                          SelectedItem="{Binding SelectedCard}"
+                                                          DisplayMemberPath="Title"
+                                                          Style="{StaticResource CustomizationComboStyle}"/>
 
-                                    <!-- Statistique de remplacement -->
-                                    <Border Grid.Column="2"
-                                            Background="#FAFBFC" CornerRadius="14"
-                                            BorderBrush="#E7EAF0" BorderThickness="1"
-                                            Padding="18,19">
-                                        <StackPanel>
-                                            <TextBlock Text="02  Choisir une statistique"
-                                                       FontSize="16" FontWeight="SemiBold"
-                                                       Foreground="#242B38"/>
-                                            <TextBlock Text="Choisissez la donnée à afficher à sa place."
-                                                       FontSize="12" Foreground="#667085"
-                                                       Margin="0,6,0,20" TextWrapping="Wrap"/>
-
-                                            <TextBlock Text="Nouvelle statistique"
-                                                       Style="{StaticResource CustomizationFieldLabelStyle}"/>
-                                            <ComboBox ItemsSource="{Binding AvailableReplacementMetrics}"
-                                                      SelectedItem="{Binding SelectedMetric}"
-                                                      DisplayMemberPath="Title"
-                                                      Style="{StaticResource CustomizationComboStyle}"
-                                                      Margin="0,0,0,16"/>
-
-                                            <TextBlock Text="Les données automatiques proviennent des dossiers locaux. Vous pouvez aussi utiliser vos propres statistiques."
-                                                       FontSize="12" Foreground="#667085"
-                                                       TextWrapping="Wrap" Margin="0,0,0,18"/>
-                                            <Button Content="Appliquer à cette carte"
-                                                    Command="{Binding ReplaceWithMetricCommand}"
-                                                    Style="{StaticResource CustomizationPrimaryButtonStyle}"
-                                                    HorizontalAlignment="Left"/>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-                            </TabItem>
-
-                            <!-- ===========================================
-                                 ONGLET 2 — STATISTIQUES PERSONNALISÉES
-                                 =========================================== -->
-                            <TabItem Header="Mes statistiques">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="16"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- Ajouter une statistique -->
-                                    <Border Grid.Column="0" CornerRadius="14"
-                                            Background="#FAFBFC"
-                                            BorderBrush="#E7EAF0" BorderThickness="1"
-                                            Padding="18,19">
-                                        <StackPanel>
-                                            <TextBlock Text="Créer une statistique"
-                                                       FontSize="16" FontWeight="SemiBold"
-                                                       Foreground="#242B38"/>
-                                            <TextBlock Text="Ajoutez une valeur manuelle à votre catalogue."
-                                                       FontSize="12" Foreground="#667085"
-                                                       Margin="0,6,0,17" TextWrapping="Wrap"/>
-
-                                            <TextBlock Text="Nom de la statistique"
-                                                       Style="{StaticResource CustomizationFieldLabelStyle}"/>
-                                            <TextBox Text="{Binding ManualCardTitle, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource CustomizationInputStyle}"
-                                                     Margin="0,0,0,15"/>
-
-                                            <TextBlock Text="Valeur"
-                                                       Style="{StaticResource CustomizationFieldLabelStyle}"/>
-                                            <TextBox Text="{Binding ManualCardValue, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource CustomizationInputStyle}"
-                                                     Margin="0,0,0,17"/>
-
-                                            <Button Content="Ajouter aux choix"
-                                                    Command="{Binding CreateManualMetricCommand}"
-                                                    Style="{StaticResource CustomizationPrimaryButtonStyle}"
-                                                    HorizontalAlignment="Left"/>
-                                            <TextBlock Text="Après l'ajout, utilisez l'onglet « Remplacer une carte » pour l'afficher sur l'accueil."
-                                                       Foreground="#667085" FontSize="11"
-                                                       Margin="0,15,0,0" TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <!-- Modifier / supprimer une statistique -->
-                                    <Border Grid.Column="2" CornerRadius="14"
-                                            Background="#FAFBFC"
-                                            BorderBrush="#E7EAF0" BorderThickness="1"
-                                            Padding="18,19">
-                                        <StackPanel>
-                                            <TextBlock Text="Gérer mes statistiques"
-                                                       FontSize="16" FontWeight="SemiBold"
-                                                       Foreground="#242B38"/>
-                                            <TextBlock Text="Modifiez ou supprimez une valeur enregistrée."
-                                                       FontSize="12" Foreground="#667085"
-                                                       Margin="0,6,0,17" TextWrapping="Wrap"/>
-
-                                            <TextBlock Text="Statistique enregistrée"
-                                                       Style="{StaticResource CustomizationFieldLabelStyle}"/>
-                                            <ComboBox ItemsSource="{Binding CustomMetrics}"
-                                                      SelectedItem="{Binding SelectedCustomMetric}"
-                                                      DisplayMemberPath="Title"
-                                                      Style="{StaticResource CustomizationComboStyle}"
-                                                      Margin="0,0,0,13"/>
-
-                                            <TextBlock Text="Nom"
-                                                       Style="{StaticResource CustomizationFieldLabelStyle}"/>
-                                            <TextBox Text="{Binding EditCustomMetricTitle, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource CustomizationInputStyle}"
-                                                     Margin="0,0,0,13"/>
-
-                                            <TextBlock Text="Valeur"
-                                                       Style="{StaticResource CustomizationFieldLabelStyle}"/>
-                                            <TextBox Text="{Binding EditCustomMetricValue, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource CustomizationInputStyle}"
-                                                     Margin="0,0,0,16"/>
-
-                                            <StackPanel Orientation="Horizontal">
-                                                <Button Content="Enregistrer"
-                                                        Command="{Binding UpdateManualMetricCommand}"
-                                                        Style="{StaticResource CustomizationPrimaryButtonStyle}"
-                                                        Margin="0,0,9,0"/>
-                                                <Button Content="Supprimer"
-                                                        Foreground="#B0473D"
-                                                        Command="{Binding DeleteManualMetricCommand}"
-                                                        Style="{StaticResource CustomizationSecondaryButtonStyle}"/>
+                                                <Border Background="White" BorderBrush="#E5E9EF"
+                                                        BorderThickness="1" CornerRadius="9"
+                                                        Padding="14,12" Margin="0,12,0,0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                                            <TextBlock Text="EN CE MOMENT" FontSize="10"
+                                                                       FontWeight="SemiBold" Foreground="#8894A5"/>
+                                                            <TextBlock Text="{Binding SelectedCard.Title, TargetNullValue=Aucune carte sélectionnée}"
+                                                                       Foreground="#344054" FontSize="13"
+                                                                       TextWrapping="Wrap" Margin="0,5,0,0"/>
+                                                        </StackPanel>
+                                                        <TextBlock Grid.Column="1" Text="{Binding SelectedCard.Value}"
+                                                                   FontSize="23" FontWeight="SemiBold"
+                                                                   Foreground="#242B38" VerticalAlignment="Center"/>
+                                                    </Grid>
+                                                </Border>
                                             </StackPanel>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-                            </TabItem>
-                        </TabControl>
+                                        </Border>
 
-                        <!-- Message de validation / d'erreur des commandes existantes. -->
-                        <Border Background="#FFF4E8" CornerRadius="10" Padding="13,10"
-                                Margin="0,15,0,0">
-                            <Border.Style>
-                                <Style TargetType="Border">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CustomizationMessage}" Value="">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                            <TextBlock Text="{Binding CustomizationMessage}"
-                                       FontSize="12" FontWeight="SemiBold"
-                                       Foreground="#AA561A" TextWrapping="Wrap"/>
-                        </Border>
+                                        <!-- Étape 2 -->
+                                        <Border Background="#FAFBFC" BorderBrush="#E6E9EE"
+                                                BorderThickness="1" CornerRadius="13"
+                                                Padding="20">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                                    <Border Background="#FFF0E2" CornerRadius="13"
+                                                            Width="26" Height="26" Margin="0,0,10,0">
+                                                        <TextBlock Text="2" Foreground="#B95716"
+                                                                   FontWeight="SemiBold" FontSize="13"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <TextBlock Text="Choisir la nouvelle statistique"
+                                                               Foreground="#242B38" FontSize="15"
+                                                               FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <TextBlock Text="La nouvelle statistique prendra la place de la carte sélectionnée."
+                                                           Foreground="#667085" FontSize="12"
+                                                           TextWrapping="Wrap" Margin="36,0,0,14"/>
+                                                <TextBlock Text="Statistique à afficher"
+                                                           Style="{StaticResource CustomizationFieldLabelStyle}"/>
+                                                <ComboBox ItemsSource="{Binding AvailableReplacementMetrics}"
+                                                          SelectedItem="{Binding SelectedMetric}"
+                                                          DisplayMemberPath="Title"
+                                                          Style="{StaticResource CustomizationComboStyle}"/>
+                                                <TextBlock Text="Vous pouvez aussi créer une statistique dans l'onglet « Mes statistiques »."
+                                                           Foreground="#667085" FontSize="12"
+                                                           TextWrapping="Wrap" Margin="0,12,0,16"/>
+                                                <Button Content="Appliquer le changement"
+                                                        Command="{Binding ReplaceWithMetricCommand}"
+                                                        Style="{StaticResource CustomizationPrimaryButtonStyle}"
+                                                        HorizontalAlignment="Left"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </TabItem>
 
-                        <!-- Pied de fenêtre compact -->
-                        <Grid Margin="0,19,0,0">
+                                <!-- ONGLET : MES STATISTIQUES -->
+                                <TabItem Header="Mes statistiques">
+                                    <StackPanel>
+                                        <TextBlock Text="Mes statistiques personnalisées"
+                                                   Foreground="#242B38" FontSize="15"
+                                                   FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                        <TextBlock Text="Créez vos propres chiffres, puis affichez-les sur une carte depuis l'autre onglet."
+                                                   Foreground="#667085" FontSize="12"
+                                                   TextWrapping="Wrap" Margin="0,0,0,17"/>
+
+                                        <!-- Formulaire de création : grille de champs alignés. -->
+                                        <Border Background="#FAFBFC" BorderBrush="#E6E9EE"
+                                                BorderThickness="1" CornerRadius="13"
+                                                Padding="20" Margin="0,0,0,12">
+                                            <StackPanel>
+                                                <TextBlock Text="Ajouter une statistique"
+                                                           Foreground="#242B38" FontSize="16"
+                                                           FontWeight="SemiBold"/>
+                                                <TextBlock Text="Entrez un nom clair et sa valeur actuelle."
+                                                           Foreground="#667085" FontSize="12"
+                                                           TextWrapping="Wrap" Margin="0,5,0,17"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="2*"/>
+                                                        <ColumnDefinition Width="14"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="Nom de la statistique"
+                                                                   Style="{StaticResource CustomizationFieldLabelStyle}"/>
+                                                        <Border Style="{StaticResource CustomizationInputShellStyle}">
+                                                            <TextBox Text="{Binding ManualCardTitle, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource CustomizationInputStyle}"
+                                                                     PreviewMouseWheel="CustomizationTextBox_PreviewMouseWheel"/>
+                                                        </Border>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2">
+                                                        <TextBlock Text="Valeur"
+                                                                   Style="{StaticResource CustomizationFieldLabelStyle}"/>
+                                                        <Border Style="{StaticResource CustomizationInputShellStyle}">
+                                                            <TextBox Text="{Binding ManualCardValue, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource CustomizationInputStyle}"
+                                                                     PreviewMouseWheel="CustomizationTextBox_PreviewMouseWheel"/>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </Grid>
+                                                <Button Content="Ajouter la statistique"
+                                                        Command="{Binding CreateManualMetricCommand}"
+                                                        Style="{StaticResource CustomizationPrimaryButtonStyle}"
+                                                        Margin="0,17,0,0" HorizontalAlignment="Left"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Formulaire de modification indépendant. -->
+                                        <Border Background="#FAFBFC" BorderBrush="#E6E9EE"
+                                                BorderThickness="1" CornerRadius="13"
+                                                Padding="20">
+                                            <StackPanel>
+                                                <TextBlock Text="Modifier ou supprimer une statistique"
+                                                           Foreground="#242B38" FontSize="16"
+                                                           FontWeight="SemiBold"/>
+                                                <TextBlock Text="Sélectionnez d'abord une statistique déjà créée."
+                                                           Foreground="#667085" FontSize="12"
+                                                           TextWrapping="Wrap" Margin="0,5,0,17"/>
+                                                <TextBlock Text="Statistique enregistrée"
+                                                           Style="{StaticResource CustomizationFieldLabelStyle}"/>
+                                                <ComboBox ItemsSource="{Binding CustomMetrics}"
+                                                          SelectedItem="{Binding SelectedCustomMetric}"
+                                                          DisplayMemberPath="Title"
+                                                          Style="{StaticResource CustomizationComboStyle}"
+                                                          Margin="0,0,0,16"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="2*"/>
+                                                        <ColumnDefinition Width="14"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="Nom"
+                                                                   Style="{StaticResource CustomizationFieldLabelStyle}"/>
+                                                        <Border Style="{StaticResource CustomizationInputShellStyle}">
+                                                            <TextBox Text="{Binding EditCustomMetricTitle, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource CustomizationInputStyle}"
+                                                                     PreviewMouseWheel="CustomizationTextBox_PreviewMouseWheel"/>
+                                                        </Border>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2">
+                                                        <TextBlock Text="Valeur"
+                                                                   Style="{StaticResource CustomizationFieldLabelStyle}"/>
+                                                        <Border Style="{StaticResource CustomizationInputShellStyle}">
+                                                            <TextBox Text="{Binding EditCustomMetricValue, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource CustomizationInputStyle}"
+                                                                     PreviewMouseWheel="CustomizationTextBox_PreviewMouseWheel"/>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </Grid>
+                                                <StackPanel Orientation="Horizontal" Margin="0,17,0,0">
+                                                    <Button Content="Enregistrer"
+                                                            Command="{Binding UpdateManualMetricCommand}"
+                                                            Style="{StaticResource CustomizationPrimaryButtonStyle}"
+                                                            Margin="0,0,10,0"/>
+                                                    <Button Content="Supprimer"
+                                                            Command="{Binding DeleteManualMetricCommand}"
+                                                            Style="{StaticResource CustomizationSecondaryButtonStyle}"
+                                                            Foreground="#B0473D"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </TabItem>
+                            </TabControl>
+
+                            <!-- Message des commandes existantes, visible près des actions. -->
+                            <Border Background="#FFF4E8" BorderBrush="#F6D7B6"
+                                    BorderThickness="1" CornerRadius="10"
+                                    Padding="13,11" Margin="0,15,0,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CustomizationMessage}" Value="">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding CustomizationMessage}"
+                                           FontSize="12" Foreground="#97521F"
+                                           FontWeight="SemiBold" TextWrapping="Wrap"/>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- PIED FIXE : le bouton Terminer reste visible. -->
+                    <Border Grid.Row="2" Background="#FFFFFF"
+                            BorderBrush="#E9EDF2" BorderThickness="0,1,0,0"
+                            Padding="28,14">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0"
-                                       Text="Les changements sont enregistrés automatiquement."
-                                       FontSize="12" Foreground="#8993A3"
-                                       VerticalAlignment="Center"/>
-                            <Button Grid.Column="1"
-                                    Content="Terminer"
+                                       Text="Les changements sont enregistrés après chaque action."
+                                       Foreground="#7A8797" FontSize="12"
+                                       VerticalAlignment="Center" TextWrapping="Wrap"
+                                       Margin="0,0,15,0"/>
+                            <Button Grid.Column="1" Content="Terminer"
                                     Command="{Binding CloseCustomizationCommand}"
-                                    Style="{StaticResource CustomizationSecondaryButtonStyle}"/>
+                                    Style="{StaticResource CustomizationSecondaryButtonStyle}"
+                                    MinWidth="105"/>
                         </Grid>
-
-                    </StackPanel>
-                </ScrollViewer>
+                    </Border>
+                </Grid>
             </Border>
         </Grid>
 
