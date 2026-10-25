@@ -6,7 +6,7 @@ using ApiMuniChien_V1_Proprietaire.models;
 [ApiController]
 public class ProprietairesController : ControllerBase
 {
-    private readonly ProprietairesContext _context;
+   /* private readonly ProprietairesContext _context;
     public ProprietairesController(ProprietairesContext context)
     {
         _context = context;
@@ -97,5 +97,5 @@ public class ProprietairesController : ControllerBase
     private bool ProprietairesExists(int? id)
     {
         return _context.Proprietaires.Any(e => e.Id == id);
-    }
+    }*/
 }

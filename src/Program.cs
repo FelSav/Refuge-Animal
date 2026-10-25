@@ -10,6 +10,14 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ProprietairesContext>(opt =>opt.UseNpgsql(connectionString));
 builder.Services.AddDbContext<TrainContext>(opt =>opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<LicenceChienContext>(opt =>opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<ChienContext>(opt =>opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<PaiementContext>(opt =>opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<AvisContext>(opt =>opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<LicenceContext>(opt =>opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<MunicipaliteContext>(opt =>opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<RueContext>(opt =>opt.UseNpgsql(connectionString));
+
 
 var app = builder.Build();
 

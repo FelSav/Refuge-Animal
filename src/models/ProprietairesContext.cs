@@ -11,22 +11,24 @@ namespace ApiMuniChien_V1_Proprietaire.models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Proprietaires>().HasKey(p => p.Id);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Nom);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Prenom);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Num_Civique);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Appartement);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Rue_Id);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Municipalite_Id);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Code_Postal);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Tel);
+            modelBuilder.Entity<Proprietaires>().ToTable("proprietaire");
+            modelBuilder.Entity<Proprietaires>().HasKey(p => p.proprietaire_id);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.numero_dossier);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.nom);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.prenom);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.numero_civique);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.appartement);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.rue_id);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.code_postal);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.telephone);
             modelBuilder.Entity<Proprietaires>().Property(p => p.courriel);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Date_Naissance);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Est_Chenil);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Commentaire);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.date_naissance);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.est_chenil);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.commentaire);
             modelBuilder.Entity<Proprietaires>().Property(p => p.actif);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.version);
-            modelBuilder.Entity<Proprietaires>().Property(p => p.Creation);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.created_at);
+            modelBuilder.Entity<Proprietaires>().Property(p => p.updated_at);
+            
 
         }
     }
