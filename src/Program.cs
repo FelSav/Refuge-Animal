@@ -17,6 +17,8 @@ builder.Services.AddDbContext<AvisContext>(opt =>opt.UseNpgsql(connectionString)
 builder.Services.AddDbContext<LicenceContext>(opt =>opt.UseNpgsql(connectionString));
 builder.Services.AddDbContext<MunicipaliteContext>(opt =>opt.UseNpgsql(connectionString));
 builder.Services.AddDbContext<RueContext>(opt =>opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<CouleurContext>(opt =>opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<RaceContext>(opt =>opt.UseNpgsql(connectionString));
 
 
 var app = builder.Build();

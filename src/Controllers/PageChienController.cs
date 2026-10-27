@@ -14,8 +14,10 @@ public class PageChienController : ControllerBase
     private readonly ProprietairesContext _p_context;
     private readonly RueContext _r_context;
     private readonly MunicipaliteContext _m_context;
+    private readonly CouleurContext _co_context;
+    private readonly RaceContext _ra_context;
 
-    public PageChienController(ChienContext c_context, LicenceChienContext lcc_context, LicenceContext l_context, ProprietairesContext p_context, RueContext r_context, MunicipaliteContext m_context)
+    public PageChienController(ChienContext c_context, LicenceChienContext lcc_context, LicenceContext l_context, ProprietairesContext p_context, RueContext r_context, MunicipaliteContext m_context, CouleurContext co_context, RaceContext ra_context)
     {
         _c_context = c_context;
         _lcc_context = lcc_context;
@@ -23,6 +25,8 @@ public class PageChienController : ControllerBase
         _p_context = p_context;
         _r_context = r_context;
         _m_context = m_context;
+        _co_context = co_context;
+        _ra_context = ra_context;
     }
 
     // GET: api/chiens
@@ -41,11 +45,9 @@ public class PageChienController : ControllerBase
             Console.WriteLine($">>>Chiens : " + chien.nom + " " + chien.chien_id + " " + chien.proprietaire_id);
             var chienEnCours = new ResumeChiens
             {
-                chien_id = chien.chien_id,
-                proprietaire_id = chien.proprietaire_id,
+                //chien_id = chien.chien_id,
+                //proprietaire_id = chien.proprietaire_id,
                 nom = chien.nom,
-                race_id = chien.race_id,
-                couleur_id = chien.couleur_id,
                 sexe = chien.sexe,
                 date_naissance = chien.date_naissance,
                 poids_kg = chien.poids_kg,
@@ -58,6 +60,20 @@ public class PageChienController : ControllerBase
                 created_at = chien.created_at,
                 updated_at = chien.updated_at
             };
+            // Ajouter La couleur du chien
+            var couleur = await _co_context.Couleur
+                .Where(co => co.couleur_id == chien.couleur_id)
+                .Select(co=>co.nom)
+                .ToListAsync();
+            chienEnCours.couleur = couleur.FirstOrDefault();
+
+            // ajouter la race du chien
+            var race = await _ra_context.Races
+                .Where(ra => ra.race_id == chien.race_id)
+                .Select(ra=>ra.nom)
+                .ToListAsync();
+            chienEnCours.race = race.FirstOrDefault();
+
             // calculer l'age du chien en fonction de la date de naissance
             var age = DateTime.Now.Year - chien.date_naissance.Year;
             if (DateTime.Now.DayOfYear < chien.date_naissance.DayOfYear)
@@ -156,4 +172,41 @@ public class PageChienController : ControllerBase
 
         return Ok(Resumechiens);
     }
+
+    // POST: api/chiens/[{categorie:"",valeur=""}]
+    // Post: api/chiens/nom,race,couleur,municipalité,sexe,date_naissance,poids_kg,sterilise,actif,date_inactivite,created_at,updated_at 
+    [HttpPost]
+    public async Task<ActionResult<ResumeChiens>> RecevoirDonnees() 
+    {
+        // Creer un résumé pour y strocker les données recuperer et traiter
+        var ResumeChien = new ResumeChiens();
+        // Ensuite avec les données récupere faire une recherche
+        string categorie = Request.Form["categorie"].ToString();
+        string? valeur = Request.Form["valeur"].ToString();
+        
+        string? nom = Request.Form["nom"].ToString();
+        string? race = Request.Form["race"].ToString();
+        string? couleur = Request.Form["couleur"].ToString();
+        string? municipalite = Request.Form["municipalite"].ToString();
+        string? sexe = Request.Form["sexe"].ToString();
+        string? date_naissance = Request.Form["date_naissance"].ToString();
+        string? poids_kg = Request.Form["poid_kg"].ToString();
+        string? sterilise = Request.Form["sterilise"].ToString();
+        string? actif = Request.Form["actif"].ToString();
+        string? date_inactivite= Request.Form["date_inactivite"].ToString();
+        string? created_at = Request.Form["created_at"].ToString();
+        string? updated_at = Request.Form["updated_at"].ToString();
+
+
+        // Message comme quoi il n'y a renvoy si rien n'est selectionner
+        
+        if(nom == null && race == null && couleur == null && municipalite == null &&  sexe == null && date_naissance == null && poids_kg == null && sterilise == null && actif == null && date_inactivite == null && created_at == null && updated_at == null)
+        {
+            
+        }
+        
+        return Ok(ResumeChien);
+    }
 }
+
+// Task<ActionResult<ResumeChiens>> POSTChien() IActionResult

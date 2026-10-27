@@ -12,7 +12,6 @@ namespace ApiMuniChien_V1_Proprietaire.models
         public string sexe { get; set; }
         public DateTime date_naissance { get; set; }
         public double poids_kg { get; set; }
-        
         public bool sterilise { get; set; }
         public string? photo_path { get; set; }
         public string? commentaire { get; set; }

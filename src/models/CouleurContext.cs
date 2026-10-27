@@ -7,7 +7,7 @@ namespace ApiMuniChien_V1_Proprietaire.models
         {
 
         }
-        public DbSet<Couleur> Couleurs { get; set; }
+        public DbSet<Couleur> Couleur { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

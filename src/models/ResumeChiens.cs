@@ -2,11 +2,11 @@
 namespace ApiMuniChien_V1_Proprietaire.models {
   public  class ResumeChiens
   {
-      public int  chien_id { get; set; }
-      public int  proprietaire_id  { get; set; }
+      //public int  chien_id { get; set; }
+      //public int  proprietaire_id  { get; set; }
       public string nom  { get; set; }
-      public int race_id { get; set; }
-      public int couleur_id { get; set; }
+      public string race { get; set; }
+      public string couleur { get; set; }
       public string sexe { get; set; }
       public DateTime date_naissance { get; set; }
       public int age { get; set; }
