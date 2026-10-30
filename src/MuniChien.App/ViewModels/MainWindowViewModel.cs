@@ -1,7 +1,8 @@
-﻿using MuniChien.App.Navigation;
+using MuniChien.App.Navigation;
 using MuniChien.App.Services;
 using System.Windows;
 using System.Windows.Input;
+using System.Collections.ObjectModel;
 using MuniChien.App.Views;
 
 namespace MuniChien.App.ViewModels;
@@ -16,6 +17,9 @@ public class MainWindowViewModel : ViewModelBase
 
     // Une seule source de services par fenêtre ; fournie au futur bootstrap API.
     private readonly IApplicationServices _services;
+    private readonly NotificationCenterService _notificationCenter;
+    private bool _isNotificationPanelOpen;
+    private string _notificationError = string.Empty;
 
     // Connexion de démonstration : état conservé uniquement en mémoire.
     // N'accorde aucun droit côté API / serveur.
@@ -56,6 +60,7 @@ public class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel(IApplicationServices? services = null)
     {
         _services = services ?? new LocalApplicationServices();
+        _notificationCenter = new NotificationCenterService(_services);
 
         _currentViewModel =
             new HomeViewModel(NavigateFromHome, _services.Dashboard);
@@ -97,6 +102,13 @@ public class MainWindowViewModel : ViewModelBase
                 ShowAdministration);
 
         ToggleAdminLoginCommand = new RelayCommand(ToggleAdminLogin);
+        ToggleNotificationsCommand = new RelayCommand(ToggleNotifications);
+        RefreshNotificationsCommand = new RelayCommand(RefreshNotifications);
+        MarkAllNotificationsReadCommand = new RelayCommand(MarkAllNotificationsRead);
+        OpenNotificationCommand = new ParameterRelayCommand<NotificationDisplayItem>(OpenNotification);
+        MarkNotificationReadCommand = new ParameterRelayCommand<NotificationDisplayItem>(MarkNotificationRead);
+        DeleteNotificationCommand = new ParameterRelayCommand<NotificationDisplayItem>(DeleteNotification);
+        RefreshNotifications();
     }
 
 
@@ -327,6 +339,151 @@ public class MainWindowViewModel : ViewModelBase
 
     public ICommand ToggleAdminLoginCommand { get; }
 
+    // ==================================================
+    // NOTIFICATIONS — DÉMONSTRATION LOCALE
+    // ==================================================
+
+    public ObservableCollection<NotificationDisplayItem> Notifications { get; } = new();
+    public int NotificationCount => Notifications.Count;
+    public int UnreadNotificationCount => Notifications.Count(item => !item.IsRead);
+    public string UnreadCountText => UnreadNotificationCount > 99 ? "99+" : UnreadNotificationCount.ToString();
+    public Visibility NotificationBadgeVisibility => UnreadNotificationCount > 0 ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility EmptyNotificationsVisibility => NotificationCount == 0 ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility NotificationErrorVisibility => string.IsNullOrWhiteSpace(_notificationError) ? Visibility.Collapsed : Visibility.Visible;
+    public string NotificationError => _notificationError;
+    public string NotificationSummary => NotificationCount == 0
+        ? "Aucune alerte actuellement"
+        : $"{UnreadNotificationCount} non lue(s) sur {NotificationCount}";
+    public bool IsNotificationPanelOpen
+    {
+        get => _isNotificationPanelOpen;
+        set
+        {
+            if (_isNotificationPanelOpen == value) return;
+            _isNotificationPanelOpen = value;
+            OnPropertyChanged();
+        }
+    }
+    public ICommand ToggleNotificationsCommand { get; }
+    public ICommand RefreshNotificationsCommand { get; }
+    public ICommand MarkAllNotificationsReadCommand { get; }
+    public ICommand OpenNotificationCommand { get; }
+    public ICommand MarkNotificationReadCommand { get; }
+    public ICommand DeleteNotificationCommand { get; }
+
+    private void ToggleNotifications()
+    {
+        if (IsNotificationPanelOpen)
+        {
+            IsNotificationPanelOpen = false;
+            return;
+        }
+        RefreshNotifications();
+        IsNotificationPanelOpen = true;
+    }
+
+    public void RefreshNotifications()
+    {
+        try
+        {
+            var fresh = _notificationCenter.GetNotifications(DateTime.Today);
+            Notifications.Clear();
+            foreach (var item in fresh)
+                Notifications.Add(new NotificationDisplayItem(item, _notificationCenter.IsRead(item.Key)));
+            _notificationError = string.Empty;
+        }
+        catch (Exception)
+        {
+            // Ne pas inventer un nombre de notifications si une source est inaccessible.
+            Notifications.Clear();
+            _notificationError = "Impossible de charger les notifications. Réessayez.";
+        }
+        NotifyNotificationState();
+    }
+
+    private void MarkNotificationRead(NotificationDisplayItem item)
+    {
+        _notificationCenter.MarkRead(item.Entry.Key);
+        RefreshNotifications();
+    }
+
+    private void DeleteNotification(NotificationDisplayItem item)
+    {
+        if (item is null) return;
+
+        // Masquer une alerte n’est jamais équivalent à renouveler une licence
+        // ou à remettre un cadeau : aucune donnée métier n’est modifiée.
+        IsNotificationPanelOpen = false;
+        var confirmation = MessageBox.Show(
+            $"Supprimer « {item.Title} » de vos notifications ?\n\n" +
+            "Le dossier concerné restera inchangé. Cette alerte restera masquée " +
+            "jusqu’à la fermeture de l’application.",
+            "Supprimer la notification", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (confirmation == MessageBoxResult.Yes)
+        {
+            _notificationCenter.Dismiss(item.Entry.Key);
+            RefreshNotifications();
+        }
+        IsNotificationPanelOpen = true;
+    }
+
+    private void MarkAllNotificationsRead()
+    {
+        _notificationCenter.MarkAllRead(Notifications.Select(item => item.Entry));
+        RefreshNotifications();
+    }
+
+    private void OpenNotification(NotificationDisplayItem item)
+    {
+        _notificationCenter.MarkRead(item.Entry.Key);
+        IsNotificationPanelOpen = false;
+        switch (item.Entry.Destination)
+        {
+            case NotificationDestination.Dog:
+                var dog = _services.Animals.GetDog(item.Entry.DogId);
+                if (dog is not null)
+                    OpenDog(dog);
+                else
+                    ShowLicenses(); // Dossier modifié ou supprimé depuis la génération.
+                break;
+            case NotificationDestination.Loyalty:
+                OpenLoyaltyNotification(item.Entry.OwnerId);
+                break;
+            case NotificationDestination.Notices:
+                ShowNotices();
+                break;
+        }
+        RefreshNotifications();
+    }
+
+    private void OpenLoyaltyNotification(int ownerId)
+    {
+        var owner = _services.Animals.GetOwner(ownerId);
+        if (owner is null) { ShowOwners(); return; }
+        OpenOwner(ownerId);
+        // Ouvre réellement les cartes correspondantes, pas seulement le répertoire.
+        var dialog = new LoyaltyCardsDialog(ownerId, owner.FullName);
+        if (Application.Current?.MainWindow is Window window) dialog.Owner = window;
+        dialog.ShowDialog();
+        if (CurrentViewModel is OwnersViewModel viewModel)
+        {
+            viewModel.RefreshLoyalty();
+            viewModel.RefreshClientList();
+        }
+    }
+
+    private void NotifyNotificationState()
+    {
+        OnPropertyChanged(nameof(NotificationCount));
+        OnPropertyChanged(nameof(UnreadNotificationCount));
+        OnPropertyChanged(nameof(UnreadCountText));
+        OnPropertyChanged(nameof(NotificationBadgeVisibility));
+        OnPropertyChanged(nameof(EmptyNotificationsVisibility));
+        OnPropertyChanged(nameof(NotificationSummary));
+        OnPropertyChanged(nameof(NotificationError));
+        OnPropertyChanged(nameof(NotificationErrorVisibility));
+    }
+
     public bool IsAdminLoggedIn => _isAdminLoggedIn;
 
     public string AdminButtonText =>
@@ -546,6 +703,7 @@ public class MainWindowViewModel : ViewModelBase
 
         SelectNavigation(
             page);
+        RefreshNotifications();
     }
 
 

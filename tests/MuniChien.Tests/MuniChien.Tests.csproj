@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -25,9 +25,10 @@
     <Compile Include="..\..\src\MuniChien.App\Services\LocalClientValidation.cs" Link="Source\LocalClientValidation.cs" />
     <Compile Include="..\..\src\MuniChien.App\Services\LocalMoneyRules.cs" Link="Source\LocalMoneyRules.cs" />
     <Compile Include="..\..\src\MuniChien.App\Services\LocalLicenseStatusRules.cs" Link="Source\LocalLicenseStatusRules.cs" />
+    <Compile Include="..\..\src\MuniChien.App\Services\LocalLoyaltyService.cs" Link="Source\LocalLoyaltyService.cs" />
+    <Compile Include="..\..\src\MuniChien.App\Services\NotificationRules.cs" Link="Source\NotificationRules.cs" />
     <Compile Include="..\..\src\MuniChien.App\Services\LocalClientSearchRules.cs" Link="Source\LocalClientSearchRules.cs" />
     <Compile Include="..\..\src\MuniChien.App\Services\ReportFilterCriteria.cs" Link="Source\ReportFilterCriteria.cs" />
-    <Compile Include="..\..\src\MuniChien.App\Services\LocalLoyaltyService.cs" Link="Source\LocalLoyaltyService.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,7 +6,8 @@
         Height="720"
         MinWidth="1000"
         MinHeight="600"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Activated="MainWindow_Activated">
 
     <Grid>
 
@@ -192,9 +193,8 @@
                 <Grid.ColumnDefinitions>
 
                     <ColumnDefinition Width="Auto"/>
-
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
-
                     <ColumnDefinition Width="Auto"/>
 
                 </Grid.ColumnDefinitions>
@@ -210,10 +210,170 @@
                            VerticalAlignment="Center"/>
 
 
+                <!-- Cloche accessible partout dans MuniChien -->
+                <Grid Grid.Column="1" VerticalAlignment="Center" Margin="15,0,0,0">
+                    <Button x:Name="NotificationBellButton"
+                            Width="42" Height="42" Padding="0"
+                            Cursor="Hand" ToolTip="Ouvrir les notifications"
+                            Command="{Binding ToggleNotificationsCommand}"
+                            BorderBrush="#E9E2DA" BorderThickness="1"
+                            Background="#FFF9F3">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="BellBorder"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="11">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BellBorder" Property="Background" Value="#FFEEDC"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <Viewbox Width="21" Height="21">
+                            <Path Data="M18,8 A6,6 0 0 0 6,8 C6,15 3,15 3,17 L21,17 C21,15 18,15 18,8 Z M10,21 Q12,23 14,21"
+                                  Stroke="#D16C19" StrokeThickness="1.7" Fill="Transparent"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                        </Viewbox>
+                    </Button>
+                    <Border Background="#CE4635" CornerRadius="10" MinWidth="19"
+                            Height="19" Padding="4,0" HorizontalAlignment="Right"
+                            VerticalAlignment="Top" Margin="0,-6,-7,0"
+                            Visibility="{Binding NotificationBadgeVisibility}">
+                        <TextBlock Text="{Binding UnreadCountText}" Foreground="White"
+                                   FontSize="10" FontWeight="Bold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </Grid>
+
+                <!-- Le panneau est attaché à la cloche, sans modifier les pages. -->
+                <Popup Grid.Column="1" x:Name="NotificationsPopup"
+                       PlacementTarget="{Binding ElementName=NotificationBellButton}"
+                       Placement="Bottom" VerticalOffset="10" HorizontalOffset="-8"
+                       AllowsTransparency="True" StaysOpen="False"
+                       IsOpen="{Binding IsNotificationPanelOpen, Mode=TwoWay}"
+                       PopupAnimation="Fade">
+                    <Border Width="432" Background="White" CornerRadius="15"
+                            BorderBrush="#DFE3E8" BorderThickness="1"
+                            Padding="0">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="22" ShadowDepth="5" Opacity="0.18" Color="#333333"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <Grid Margin="17,15,17,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Notifications" FontSize="18"
+                                               FontWeight="SemiBold" Foreground="#272727"/>
+                                    <TextBlock Text="{Binding NotificationSummary}" FontSize="12"
+                                               Foreground="#68717C" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="Actualiser" Command="{Binding RefreshNotificationsCommand}"
+                                            Background="Transparent" Foreground="#BE631D"
+                                            BorderThickness="0" Cursor="Hand" Padding="7,6"/>
+                                    <Button Content="Tout marquer lu" Command="{Binding MarkAllNotificationsReadCommand}"
+                                            Background="Transparent" Foreground="#66717C"
+                                            BorderThickness="0" Cursor="Hand" Padding="7,6"/>
+                                </StackPanel>
+                            </Grid>
+                            <Border Background="#FFF2E6" Padding="12" Margin="12,0,12,10"
+                                    CornerRadius="7" Visibility="{Binding NotificationErrorVisibility}">
+                                <TextBlock Text="{Binding NotificationError}" TextWrapping="Wrap"
+                                           Foreground="#965525" FontSize="12"/>
+                            </Border>
+                            <TextBlock Text="Aucune notification. Tout est à jour !"
+                                       Margin="18,24,18,30" Foreground="#63717F"
+                                       HorizontalAlignment="Center" FontSize="13"
+                                       Visibility="{Binding EmptyNotificationsVisibility}"/>
+                            <ScrollViewer MaxHeight="430" VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding Notifications}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F0EAE4" BorderThickness="0,0,0,1">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="White"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsRead}" Value="False">
+                                                                <Setter Property="Background" Value="#FFF9F2"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <Grid Margin="12,5,12,5">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Button Grid.Column="0" Padding="7,8" Cursor="Hand"
+                                                            BorderThickness="0" Background="Transparent"
+                                                            Command="{Binding DataContext.OpenNotificationCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding}"
+                                                            HorizontalContentAlignment="Stretch">
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding Category}" FontSize="11"
+                                                                       Foreground="#B46A31" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold"
+                                                                       FontSize="13" Foreground="#2B2B2B" Margin="0,3,0,0"/>
+                                                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap"
+                                                                       FontSize="12" Foreground="#4B5966" Margin="0,4,0,0"/>
+                                                            <TextBlock Text="{Binding Detail}" TextWrapping="Wrap"
+                                                                       FontSize="11" Foreground="#77838D" Margin="0,4,0,0"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center"
+                                                                Margin="4,0,0,0">
+                                                        <Button Content="Marquer lu" Cursor="Hand"
+                                                                BorderThickness="0" Background="Transparent"
+                                                                Foreground="#A76632" FontSize="11" Padding="8,6"
+                                                                Command="{Binding DataContext.MarkNotificationReadCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsRead}" Value="True">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                        <Button Content="Supprimer" Cursor="Hand"
+                                                                ToolTip="Masquer cette notification sans modifier le dossier"
+                                                                BorderThickness="0" Background="Transparent"
+                                                                Foreground="#AA4D40" FontSize="11" Padding="8,6"
+                                                                Command="{Binding DataContext.DeleteNotificationCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                            <Border Background="#FAF7F4" CornerRadius="0,0,14,14" Padding="12">
+                                <TextBlock Text="Alertes récentes d’abord · Suppressions conservées pendant la session"
+                                           FontSize="10" Foreground="#7F8185"
+                                           HorizontalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+
                 <!-- Connexion admin -->
 
-                <Button Grid.Column="2"
-                        Content="Connexion admin"
+                <Button Grid.Column="3"
+                        Content="{Binding AdminButtonText}"
+                        Command="{Binding ToggleAdminLoginCommand}"
                         Style="{StaticResource AdminLoginButtonStyle}"
                         VerticalAlignment="Center"/>
 

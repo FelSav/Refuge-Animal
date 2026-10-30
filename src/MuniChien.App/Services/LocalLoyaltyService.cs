@@ -33,6 +33,21 @@ public static class LocalLoyaltyService
         }
     }
 
+    // Liste ciblée pour le centre de notifications : ne génère pas de cartes
+    // pour les clients qui n'ont jamais ouvert leur page de fidélité.
+    public static IReadOnlyList<LoyaltyReadyReward> GetReadyRewards()
+    {
+        lock (Sync)
+        {
+            return CardsByOwner.Values
+                .SelectMany(cards => cards)
+                .Where(card => card.HasCompletePurchaseDetails)
+                .Select(card => new LoyaltyReadyReward(
+                    card.OwnerId, card.Id, card.ProgramName, card.CompletedCycles + 1))
+                .ToList();
+        }
+    }
+
     public static IReadOnlyList<LoyaltyRewardRecord> GetRewardHistory(int ownerId)
     {
         if (ownerId <= 0) return [];
@@ -349,3 +364,5 @@ public sealed class LoyaltyRewardRecord
     public int RewardedPurchaseIndex { get; init; }
     public LoyaltyPurchaseRecord RewardedPurchase { get; init; } = new();
 }
+
+public sealed record LoyaltyReadyReward(int OwnerId, Guid CardId, string ProgramName, int CycleNumber);
