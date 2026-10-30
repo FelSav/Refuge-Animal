@@ -1,4 +1,4 @@
-﻿<Window x:Class="MuniChien.App.Views.LoyaltyCardsDialog"
+<Window x:Class="MuniChien.App.Views.LoyaltyCardsDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Cartes de fidélité — MuniChien"
@@ -15,41 +15,26 @@
             <Setter Property="Margin" Value="0,0,0,12"/>
         </Style>
 
-        <Style x:Key="LoyaltyStampStyle" TargetType="CheckBox">
-            <Setter Property="Width" Value="45"/>
-            <Setter Property="Height" Value="45"/>
+        <Style x:Key="LoyaltyStampButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="46"/>
             <Setter Property="Margin" Value="0,0,6,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <Border x:Name="StampBorder"
-                                Width="42" Height="42"
-                                CornerRadius="7"
-                                BorderBrush="#CBD5E1"
-                                BorderThickness="1"
-                                Background="#F8FAFC">
-                            <TextBlock x:Name="StampText"
-                                       Text="{Binding Position}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="#667085"
-                                       FontWeight="SemiBold"
-                                       FontSize="13"/>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="StampBorder" Height="42" CornerRadius="7"
+                                BorderBrush="{Binding StampBorder}" BorderThickness="1"
+                                Background="{Binding StampBackground}">
+                            <TextBlock Text="{Binding DisplayText}" HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" Foreground="{Binding StampForeground}"
+                                       FontWeight="SemiBold" FontSize="15"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="StampBorder" Property="Background" Value="#EA7B22"/>
-                                <Setter TargetName="StampBorder" Property="BorderBrush" Value="#EA7B22"/>
-                                <Setter TargetName="StampText" Property="Text" Value="✓"/>
-                                <Setter TargetName="StampText" Property="Foreground" Value="White"/>
-                            </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="StampBorder" Property="BorderBrush" Value="#B55D16"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="StampBorder" Property="Opacity" Value="0.8"/>
+                                <Setter TargetName="StampBorder" Property="BorderThickness" Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -91,11 +76,9 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <CheckBox Style="{StaticResource LoyaltyStampStyle}"
-                                          IsChecked="{Binding IsChecked, Mode=OneWay}"
-                                          IsEnabled="{Binding IsEditable}"
-                                          ToolTip="{Binding DateTooltip}"
-                                          Click="Stamp_Click"/>
+                                <Button Style="{StaticResource LoyaltyStampButtonStyle}"
+                                        ToolTip="{Binding DateTooltip}"
+                                        Click="Stamp_Click"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -164,7 +147,7 @@
                         BorderBrush="#FFE0BE" BorderThickness="1"
                         Padding="15" Margin="0,0,0,19">
                     <TextBlock Foreground="#914412" TextWrapping="Wrap"
-                               Text="Chaque case représente un achat coché manuellement. La date est sauvegardée au moment du clic et visible au survol. Vérifiez séparément les conditions du fabricant et les produits admissibles."/>
+                               Text="Chaque case représente un sac et ses informations détaillées (produit, référence, format, prix, date et facture). Orange : achat complet. Jaune (!) : ancienne coche à compléter. Le cadeau est débloqué seulement après 12 achats détaillés."/>
                 </Border>
 
                 <Border Style="{StaticResource LoyaltyCardBorder}">
@@ -200,7 +183,7 @@
                                     Padding="14,5" MinHeight="45"
                                     VerticalAlignment="Bottom"/>
                         </Grid>
-                        <TextBlock Text="Une seule carte active par compagnie. Après 12 achats et remise du cadeau, la même carte recommence à 0/12; les cadeaux remis restent dans l'historique."
+                        <TextBlock Text="Une seule carte active par compagnie. Le 13e sac gratuit est exactement le produit le moins cher parmi les 12 achats. Après confirmation de sa remise, la même carte recommence à 0/12; le cycle complet est archivé."
                                    Foreground="#667085" FontSize="12"
                                    TextWrapping="Wrap" Margin="0,12,0,0"/>
                     </StackPanel>
