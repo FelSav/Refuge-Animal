@@ -98,6 +98,36 @@ public partial class LoyaltyCardsDialog : Window
         }
     }
 
+    private void Statement_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { DataContext: LoyaltyCardViewItem item }) return;
+        try
+        {
+            var client = new LocalAnimalDirectoryService().GetOwner(_ownerId)
+                ?? throw new InvalidOperationException("Le dossier client n'est plus disponible.");
+            LoyaltyStatementSnapshot statement;
+            if (item.IsArchived)
+            {
+                var archived = LocalLoyaltyService.GetRewardHistory(_ownerId)
+                    .FirstOrDefault(r => r.Id == item.ArchiveId)
+                    ?? throw new InvalidOperationException("Ce cycle archivé est introuvable.");
+                statement = LoyaltyStatementSnapshot.FromArchive(client, archived);
+            }
+            else
+            {
+                var card = LocalLoyaltyService.GetCards(_ownerId)
+                    .FirstOrDefault(c => c.Id == item.Id)
+                    ?? throw new InvalidOperationException("Cette carte est introuvable.");
+                statement = LoyaltyStatementSnapshot.FromActive(client, card);
+            }
+            new LoyaltyStatementDialog(statement) { Owner = this }.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, ex.Message, "Relevé indisponible", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
     private void Reward_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button { Tag: Guid cardId }) ShowReward(cardId);
@@ -128,6 +158,7 @@ public sealed class LoyaltyCardViewItem
     public LoyaltyCardViewItem(LoyaltyCardRecord record)
     {
         Id = record.Id;
+        IsArchived = false;
         ProgramName = record.ProgramName;
         CardLabel = record.CompletedCycles == 0
             ? $"Carte active · créée le {record.CreatedAt:dd/MM/yyyy}"
@@ -148,6 +179,8 @@ public sealed class LoyaltyCardViewItem
     public LoyaltyCardViewItem(LoyaltyRewardRecord reward)
     {
         Id = reward.CardId;
+        ArchiveId = reward.Id;
+        IsArchived = true;
         ProgramName = reward.ProgramName;
         CardLabel = $"Cycle n° {reward.CycleNumber} · commencé le {reward.CycleStartedAt:dd/MM/yyyy}";
         ProgressText = $"{LocalLoyaltyService.PurchaseCount}/{LocalLoyaltyService.PurchaseCount}";
@@ -164,6 +197,8 @@ public sealed class LoyaltyCardViewItem
     }
 
     public Guid Id { get; }
+    public Guid ArchiveId { get; }
+    public bool IsArchived { get; }
     public string ProgramName { get; }
     public string CardLabel { get; }
     public string ProgressText { get; }

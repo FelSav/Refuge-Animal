@@ -91,15 +91,19 @@
                                    VerticalAlignment="Center"
                                    Foreground="#667085" FontSize="12"
                                    TextWrapping="Wrap"/>
-                        <Button Grid.Column="1"
-                                Content="Cadeau remis"
-                                Tag="{Binding Id}"
-                                Click="Reward_Click"
-                                Style="{StaticResource PrimaryActionButtonStyle}"
-                                Padding="18,9" MinHeight="42"
-                                IsEnabled="{Binding CanGiveReward}"
-                                Visibility="{Binding RewardButtonVisibility}"
-                                Margin="14,0,0,0"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="14,0,0,0">
+                            <Button Content="Aperçu / PDF du relevé"
+                                    Click="Statement_Click"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    Padding="16,9" MinHeight="42" Margin="0,0,8,0"/>
+                            <Button Content="Cadeau remis"
+                                    Tag="{Binding Id}"
+                                    Click="Reward_Click"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
+                                    Padding="18,9" MinHeight="42"
+                                    IsEnabled="{Binding CanGiveReward}"
+                                    Visibility="{Binding RewardButtonVisibility}"/>
+                        </StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>
