@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MuniChien.Core\MuniChien.Core.csproj" />
+    <ProjectReference Include="..\..\src\MuniChien.Infrastructure\MuniChien.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Les validateurs n'ont aucune dépendance WPF : on peut les tester sur toute plateforme. -->
