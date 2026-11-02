@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
 using MuniChien.App.Views;
+using MuniChien.Infrastructure.Api;
 
 namespace MuniChien.App.ViewModels;
 
@@ -17,6 +18,18 @@ public class MainWindowViewModel : ViewModelBase
 
     // Une seule source de services par fenêtre ; fournie au futur bootstrap API.
     private readonly IApplicationServices _services;
+    public ApiConnectionSession ApiConnection { get; } = new();
+
+    // Mode API = ne pas afficher les données locales avant le branchement JSON.
+    public Visibility BusinessContentVisibility =>
+        ApiConnection.IsDemoMode || IsAdministrationSelected ? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility ApiBlockedVisibility =>
+        ApiConnection.IsApiMode && !IsAdministrationSelected ? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility DemoUiVisibility => ApiConnection.IsDemoMode ? Visibility.Visible : Visibility.Collapsed;
+
+    public string ApiModeStatusLabel => ApiConnection.ModeDisplay;
     private readonly NotificationCenterService _notificationCenter;
     private bool _isNotificationPanelOpen;
     private string _notificationError = string.Empty;
@@ -61,6 +74,14 @@ public class MainWindowViewModel : ViewModelBase
     {
         _services = services ?? new LocalApplicationServices();
         _notificationCenter = new NotificationCenterService(_services);
+        ApiConnection.PropertyChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(BusinessContentVisibility));
+            OnPropertyChanged(nameof(ApiBlockedVisibility));
+            OnPropertyChanged(nameof(DemoUiVisibility));
+            OnPropertyChanged(nameof(ApiModeStatusLabel));
+            RefreshNotifications();
+        };
 
         _currentViewModel =
             new HomeViewModel(NavigateFromHome, _services.Dashboard);
@@ -384,6 +405,14 @@ public class MainWindowViewModel : ViewModelBase
 
     public void RefreshNotifications()
     {
+        if (!ApiConnection.IsDemoMode)
+        {
+            Notifications.Clear();
+            _notificationError = string.Empty;
+            NotifyNotificationState();
+            IsNotificationPanelOpen = false;
+            return;
+        }
         try
         {
             var fresh = _notificationCenter.GetNotifications(DateTime.Today);
@@ -575,7 +604,7 @@ public class MainWindowViewModel : ViewModelBase
         }
 
         NavigateTo(
-            new AdministrationViewModel(LogoutAdmin),
+            new AdministrationViewModel(LogoutAdmin, ApiConnection),
             "Administration");
     }
 
@@ -740,5 +769,7 @@ public class MainWindowViewModel : ViewModelBase
 
         IsAdministrationSelected =
             page == "Administration";
+        OnPropertyChanged(nameof(BusinessContentVisibility));
+        OnPropertyChanged(nameof(ApiBlockedVisibility));
     }
 }

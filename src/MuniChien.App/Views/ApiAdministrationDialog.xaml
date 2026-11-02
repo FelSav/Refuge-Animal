@@ -1,0 +1,34 @@
+<Window x:Class="MuniChien.App.Views.ApiAdministrationDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Paramètres de l'API — MuniChien" Width="640" SizeToContent="Height"
+        MinWidth="560" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False" Background="#F6F7F9">
+    <StackPanel Margin="25">
+        <TextBlock Text="Paramètres de l'API" FontSize="24" FontWeight="SemiBold" Foreground="#242B38"/>
+        <TextBlock Text="Configuration du serveur du cégep et vérification manuelle."
+                   Foreground="#667085" Margin="0,7,0,20" FontSize="13"/>
+        <Border Background="White" BorderBrush="#E4E7EC" BorderThickness="1" CornerRadius="13" Padding="20">
+            <StackPanel>
+                <TextBlock Text="Adresse HTTP(S) du serveur" FontWeight="SemiBold" FontSize="14" Foreground="#344054"/>
+                <TextBox x:Name="ServerUrlBox" MaxLength="512" Height="42" Margin="0,8,0,9"
+                         Padding="12,8" FontSize="14"/>
+                <TextBlock Text="Exemple : http://192.168.0.98:5000"
+                           Foreground="#667085" FontSize="12"/>
+                <Border x:Name="StatusBox" Background="#F2F4F7" CornerRadius="8" Margin="0,19,0,12" Padding="12">
+                    <TextBlock x:Name="StatusText" Foreground="#475467" FontSize="12" TextWrapping="Wrap"/>
+                </Border>
+                <Button x:Name="TestButton" Content="Tester GET /api/accueil" Click="Test_Click"
+                        Style="{StaticResource SecondaryActionButtonStyle}" HorizontalAlignment="Left" Padding="16,9"/>
+                <TextBlock Text="Le test ne modifie aucune donnée. Une réponse JSON valide est nécessaire."
+                           Foreground="#667085" FontSize="11" Margin="0,9,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,17,0,0">
+            <Button Content="Fermer" Click="Close_Click" Style="{StaticResource SecondaryActionButtonStyle}"
+                    Margin="0,0,10,0" Padding="16,9"/>
+            <Button x:Name="SaveButton" Content="Enregistrer" Click="Save_Click"
+                    Style="{StaticResource PrimaryActionButtonStyle}" Padding="16,9"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

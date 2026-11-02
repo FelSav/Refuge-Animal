@@ -228,6 +228,40 @@
 
 
                 <!-- ==================================================
+                     API / DÉVELOPPEMENT (réglages réservés à Administration)
+                     ================================================== -->
+                <TextBlock Text="API et mode de développement"
+                           Style="{StaticResource AdminSectionTitleStyle}" Margin="0,0,0,13"/>
+                <Border Style="{StaticResource AdminCardStyle}" Margin="0,0,0,24">
+                    <StackPanel>
+                        <TextBlock Text="{Binding ApiConnection.ModeDisplay}" FontSize="17"
+                                   FontWeight="SemiBold" Foreground="#B75D14"/>
+                        <TextBlock Text="{Binding ApiConnection.ServerUrl}"
+                                   Foreground="#344054" FontSize="13" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding ApiConnection.StatusMessage}" TextWrapping="Wrap"
+                                   Foreground="#667085" FontSize="12" Margin="0,6,0,16"/>
+                        <TextBlock Text="Au lancement, MuniChien tente l'API automatiquement. Les données de démonstration ne sont jamais utilisées automatiquement si le serveur est inaccessible."
+                                   Foreground="#667085" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                        <WrapPanel>
+                            <Button Content="Paramètres du serveur"
+                                    Command="{Binding OpenApiSettingsCommand}"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    Padding="16,9" Margin="0,0,10,8"/>
+                            <Button Content="Activer Démo (session)"
+                                    Command="{Binding ActivateDemoCommand}"
+                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    Padding="16,9" Margin="0,0,10,8"/>
+                            <Button Content="Retour au mode API"
+                                    Command="{Binding ReturnToApiCommand}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
+                                    Padding="16,9" Margin="0,0,10,8"/>
+                        </WrapPanel>
+                        <TextBlock Text="Attention : l'identification administrateur est encore une simulation locale. Les droits réels et les données API seront sécurisés dans une étape suivante."
+                                   Foreground="#A04B1A" TextWrapping="Wrap" FontSize="11"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ==================================================
                      ÉTAT DU SYSTÈME
                      ================================================== -->
 

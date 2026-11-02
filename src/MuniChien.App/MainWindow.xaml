@@ -1,4 +1,4 @@
-﻿<Window x:Class="MuniChien.App.MainWindow"
+<Window x:Class="MuniChien.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MuniChien"
@@ -211,7 +211,7 @@
 
 
                 <!-- Cloche accessible partout dans MuniChien -->
-                <Grid Grid.Column="1" VerticalAlignment="Center" Margin="15,0,0,0">
+                <Grid Grid.Column="1" VerticalAlignment="Center" Margin="15,0,0,0" Visibility="{Binding DemoUiVisibility}">
                     <Button x:Name="NotificationBellButton"
                             Width="42" Height="42" Padding="0"
                             Cursor="Hand" ToolTip="Ouvrir les notifications"
@@ -369,6 +369,10 @@
                     </Border>
                 </Popup>
 
+                <TextBlock Grid.Column="2" Text="{Binding ApiModeStatusLabel}"
+                           Foreground="#667085" FontSize="12" VerticalAlignment="Center"
+                           HorizontalAlignment="Right" Margin="0,0,18,0"/>
+
                 <!-- Connexion admin -->
 
                 <Button Grid.Column="3"
@@ -386,9 +390,25 @@
              CONTENU DE LA PAGE
              ================================================== -->
 
-        <ContentControl Grid.Column="1"
-                        Grid.Row="1"
-                        Content="{Binding CurrentViewModel}"/>
+        <Grid Grid.Column="1" Grid.Row="1">
+            <ContentControl Content="{Binding CurrentViewModel}"
+                            Visibility="{Binding BusinessContentVisibility}"/>
+            <!-- En mode API, masquer TOUTES les données fictives tant que les DTO ne sont pas branchés. -->
+            <Border Visibility="{Binding ApiBlockedVisibility}" Background="#F6F7F9">
+                <StackPanel MaxWidth="650" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="30">
+                    <TextBlock Text="MuniChien — connexion API" FontSize="27"
+                               FontWeight="SemiBold" Foreground="#242B38"/>
+                    <TextBlock Text="{Binding ApiConnection.StatusMessage}" TextWrapping="Wrap"
+                               Foreground="#475467" FontSize="15" Margin="0,16,0,10"/>
+                    <TextBlock Text="Les pages métier sont temporairement masquées en mode API : les modèles JSON de Maël ne sont pas encore intégrés. Aucune donnée de démonstration n'est affichée comme une vraie donnée."
+                               TextWrapping="Wrap" Foreground="#667085" FontSize="13" Margin="0,0,0,25"/>
+                    <Button Content="Administration : connexion et mode Démo"
+                            Command="{Binding ShowAdministrationCommand}"
+                            Style="{StaticResource PrimaryActionButtonStyle}"
+                            HorizontalAlignment="Left" Padding="18,12"/>
+                </StackPanel>
+            </Border>
+        </Grid>
 
     </Grid>
 

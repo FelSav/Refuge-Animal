@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using System.IO;
+using MuniChien.Infrastructure.Api;
 
 namespace MuniChien.App.ViewModels;
 
@@ -14,6 +15,10 @@ public class AdministrationViewModel : ViewModelBase
     // ==================================================
 
     private readonly Action? _logoutAdmin;
+    public ApiConnectionSession ApiConnection { get; }
+    public ICommand OpenApiSettingsCommand { get; }
+    public ICommand ActivateDemoCommand { get; }
+    public ICommand ReturnToApiCommand { get; }
 
     private DateTime _lastBackupAt;
 
@@ -28,9 +33,13 @@ public class AdministrationViewModel : ViewModelBase
     // CONSTRUCTEUR
     // ==================================================
 
-    public AdministrationViewModel(Action? logoutAdmin = null)
+    public AdministrationViewModel(Action? logoutAdmin = null, ApiConnectionSession? apiConnection = null)
     {
         _logoutAdmin = logoutAdmin;
+        ApiConnection = apiConnection ?? new ApiConnectionSession();
+        OpenApiSettingsCommand = new RelayCommand(OpenApiSettings);
+        ActivateDemoCommand = new RelayCommand(ActivateDemo);
+        ReturnToApiCommand = new RelayCommand(ReturnToApi);
         BackupRetentionDays =
             14;
 
@@ -289,6 +298,31 @@ public class AdministrationViewModel : ViewModelBase
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
+    }
+
+    private void OpenApiSettings()
+    {
+        var dialog = new ApiAdministrationDialog(ApiConnection);
+        if (Application.Current?.MainWindow is Window mainWindow)
+            dialog.Owner = mainWindow;
+        if (dialog.ShowDialog() == true)
+            _ = ApiConnection.ProbeAsync(); // vérification asynchrone ; la session gère les erreurs
+    }
+
+    private void ActivateDemo()
+    {
+        if (MessageBox.Show(
+                "Activer les données fictives pour cette session uniquement ?\n\n" +
+                "Cette option sert au développement, pas aux dossiers municipaux.",
+                "Mode Démonstration", MessageBoxButton.YesNo,
+                MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            ApiConnection.ActivateDemo();
+    }
+
+    private void ReturnToApi()
+    {
+        ApiConnection.ReturnToApi();
+        _ = ApiConnection.ProbeAsync();
     }
 
     // ==================================================
