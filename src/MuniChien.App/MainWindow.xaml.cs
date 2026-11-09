@@ -24,7 +24,11 @@ public partial class MainWindow : Window
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         _apiRetryTimer.Start();
+        // L'aperçu et la vérification démarrent ensemble pour éviter deux attentes
+        // réseau successives lorsque le serveur du cégep est inaccessible.
+        var pageLoad = _viewModel.RefreshApiReadOnlyPageAsync();
         await ProbeIfApiAsync();
+        await pageLoad;
     }
 
     private async Task ProbeIfApiAsync()
@@ -45,5 +49,6 @@ public partial class MainWindow : Window
     {
         _apiRetryTimer.Stop();
         _stop.Cancel();
+        _viewModel.StopApiReadOnlyPage();
     }
 }

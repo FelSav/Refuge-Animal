@@ -393,14 +393,17 @@
         <Grid Grid.Column="1" Grid.Row="1">
             <ContentControl Content="{Binding CurrentViewModel}"
                             Visibility="{Binding BusinessContentVisibility}"/>
-            <!-- En mode API, masquer TOUTES les données fictives tant que les DTO ne sont pas branchés. -->
+            <!-- Vraies réponses API, en lecture seule : Accueil et Chiens seulement. -->
+            <ContentControl Content="{Binding ApiReadOnlyPage}"
+                            Visibility="{Binding ApiReadOnlyVisibility}"/>
+            <!-- Les pages non encore intégrées restent indisponibles en mode API. -->
             <Border Visibility="{Binding ApiBlockedVisibility}" Background="#F6F7F9">
                 <StackPanel MaxWidth="650" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="30">
                     <TextBlock Text="MuniChien — connexion API" FontSize="27"
                                FontWeight="SemiBold" Foreground="#242B38"/>
                     <TextBlock Text="{Binding ApiConnection.StatusMessage}" TextWrapping="Wrap"
                                Foreground="#475467" FontSize="15" Margin="0,16,0,10"/>
-                    <TextBlock Text="Les pages métier sont temporairement masquées en mode API : les modèles JSON de Maël ne sont pas encore intégrés. Aucune donnée de démonstration n'est affichée comme une vraie donnée."
+                    <TextBlock Text="Cette page attend toujours son intégration API. Les pages Accueil et Chiens affichent déjà les réponses du serveur en lecture seule. Aucune donnée de démonstration n'est présentée comme officielle."
                                TextWrapping="Wrap" Foreground="#667085" FontSize="13" Margin="0,0,0,25"/>
                     <Button Content="Administration : connexion et mode Démo"
                             Command="{Binding ShowAdministrationCommand}"

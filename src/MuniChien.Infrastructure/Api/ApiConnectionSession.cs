@@ -8,7 +8,7 @@ public enum ApiProbeState { NotTested, Checking, Online, Offline }
 /// <summary>
 /// État de connexion partagé par l'application. Le mode API est TOUJOURS celui du démarrage.
 /// Le mode démo est une exception temporaire, jamais sauvegardée sur disque.
-/// Cette étape ne mappe pas encore les données JSON aux ViewModels.
+/// Les réponses sont présentées en lecture seule ; les DTO métier restent à définir.
 /// </summary>
 public sealed class ApiConnectionSession : INotifyPropertyChanged
 {
@@ -85,7 +85,7 @@ public sealed class ApiConnectionSession : INotifyPropertyChanged
             await _probe(address, cancellationToken);
             if (cancellationToken.IsCancellationRequested || address != _serverUrl) return;
             SetProbeState(ApiProbeState.Online,
-                "API joignable : /api/accueil retourne un JSON valide. Les pages métier restent à intégrer.");
+                "API joignable : /api/accueil retourne un JSON valide.");
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

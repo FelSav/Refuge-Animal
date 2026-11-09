@@ -20,12 +20,19 @@ public class MainWindowViewModel : ViewModelBase
     private readonly IApplicationServices _services;
     public ApiConnectionSession ApiConnection { get; } = new();
 
-    // Mode API = ne pas afficher les données locales avant le branchement JSON.
+    // En mode API, seules les pages Accueil et Chiens affichent les réponses JSON réelles.
     public Visibility BusinessContentVisibility =>
         ApiConnection.IsDemoMode || IsAdministrationSelected ? Visibility.Visible : Visibility.Collapsed;
 
+    public ApiReadOnlyPageViewModel? ApiReadOnlyPage { get; private set; }
+
+    public Visibility ApiReadOnlyVisibility =>
+        ApiConnection.IsApiMode && !IsAdministrationSelected &&
+        (IsHomeSelected || IsDogsSelected) ? Visibility.Visible : Visibility.Collapsed;
+
     public Visibility ApiBlockedVisibility =>
-        ApiConnection.IsApiMode && !IsAdministrationSelected ? Visibility.Visible : Visibility.Collapsed;
+        ApiConnection.IsApiMode && !IsAdministrationSelected &&
+        !IsHomeSelected && !IsDogsSelected ? Visibility.Visible : Visibility.Collapsed;
 
     public Visibility DemoUiVisibility => ApiConnection.IsDemoMode ? Visibility.Visible : Visibility.Collapsed;
 
@@ -74,17 +81,29 @@ public class MainWindowViewModel : ViewModelBase
     {
         _services = services ?? new LocalApplicationServices();
         _notificationCenter = new NotificationCenterService(_services);
-        ApiConnection.PropertyChanged += (_, _) =>
+        ApiConnection.PropertyChanged += (_, e) =>
         {
+            if (e.PropertyName is nameof(ApiConnectionSession.IsApiMode) or nameof(ApiConnectionSession.ServerUrl))
+                ConfigureApiReadOnlyPage(startLoad: true);
+            else if (e.PropertyName == nameof(ApiConnectionSession.ProbeState))
+            {
+                if (ApiConnection.ProbeState == ApiProbeState.Offline)
+                    ApiReadOnlyPage?.MarkConnectionLost();
+                else if (ApiConnection.ProbeState == ApiProbeState.Online &&
+                         ApiReadOnlyPage?.LoadState.HasError == true)
+                    _ = ApiReadOnlyPage.LoadAsync();
+            }
             OnPropertyChanged(nameof(BusinessContentVisibility));
             OnPropertyChanged(nameof(ApiBlockedVisibility));
+            OnPropertyChanged(nameof(ApiReadOnlyVisibility));
             OnPropertyChanged(nameof(DemoUiVisibility));
             OnPropertyChanged(nameof(ApiModeStatusLabel));
             RefreshNotifications();
         };
 
-        _currentViewModel =
-            new HomeViewModel(NavigateFromHome, _services.Dashboard);
+        _currentViewModel = ApiConnection.IsApiMode
+            ? new ApiHiddenViewModel()
+            : new HomeViewModel(NavigateFromHome, _services.Dashboard);
 
 
         ShowHomeCommand =
@@ -130,6 +149,7 @@ public class MainWindowViewModel : ViewModelBase
         MarkNotificationReadCommand = new ParameterRelayCommand<NotificationDisplayItem>(MarkNotificationRead);
         DeleteNotificationCommand = new ParameterRelayCommand<NotificationDisplayItem>(DeleteNotification);
         RefreshNotifications();
+        ConfigureApiReadOnlyPage(startLoad: false);
     }
 
 
@@ -525,8 +545,9 @@ public class MainWindowViewModel : ViewModelBase
 
     private void ShowHome()
     {
-        NavigateTo(
-            new HomeViewModel(NavigateFromHome, _services.Dashboard),
+        NavigateTo(ApiConnection.IsApiMode
+                ? new ApiHiddenViewModel()
+                : new HomeViewModel(NavigateFromHome, _services.Dashboard),
             "Accueil");
     }
 
@@ -551,6 +572,11 @@ public class MainWindowViewModel : ViewModelBase
 
     private void ShowDogs()
     {
+        if (ApiConnection.IsApiMode)
+        {
+            NavigateTo(new ApiHiddenViewModel(), "Chiens");
+            return;
+        }
         NavigateTo(
             new DogsViewModel(
                 null,
@@ -769,7 +795,34 @@ public class MainWindowViewModel : ViewModelBase
 
         IsAdministrationSelected =
             page == "Administration";
+        ConfigureApiReadOnlyPage(startLoad: true);
         OnPropertyChanged(nameof(BusinessContentVisibility));
         OnPropertyChanged(nameof(ApiBlockedVisibility));
+        OnPropertyChanged(nameof(ApiReadOnlyVisibility));
     }
+
+    // Annule l'ancien chargement lorsque l'utilisateur navigue ou change de mode.
+    private void ConfigureApiReadOnlyPage(bool startLoad)
+    {
+        ApiReadOnlyPage?.Dispose();
+        ApiReadOnlyPage = null;
+        if (ApiConnection.IsApiMode && !IsAdministrationSelected &&
+            (IsHomeSelected || IsDogsSelected))
+        {
+            ApiReadOnlyPage = new ApiReadOnlyPageViewModel(ApiConnection, IsDogsSelected);
+            if (startLoad) _ = ApiReadOnlyPage.LoadAsync();
+        }
+        OnPropertyChanged(nameof(ApiReadOnlyPage));
+        OnPropertyChanged(nameof(ApiReadOnlyVisibility));
+        OnPropertyChanged(nameof(ApiBlockedVisibility));
+    }
+
+    public Task RefreshApiReadOnlyPageAsync() =>
+        ApiReadOnlyPage?.LoadAsync() ?? Task.CompletedTask;
+
+    public void StopApiReadOnlyPage() => ApiReadOnlyPage?.Dispose();
+
+    // Place de navigation technique : aucune source locale n'est interrogée en mode API
+    // lors de l'ouverture de l'Accueil ou de la liste des Chiens.
+    private sealed class ApiHiddenViewModel : ViewModelBase { }
 }

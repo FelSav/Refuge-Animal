@@ -14,6 +14,10 @@ xmlns:viewModels="clr-namespace:MuniChien.App.ViewModels"
                 <ResourceDictionary Source="Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <DataTemplate DataType="{x:Type viewModels:ApiReadOnlyPageViewModel}">
+                <views:ApiReadOnlyPageView/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type viewModels:HomeViewModel}">
                 <views:HomeView/>
             </DataTemplate>
