@@ -13,10 +13,11 @@ namespace ApiMuniChien_V1_Proprietaire.models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<LicenceChien>().ToTable("licence_chien", "public");
+            modelBuilder.Entity<LicenceChien>().ToTable("licence_chien");
             modelBuilder.Entity<LicenceChien>().HasKey(lc => new { lc.licence_id, lc.chien_id });
             modelBuilder.Entity<LicenceChien>().Property(lc => lc.licence_id);
             modelBuilder.Entity<LicenceChien>().Property(lc => lc.chien_id);
+            
            
         }
 

@@ -6,6 +6,9 @@ namespace ApiMuniChien_V1_Proprietaire.models
     {
         public int licence_id { get; set; }
         public int chien_id { get; set; }
+
+        public Chien Chien { get; set; } = null!;
+        public Licence Licence { get; set; } = null!;
         
     }
 

@@ -8,6 +8,9 @@ namespace ApiMuniChien_V1_Proprietaire.models
         public int municipalite_id { get; set; }
         public string nom { get; set; }
 
+        // Propriété de navigation
+        public Municipalite Municipalite { get; set; } = null!;
+
     }
 
 }

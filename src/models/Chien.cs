@@ -20,6 +20,13 @@ namespace ApiMuniChien_V1_Proprietaire.models
         public DateTime? date_inactivite { get; set; }
         public DateTime created_at { get; set; }
         public DateTime updated_at { get; set; }
+
+        public ICollection<LicenceChien> LicenceChiens { get; set; }
+            = new List<LicenceChien>();
+
+        public Proprietaires Proprietaire { get; set; } = null!;
+        public Race Race { get; set; } = null!;
+        public Couleur Couleur { get; set; } = null!;
     }
 
 }

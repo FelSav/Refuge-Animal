@@ -3,30 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ApiMuniChien_V1_Proprietaire.models;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 [ApiController]
 [Route("api/chiens")]
 public class PageChienController : ControllerBase
 {
-    private readonly ChienContext _c_context;
-    private readonly LicenceChienContext _lcc_context;
-    private readonly LicenceContext _l_context;
-    private readonly ProprietairesContext _p_context;
-    private readonly RueContext _r_context;
-    private readonly MunicipaliteContext _m_context;
-    private readonly CouleurContext _co_context;
-    private readonly RaceContext _ra_context;
+    private readonly Context _context;
 
-    public PageChienController(ChienContext c_context, LicenceChienContext lcc_context, LicenceContext l_context, ProprietairesContext p_context, RueContext r_context, MunicipaliteContext m_context, CouleurContext co_context, RaceContext ra_context)
+    public PageChienController(Context context)
     {
-        _c_context = c_context;
-        _lcc_context = lcc_context;
-        _l_context = l_context;
-        _p_context = p_context;
-        _r_context = r_context;
-        _m_context = m_context;
-        _co_context = co_context;
-        _ra_context = ra_context;
+        _context = context;
     }
 
     // GET: api/chiens
@@ -36,7 +24,7 @@ public class PageChienController : ControllerBase
         Console.WriteLine(">>> Requête GET /api/chiens reçue");
         // 1. recupere toute les information sur les chiens et envoyé la liste des chiens au front-end
         var Resumechiens = new List<ResumeChiens>();
-        var chiens = await _c_context.Chiens.ToListAsync();
+        var chiens = await _context.Chiens.ToListAsync();
         Console.WriteLine($">>> Chiens récupérés : {chiens.Count}");
 
         // Refaire une nouvelle liste de chiens mais avec des données en plus comme l'age calculer sur la date de naissance, la licence du chien en cours et les precedentes licences que le chien a pu avoir 
@@ -61,14 +49,14 @@ public class PageChienController : ControllerBase
                 updated_at = chien.updated_at
             };
             // Ajouter La couleur du chien
-            var couleur = await _co_context.Couleur
+            var couleur = await _context.Couleur
                 .Where(co => co.couleur_id == chien.couleur_id)
                 .Select(co=>co.nom)
                 .ToListAsync();
             chienEnCours.couleur = couleur.FirstOrDefault();
 
             // ajouter la race du chien
-            var race = await _ra_context.Races
+            var race = await _context.Races
                 .Where(ra => ra.race_id == chien.race_id)
                 .Select(ra=>ra.nom)
                 .ToListAsync();
@@ -83,7 +71,7 @@ public class PageChienController : ControllerBase
 
 
             // recuperer les licences lieé au chien
-            var listLicenceId = await _lcc_context.LicenceChiens
+            var listLicenceId = await _context.LicenceChiens
                 .Where(lc => lc.chien_id == chien.chien_id)
                 .Select(lc => lc.licence_id)
                 .ToListAsync();
@@ -95,7 +83,7 @@ public class PageChienController : ControllerBase
 
             foreach (var licenceId in listLicenceId)
             {
-                var licence = await _l_context.Licences.FirstOrDefaultAsync(l => l.licence_id == licenceId && l.date_expiration >= DateOnly.FromDateTime(DateTime.Now));
+                var licence = await _context.Licences.FirstOrDefaultAsync(l => l.licence_id == licenceId && l.date_expiration >= DateOnly.FromDateTime(DateTime.Now));
                 if (licence != null)
                 {
                     chienEnCours.licenceEnCours = licence;
@@ -108,7 +96,7 @@ public class PageChienController : ControllerBase
             chienEnCours.licencesPrecedentes = new List<Licence>();
             foreach (var licenceId in listLicenceId)
             {
-                var licence = await _l_context.Licences.FirstOrDefaultAsync(l => l.licence_id == licenceId);
+                var licence = await _context.Licences.FirstOrDefaultAsync(l => l.licence_id == licenceId);
                 if (licence != null)
                 {
                     chienEnCours.licencesPrecedentes.Add(licence);
@@ -118,7 +106,7 @@ public class PageChienController : ControllerBase
             // Recuperer les infos sur le proprietaire du chien pour les ajouter a la licence en cours et aux licences precedentes
             if (chienEnCours.licenceEnCours != null)
             {
-                var proprietaire = await _p_context.Proprietaires.FirstOrDefaultAsync(p => p.proprietaire_id == chienEnCours.licenceEnCours.proprietaire_id);
+                var proprietaire = await _context.Proprietaires.FirstOrDefaultAsync(p => p.proprietaire_id == chienEnCours.licenceEnCours.proprietaire_id);
                 if (proprietaire != null)
                 {
                     chienEnCours.licenceEnCours.nom_proprietaire = proprietaire.nom;
@@ -131,9 +119,9 @@ public class PageChienController : ControllerBase
                     chienEnCours.licenceEnCours.courriel = proprietaire.courriel;
 
                     // Aller chercher dans la table rue : l'id de la municipalite et le nom de la rue
-                    chienEnCours.licenceEnCours.rue = await _r_context.Rues.Where(r => r.rue_id == proprietaire.rue_id).Select(r => r.nom).FirstOrDefaultAsync();
-                    var municipaliteId = await _r_context.Rues.Where(r => r.rue_id == proprietaire.rue_id).Select(r => r.municipalite_id).FirstOrDefaultAsync();
-                    chienEnCours.licenceEnCours.nom_municipalite = await _m_context.Municipalites.Where(m => m.municipalite_id == municipaliteId).Select(m => m.nom).FirstOrDefaultAsync();
+                    chienEnCours.licenceEnCours.rue = await _context.Rues.Where(r => r.rue_id == proprietaire.rue_id).Select(r => r.nom).FirstOrDefaultAsync();
+                    var municipaliteId = await _context.Rues.Where(r => r.rue_id == proprietaire.rue_id).Select(r => r.municipalite_id).FirstOrDefaultAsync();
+                    chienEnCours.licenceEnCours.nom_municipalite = await _context.Municipalites.Where(m => m.municipalite_id == municipaliteId).Select(m => m.nom).FirstOrDefaultAsync();
 
                     // Ensuite les licences de la liste des precedentes 
                     chienEnCours.licencesPrecedentes.ForEach(async (licence) =>
@@ -142,7 +130,7 @@ public class PageChienController : ControllerBase
                         var licenceAjouterPrecendente = new Licence();
                         if (licence.proprietaire_id != null && licence.proprietaire_id >= 0)
                         {
-                            var proprietairePrecedent = await _p_context.Proprietaires.FirstOrDefaultAsync(p => p.proprietaire_id == licence.proprietaire_id);
+                            var proprietairePrecedent = await _context.Proprietaires.FirstOrDefaultAsync(p => p.proprietaire_id == licence.proprietaire_id);
                             licenceAjouterPrecendente.nom_proprietaire = proprietairePrecedent.nom;
                             licenceAjouterPrecendente.prenom_proprietaire = proprietairePrecedent.prenom;
                             licenceAjouterPrecendente.numero_civique = proprietairePrecedent.numero_civique;
@@ -153,9 +141,9 @@ public class PageChienController : ControllerBase
                             licenceAjouterPrecendente.courriel = proprietairePrecedent.courriel;
 
                             // Aller chercher dans la table rue : l'id de la municipalite et le nom de la rue
-                            licenceAjouterPrecendente.rue = await _r_context.Rues.Where(r => r.rue_id == proprietaire.rue_id).Select(r => r.nom).FirstOrDefaultAsync();
-                            var municipaliteId = await _r_context.Rues.Where(r => r.rue_id == proprietaire.rue_id).Select(r => r.municipalite_id).FirstOrDefaultAsync();
-                            licenceAjouterPrecendente.nom_municipalite = await _m_context.Municipalites.Where(m => m.municipalite_id == municipaliteId).Select(m => m.nom).FirstOrDefaultAsync();
+                            licenceAjouterPrecendente.rue = await _context.Rues.Where(r => r.rue_id == proprietaire.rue_id).Select(r => r.nom).FirstOrDefaultAsync();
+                            var municipaliteId = await _context.Rues.Where(r => r.rue_id == proprietaire.rue_id).Select(r => r.municipalite_id).FirstOrDefaultAsync();
+                            licenceAjouterPrecendente.nom_municipalite = await _context.Municipalites.Where(m => m.municipalite_id == municipaliteId).Select(m => m.nom).FirstOrDefaultAsync();
 
                             chienEnCours.licencesPrecedentes.Add(licenceAjouterPrecendente);
                         }
@@ -174,17 +162,16 @@ public class PageChienController : ControllerBase
     }
 
     // POST: api/chiens/[{categorie:"",valeur=""}]
-    // Post: api/chiens/nom,race,couleur,municipalité,sexe,date_naissance,poids_kg,sterilise,actif,date_inactivite,created_at,updated_at 
+    // Post: api/chiens/nom nom_proprietaire race couleur municipalité sexe date_naissance poids_kg sterilise actif date_inactivite created_at updated_at                                                            
     [HttpPost]
     public async Task<ActionResult<ResumeChiens>> RecevoirDonnees() 
     {
         // Creer un résumé pour y strocker les données recuperer et traiter
-        var ResumeChien = new ResumeChiens();
+        var resumeChien = new ResumeChiens();
         // Ensuite avec les données récupere faire une recherche
-        string categorie = Request.Form["categorie"].ToString();
-        string? valeur = Request.Form["valeur"].ToString();
         
         string? nom = Request.Form["nom"].ToString();
+        string? nom_proprietaire = Request.Form["nom_proprietaire"].ToString();
         string? race = Request.Form["race"].ToString();
         string? couleur = Request.Form["couleur"].ToString();
         string? municipalite = Request.Form["municipalite"].ToString();
@@ -202,11 +189,106 @@ public class PageChienController : ControllerBase
         
         if(nom == null && race == null && couleur == null && municipalite == null &&  sexe == null && date_naissance == null && poids_kg == null && sterilise == null && actif == null && date_inactivite == null && created_at == null && updated_at == null)
         {
-            
+            return Ok("Erreur Chien : Aucun catégorie sélectionée.");
+        }
+        else{
+            Console.WriteLine(">>>>>>>>>>>>>>>>>> UN TRUC RECU");
+        }
+
+        // Constuire une requete  
+        //var  requete = _c_context;
+        
+       /* if (date_naissance != null)
+        {
+            DateTime dDateNaissance = DateTime.Parse(date_naissance);
+            var requetetest = await _c_context.Chiens.Select(c=>c.date_naissance == dDateNaissance).ToListAsync();
+            //requete = await _c_context.Chiens.Select(c=>c.date_naissance).ToListAsync();
+
+            // Je dois creer une boucle dans laquel je vais regarder chaque date de naissance dans laquel je vais devoir
+            // Pas besoin. C'etait une erreur de type avec la variable requete
+        }
+
+        /*var listLicenceId = await _lcc_context.LicenceChiens
+                .Where(lc => lc.chien_id == chien.chien_id)
+                .Select(lc => lc.licence_id)
+                .ToListAsync();*/
+
+        //version test constructeur de requete avec l'orm (pt)
+        IQueryable<Chien> requete = _context.Chiens.AsNoTracking();
+        if(!string.IsNullOrWhiteSpace(nom))
+            //requete = requete.Where(c=>c.nom.Contains(nom));
+            requete = requete.Where(c => EF.Functions.ILike(c.nom, $"%{nom}%"));
+        /*if(!string.IsNullOrWhiteSpace(nom_proprietaire))
+        requete = requete.Where(c=>
+        c.chien.Any())*/
+        if(int.TryParse(race, out var raceId))
+            requete = requete.Where(c => c.race_id == raceId);
+        if(int.TryParse(couleur, out var couleurId))
+            requete = requete.Where(c=>c.couleur_id == couleurId);
+        // La requete dois sauter de la table chien a licencechien puis licence puis regarder la colone municipalite id
+        if(int.TryParse(municipalite, out var municipaliteId)){
+            requete = requete.Where(c =>
+            c.LicenceChiens.Any(lc =>
+            lc.Licence.municipalite_id == municipaliteId));
+        }
+        if(DateTime.TryParse(date_naissance, out var naissance)){
+            var debut = naissance.Date;
+            var fin = debut.AddDays(1);
+
+            requete = requete.Where(c =>
+                c.date_naissance >= debut &&
+                c.date_naissance < fin);
+        }
+
+        if(double.TryParse(poids_kg,out var poids)){
+            requete = requete.Where(c => c.poids_kg == poids);
+        }
+        if(!string.IsNullOrWhiteSpace(sexe))
+            requete = requete.Where(c=>c.sexe == sexe);
+        if(bool.TryParse(actif, out var estactif))
+            requete = requete.Where(c=>c.actif == estactif);
+        if(bool.TryParse(sterilise, out var estSterilise))
+            requete = requete.Where(c=>c.sterilise == estSterilise);
+        if(DateTime.TryParse(date_inactivite, out var inactivite)){
+            var debut = inactivite.Date;
+            var fin = debut.AddDays(1);
+
+            requete = requete.Where(c =>
+                c.date_inactivite.HasValue &&
+                c.date_inactivite.Value >= debut &&
+                c.date_inactivite.Value < fin);
+        }
+        if(DateTime.TryParse(created_at, out var date_creation)){
+            var debut = date_creation.Date;
+            var fin = debut.AddDays(1);
+
+            requete = requete.Where(c=>
+                c.created_at >= debut && 
+                c.created_at < fin);
         }
         
-        return Ok(ResumeChien);
+        var resultats = await requete.ToListAsync();
+        //resumeChien = resultats;
+        // resutalt == list de chien
+        Console.WriteLine("La requete envoyé a la bd : "+ requete.ToQueryString());
+        //Console.WriteLine("Le resultat recu de la bd : "+ );
+        if(resultats == null)
+        {
+            Console.WriteLine(">>>>>< Resultat est null");
+        }else{
+            Console.WriteLine("<<<<   Resultat n'est pas null   >>>>");
+            foreach(var valeur in resultats)
+            {
+                Console.WriteLine(valeur);
+            }
+        }
+        return Ok(resultats);
     }
+
+   
+
 }
 
 // Task<ActionResult<ResumeChiens>> POSTChien() IActionResult
+
+//nom race couleur municipalité sexe date_naissance poids_kg sterilise actif date_inactivite created_at updated_at

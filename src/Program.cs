@@ -5,20 +5,18 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Add services to the container.
+// Services
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<ProprietairesContext>(opt =>opt.UseNpgsql(connectionString));
-builder.Services.AddDbContext<TrainContext>(opt =>opt.UseNpgsql(connectionString));
-builder.Services.AddDbContext<LicenceChienContext>(opt =>opt.UseNpgsql(connectionString));
-builder.Services.AddDbContext<ChienContext>(opt =>opt.UseNpgsql(connectionString));
-builder.Services.AddDbContext<PaiementContext>(opt =>opt.UseNpgsql(connectionString));
-builder.Services.AddDbContext<AvisContext>(opt =>opt.UseNpgsql(connectionString));
-builder.Services.AddDbContext<LicenceContext>(opt =>opt.UseNpgsql(connectionString));
-builder.Services.AddDbContext<MunicipaliteContext>(opt =>opt.UseNpgsql(connectionString));
-builder.Services.AddDbContext<RueContext>(opt =>opt.UseNpgsql(connectionString));
-builder.Services.AddDbContext<CouleurContext>(opt =>opt.UseNpgsql(connectionString));
-builder.Services.AddDbContext<RaceContext>(opt =>opt.UseNpgsql(connectionString));
+builder.Services.AddSwaggerGen();
+builder.Services.AddAuthorization();
+
+// BD
+builder.Services.AddDbContext<Context>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    )
+);
 
 
 var app = builder.Build();
@@ -26,15 +24,16 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    
+    app.UseSwagger(); // Serves the Swagger JSON
+    app.UseSwaggerUI(); // Serves Swagger UI
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.Urls.Add("http://0.0.0.0:5000");
+//app.Urls.Add("http://0.0.0.0:5000");
 
 app.Run();
